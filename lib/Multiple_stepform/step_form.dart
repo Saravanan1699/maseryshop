@@ -160,7 +160,7 @@ class _MultistepFormState extends State<MultistepForm> {
             child: Column(
               children: [
                 Image.asset(
-                  'assets/tick.png', // Adjust image asset path as per your project structure
+                  'assets/tick.png',
                 ),
                 SizedBox(height: 20),
               ],
@@ -746,7 +746,7 @@ class _MultistepFormState extends State<MultistepForm> {
                         color: Colors.black,
                       ),
                     ),Text(
-                      '($quantity)',
+                      '($quantity)item',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
@@ -779,7 +779,7 @@ class _MultistepFormState extends State<MultistepForm> {
                     ),
                     Spacer(),
                     Text(
-                      '\$40', // Display total here
+                      '\$40',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w400,
@@ -808,6 +808,35 @@ class _MultistepFormState extends State<MultistepForm> {
                   endIndent: 15,
                 ),
                 SizedBox(height: 15),
+                Row(
+                  children: [
+                    SizedBox(width: 20),
+                    Text(
+                      'Total',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Spacer(),
+                    Text(
+                      '\$$total',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(width: 20)
+                  ],
+                ),
+                SizedBox(height: 15),
+                Divider(
+                  color: Colors.grey[300],
+                  indent: 15,
+                  endIndent: 15,
+                ),
                 Row(
                   children: [
                     SizedBox(width: 20),
