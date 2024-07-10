@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:maseryshop/home.dart';
 
 import 'Sing-in.dart';
 
@@ -29,7 +30,7 @@ class _PageViewExampleAppState extends State<PageViewExampleApp> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Signin(),
+                    builder: (context) => HomePage(),
                   ));
             },
           ),
@@ -120,7 +121,7 @@ class _PageViewExampleState extends State<PageViewExample> {
                     'Shopping Now',
                     () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Signin()));
+                          MaterialPageRoute(builder: (context) => HomePage()));
                     },
                     screenWidth,
                     screenHeight,

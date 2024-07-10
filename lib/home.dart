@@ -278,6 +278,7 @@ class _HomePageState extends State<HomePage> {
                               width: 10,
                             ),
                             Container(
+                                height: 35,
                                 decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   shape: BoxShape.circle,
@@ -292,7 +293,7 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   icon: Icon(
                                     Icons.arrow_forward,
-                                    size: 25,
+                                    size: 20,
                                     color: Colors.white,
                                   ),
                                 ))
@@ -504,6 +505,7 @@ class _HomePageState extends State<HomePage> {
                               width: 10,
                             ),
                             Container(
+                              height: 35,
                                 decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   shape: BoxShape.circle,
@@ -519,7 +521,7 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   icon: Icon(
                                     Icons.arrow_forward,
-                                    size: 25,
+                                    size: 20,
                                     color: Colors.white,
                                   ),
                                 ))
@@ -527,7 +529,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 16),
                         Container(
-                          height: 260,
+                          height: 254,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: categoryBasedProducts.length,
@@ -582,33 +584,40 @@ class _HomePageState extends State<HomePage> {
                                                 )
                                               : BoxDecoration(), // Handle empty image URL case
                                         ),
-                                        Container(
-                                          child: Column(
-                                            children: [],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            category['name'] ??
-                                                '', // Provide default value
-                                            style:  GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                        SizedBox(
+                                          height: 80,
+                                          width: 200,
+                                          child: Card(
+                                            color:Color(0xffF2F2F2),
+                                            child: Column(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    category['name'] ??
+                                                        '', // Provide default value
+                                                    style:  GoogleFonts.montserrat(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8.0),
+                                                  child: Text(
+                                                    '${category['products_count'] ?? ''} Products', // Provide default value
+                                                    style:  GoogleFonts.montserrat(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Text(
-                                            '${category['products_count'] ?? ''} Products', // Provide default value
-                                            style:  GoogleFonts.montserrat(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                        ),
+
                                       ],
                                     ),
                                   ),
@@ -701,6 +710,7 @@ class _HomePageState extends State<HomePage> {
                               width: 10,
                             ),
                             Container(
+                                height: 35,
                                 decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   shape: BoxShape.circle,
@@ -716,7 +726,7 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   icon: Icon(
                                     Icons.arrow_forward,
-                                    size: 25,
+                                    size: 20,
                                     color: Colors.white,
                                   ),
                                 ))
@@ -936,6 +946,7 @@ class _HomePageState extends State<HomePage> {
                               width: 10,
                             ),
                             Container(
+                                height: 35,
                                 decoration: const BoxDecoration(
                                   color: Colors.blue,
                                   shape: BoxShape.circle,
@@ -951,7 +962,7 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   icon: Icon(
                                     Icons.arrow_forward,
-                                    size: 25,
+                                    size: 20,
                                     color: Colors.white,
                                   ),
                                 ))

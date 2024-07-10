@@ -86,7 +86,7 @@ class _BottomBarState extends State<BottomBar> {
           label: 'Cart',
         ),
         BottomNavigationBarItem(icon: Icon(Icons.category_outlined), label: 'Categories'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+        // BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
       ],
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.black,
@@ -98,23 +98,14 @@ class _BottomBarState extends State<BottomBar> {
             break;
           case 1:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => Wishlist(favoriteProducts: widget.favoriteProducts),
-            //   ),
-            // );
             break;
           case 2:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryDescription()));
-
             break;
           case 3:
-
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Profile()));
-            break;
-          case 4:
+          //   Navigator.push(context, MaterialPageRoute(builder: (context) => Profile()));
+          //   break;
+          // case 4:
             Scaffold.of(context).openEndDrawer();
             break;
           default:

@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Base_Url/BaseUrl.dart';
-import '../home.dart';
 import 'Sign_up.dart';
+import 'auth_service.dart'; // Import the AuthService
 
 class Signin extends StatefulWidget {
   const Signin({super.key});
@@ -77,9 +77,8 @@ class _SigninState extends State<Signin> {
         // Show success message as Snackbar
         _showSuccessSnackBar(responseData['message']);
 
-        // Navigate to the home page
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+        // Use the AuthService to handle login and navigation
+        await AuthService.login(context, email, password);
       } else {
         // Handle login failure
         _showError('Login failed');
@@ -229,6 +228,8 @@ class _SigninState extends State<Signin> {
                     textAlign: TextAlign.center, // Align the text to the center
                   ),
                 ],
+
+
               ),
               SizedBox(height: screenHeight * 0.02),
               TextFormField(
@@ -294,7 +295,7 @@ class _SigninState extends State<Signin> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    _login();
+                    _login(); // Call login function when the button is pressed
                   }
                 },
                 style: ElevatedButton.styleFrom(

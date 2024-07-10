@@ -35,87 +35,53 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  Future<void> logoutUser() async {
-    if (authToken == null || authToken!.isEmpty) {
-      // Token is empty or null, navigate to login screen directly
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
-      return;
-    }
+  Future<void> logoutAndClearStorage(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    // Get token and email from shared preferences
+    String token = prefs.getString('token') ?? '';
+    String username = prefs.getString('email') ?? '';
+
+    // Clear token and email from shared preferences
+    await prefs.remove('token');
+    await prefs.remove('email');
+
+    // Logout API call
     try {
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}logout'),
+        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/logout'),
         headers: {
-          'Authorization': 'Bearer $authToken',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json', // Adjust content type if needed
         },
       );
 
-      print('Logout API Status Code: ${response.statusCode}');
-      print('Logout API Response Body: ${response.body}');
-
+      // Check response status and handle accordingly
       if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        print('Response data: $responseData');
-
-        if (responseData['success']) {
-          // Clear stored token on successful logout
-          await _prefs.remove('authToken');
-          await _prefs.setBool('isSignedIn', false);
-          // Show success message using Snackbar
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(responseData['message']),
-              duration: Duration(seconds: 2),
-            ),
-          );
-
-          // Navigate to signin page
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Signin()),
-          );
-        } else {
-          // Handle unsuccessful logout
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(responseData['message'] ??
-                  'Logout failed. Please try again.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } else if (response.statusCode == 401) {
-        // Handle token expired or unauthorized
-        await _prefs.remove('authToken');
-        await _prefs.setBool('isSignedIn', false);
+        // Handle successful logout (navigate to homepage)
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Token expired or unauthorized. Please login again.'),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text('Logged out successfully')),
         );
+        // Example navigation to homepage
+        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
       } else {
-        // Handle API call failure
+        // Handle errors or unauthorized access
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text('Logout failed with status code ${response.statusCode}'),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text('Failed to log out')),
         );
       }
     } catch (e) {
-      // Handle exception
+      print('Error logging out: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred while logging out: $e'),
-          duration: Duration(seconds: 2),
-        ),
+        SnackBar(content: Text('Error logging out')),
       );
     }
+  }
+
+  Future<bool> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    return token != null;
   }
 
   @override
@@ -428,26 +394,50 @@ class _ProfileState extends State<Profile> {
                 height: 20,
               ),
               SizedBox(height: screenHeight * 0.02),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Logout',
-                    style: GoogleFonts.poppins(
-                      fontSize: screenWidth * 0.038,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFEA1712),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: logoutUser,
-                    child: Icon(
-                      Icons.logout,
-                      size: screenWidth * 0.06,
-                      color: Color(0xFFEA1712),
-                    ),
-                  ),
-                ],
+              FutureBuilder<bool>(
+                future: _checkLoginStatus(),
+                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    bool isLoggedIn = snapshot.data ?? false;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          isLoggedIn ? 'Logout' : 'Login',
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.038,
+                            fontWeight: FontWeight.w700,
+                            color: isLoggedIn ? Color(0xFFEA1712) : Colors.blue,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            if (isLoggedIn) {
+                              logoutAndClearStorage(context);
+                            } else {
+                              // Navigate to login screen or handle login action
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Signin(),
+                                ),
+                              );
+                            }
+                          },
+                          child: Icon(
+                            isLoggedIn ? Icons.logout : Icons.login,
+                            size: screenWidth * 0.06,
+                            color: isLoggedIn ? Color(0xFFEA1712) : Colors.blue,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
               Divider(
                 color: Color(0xFF9B9B9B),

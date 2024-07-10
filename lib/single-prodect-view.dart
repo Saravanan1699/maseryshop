@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'Home-pages/recent_product.dart';
 import 'home.dart';
 
 class ProductDetail extends StatefulWidget {
@@ -20,6 +21,7 @@ class _ProductDetailState extends State<ProductDetail> {
   bool isFavorite = false;
   bool _isExpanded = false;
   List<dynamic> about = [];
+  List<dynamic> recentProducts = [];
   int totalItems = 0;
 
   @override
@@ -47,6 +49,8 @@ class _ProductDetailState extends State<ProductDetail> {
       final jsonResponse = json.decode(response.body);
       setState(() {
         about = jsonResponse['data']['about'];
+        recentProducts = jsonResponse['data']['recent_products'];
+
       });
     } else {
       throw Exception('Failed to load data');
@@ -83,9 +87,9 @@ class _ProductDetailState extends State<ProductDetail> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(product['title'],
-        style: GoogleFonts.montserrat(
+          style: GoogleFonts.montserrat(
 
-        ),),
+          ),),
         // actions: [
         //   GestureDetector(
         //     onTap: () {
@@ -315,13 +319,15 @@ class _ProductDetailState extends State<ProductDetail> {
                           print('Status Code: ${response.statusCode}');
                           print('Response Body: ${response.body}');
 
+                          final responseBody = jsonDecode(response.body);
+
                           if (response.statusCode == 200) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Added $productSlug to cart')),
                             );
                           } else if (response.statusCode == 402) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('This item is already in the cart')),
+                              SnackBar(content: Text(responseBody['message'] ?? 'This item is already in the cart')),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -444,6 +450,242 @@ class _ProductDetailState extends State<ProductDetail> {
               height: 2.0,
               thickness: 1.0,
             ),
+            SizedBox(height: screenHeight * 0.02),
+            Row(
+              children: [
+                Text(
+                  'Recent Products',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Spacer(),
+                Text(
+                  'See All',
+                  style: GoogleFonts.montserrat(
+                      fontSize: 17, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Container(
+                    height: 35,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  GraphicsCard1()),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.arrow_forward,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                    ))
+              ],
+            ),
+            SizedBox(height: 16),
+            Container(
+              height: 260,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: recentProducts.length,
+                itemBuilder: (context, index) {
+                  final product = recentProducts[index];
+                  final imagePath =
+                  product['product']?['image']?[0]?['path'];
+                  final imageUrl = imagePath != null
+                      ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                      : 'https://example.com/placeholder.png'; // Placeholder image URL
+
+                  final offerStartStr = product['offer_start'];
+                  final offerEndStr = product['offer_end'];
+                  final salePriceStr = product['sale_price'];
+                  final offerPriceStr = product['offer_price'];
+
+                  if (offerStartStr == null ||
+                      offerEndStr == null ||
+                      salePriceStr == null ||
+                      offerPriceStr == null) {
+                    // Skip this item if critical data is missing
+                    return SizedBox.shrink();
+                  }
+
+                  final offerStart = DateTime.parse(offerStartStr);
+                  final offerEnd = DateTime.parse(offerEndStr);
+                  final currentDate = DateTime.now();
+
+                  final bool isOfferPeriod =
+                      currentDate.isAfter(offerStart) &&
+                          currentDate.isBefore(offerEnd);
+                  final salePrice = double.parse(salePriceStr);
+                  final offerPrice = double.parse(offerPriceStr);
+
+                  final double discountPercentage =
+                      ((salePrice - offerPrice) / salePrice) * 100;
+                  final int discountPercentageRounded =
+                  discountPercentage.ceil();
+
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProductDetail(product: product),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 200,
+                        child: Stack(
+                          children: [
+                            Card(
+                              color: Colors.white,
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      const BorderRadius.vertical(
+                                        top: Radius.circular(15.0),
+                                      ),
+                                      image: DecorationImage(
+                                        image: NetworkImage(imageUrl),
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      product['title'] ?? 'No title',
+                                      style:  GoogleFonts.montserrat(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                    const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        if (isOfferPeriod) ...[
+                                          Row(
+                                            children: [
+                                              Text(
+                                                '\$$salePrice',
+                                                style:
+                                                GoogleFonts.montserrat(
+                                                  fontSize: 15,
+                                                  fontWeight:
+                                                  FontWeight
+                                                      .normal,
+                                                  decoration:
+                                                  TextDecoration
+                                                      .lineThrough,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                '\$$offerPrice',
+                                                style:
+                                                GoogleFonts.montserrat(
+                                                  fontSize: 17,
+                                                  fontWeight:
+                                                  FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ] else ...[
+                                          Text(
+                                            '\$$salePrice',
+                                            style:  GoogleFonts.montserrat(
+                                              fontSize: 17,
+                                              fontWeight:
+                                              FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isOfferPeriod)
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orangeAccent,
+                                    borderRadius:
+                                    BorderRadius.circular(30.0),
+                                  ),
+                                  padding:
+                                  const EdgeInsets.all(4.0),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '$discountPercentageRounded%',
+                                        style:  GoogleFonts.montserrat(
+                                          fontSize: 12,
+                                          fontWeight:
+                                          FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        'OFF',
+                                        style:  GoogleFonts.montserrat(
+                                          fontSize: 9,
+                                          fontWeight:
+                                          FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
           ],
         ),
       ),

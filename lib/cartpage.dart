@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'Authentication/Sing-in.dart';
 import 'Multiple_stepform/step_form.dart';
-import 'home.dart'; // Replace with your actual home page import
+import 'home.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -92,7 +94,7 @@ class _CartPageState extends State<CartPage> {
   Future<void> removeItemFromCart(int cartId, int itemId) async {
     final String url = 'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/removeItem?cart=$cartId&item=$itemId';
     try {
-      final response = await http.delete(Uri.parse(url)); // Use DELETE method instead of GET
+      final response = await http.delete(Uri.parse(url));
 
       if (response.statusCode == 200) {
         print('Item removed successfully');
@@ -126,6 +128,26 @@ class _CartPageState extends State<CartPage> {
       );
     }
   }
+
+  Future<bool> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    return token != null;
+  }
+
+  Future<void> loginUser() async {
+    // Perform login logic (validate credentials, etc.)
+    // Assuming login is successful, set isLoggedIn to true
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', true);
+  }
+
+  Future<void> logoutUser() async {
+    // Perform logout logic (clear sessions, etc.)
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('isLoggedIn');
+  }
+
 
   @override
   void initState() {
@@ -165,15 +187,16 @@ class _CartPageState extends State<CartPage> {
       body: Stack(
         children: [
           isLoading
-              ?  Center(
+              ? Center(
             child: Container(
               child: LoadingAnimationWidget.flickr(
-                  leftDotColor: Colors.redAccent,
-                  rightDotColor: Colors.black,
-                  size: 40
+                leftDotColor: Colors.redAccent,
+                rightDotColor: Colors.black,
+                size: 40,
               ),
             ),
-          )  : carts.isEmpty
+          )
+              : carts.isEmpty
               ? Center(child: Text('No carts found'))
               : ListView.builder(
             itemCount: carts.length,
@@ -185,12 +208,10 @@ class _CartPageState extends State<CartPage> {
                 children: inventories.map((inventory) {
                   String imageUrl = inventory['product']['images'].isNotEmpty
                       ? 'https://sgitjobs.com/MaseryShoppingNew/public/${inventory['product']['images'][0]['path']}'
-                      : 'assets/products/images/default_image.png'; // Provide a default image URL
-                  double minPrice = double.tryParse(inventory['product']['min_price']) ?? 0.0; // Parsing minimum price
+                      : 'assets/products/images/default_image.png';
+                  double minPrice = double.tryParse(inventory['product']['min_price']) ?? 0.0;
                   double unitPrice = double.tryParse(inventory['pivot']['unit_price']) ?? 0.0;
-                  int quantity = inventory['quantity'] ?? 1; // Get the quantity
-
-                  // Calculate total price based on initial quantity and unit price
+                  int quantity = inventory['quantity'] ?? 1;
                   double totalPrice = unitPrice * quantity.toDouble();
 
                   return Center(
@@ -253,23 +274,23 @@ class _CartPageState extends State<CartPage> {
                                                   quantity - 1,
                                                 );
                                                 setState(() {
-                                                  inventory['quantity'] = quantity - 1; // Update local state with new quantity
+                                                  inventory['quantity'] = quantity - 1;
                                                 });
                                               }
                                             },
                                             icon: Icon(Icons.remove, color: Colors.orangeAccent),
                                           ),
-                                          Text(inventory['quantity'].toString(), style: TextStyle(fontSize: 16)), // Display updated quantity
+                                          Text(inventory['quantity'].toString(), style: TextStyle(fontSize: 16)),
                                           IconButton(
                                             onPressed: () async {
-                                               await updateCartItemQuantity(
+                                              await updateCartItemQuantity(
                                                 context,
                                                 int.parse(inventory['pivot']['cart_id'].toString()),
                                                 inventory['id'],
                                                 quantity + 1,
                                               );
                                               setState(() {
-                                                inventory['quantity'] = quantity + 1; // Update local state with new quantity
+                                                inventory['quantity'] = quantity + 1;
                                               });
                                             },
                                             icon: Icon(Icons.add, color: Colors.orangeAccent),
@@ -287,7 +308,7 @@ class _CartPageState extends State<CartPage> {
                                   width: 10,
                                 ),
                                 Text(
-                                  '\$${totalPrice.toStringAsFixed(2)}', // Display updated total price
+                                  '\$${totalPrice.toStringAsFixed(2)}',
                                   style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold,
@@ -296,8 +317,8 @@ class _CartPageState extends State<CartPage> {
                                 Spacer(),
                                 IconButton(
                                   onPressed: () {
-                                    print('Cart ID: ${inventory['pivot']['cart_id']}'); // Print Cart ID
-                                    print('Inventory ID: ${inventory['pivot']['inventory_id']}'); // Print Inventory ID
+                                    print('Cart ID: ${inventory['pivot']['cart_id']}');
+                                    print('Inventory ID: ${inventory['pivot']['inventory_id']}');
                                     int cartId = int.tryParse(inventory['pivot']['cart_id'].toString()) ?? 0;
                                     int itemId = int.tryParse(inventory['pivot']['inventory_id'].toString()) ?? 0;
                                     if (cartId > 0 && itemId > 0) {
@@ -313,7 +334,6 @@ class _CartPageState extends State<CartPage> {
                                   },
                                   icon: Icon(Icons.delete, color: Colors.orangeAccent),
                                 ),
-
                               ],
                             ),
                             SizedBox(
@@ -346,7 +366,7 @@ class _CartPageState extends State<CartPage> {
                     ),
                   ),
                   Text(
-                    '\$${calculateGrandTotal().toStringAsFixed(2)}', // Calculate and display grand total
+                    '\$${calculateGrandTotal().toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -356,8 +376,21 @@ class _CartPageState extends State<CartPage> {
                   ElevatedButton(
                     onPressed: carts.isEmpty
                         ? null // Disable button if no carts
-                        : () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => MultistepForm(product: {},)));
+                        : () async {
+                      bool isLoggedIn = await _checkLoginStatus();
+                      if (isLoggedIn) {
+                        // If user is logged in, navigate to MultistepForm
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MultistepForm(product: {})),
+                        );
+                      } else {
+                        // If user is not logged in, navigate to login screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Signin()),
+                        );
+                      }
                     },
                     child: Text(
                       'Checkout',
@@ -369,7 +402,7 @@ class _CartPageState extends State<CartPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -383,11 +416,10 @@ class _CartPageState extends State<CartPage> {
     double grandTotal = 0.0;
     for (var cart in carts) {
       for (var inventory in cart['inventories']) {
-        int quantity = inventory['quantity'] ?? 1; // Ensure quantity is not null
+        int quantity = inventory['quantity'] ?? 1;
         grandTotal += (double.tryParse(inventory['pivot']['unit_price']) ?? 0.0) * quantity;
       }
     }
     return grandTotal;
   }
 }
-
