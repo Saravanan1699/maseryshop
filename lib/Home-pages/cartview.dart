@@ -145,12 +145,10 @@ class _cartviewState extends State<cartview> {
         ],
       ),
       body: product == null
-          ?  Center(
+          ? Center(
         child: Container(
-          child: LoadingAnimationWidget.flickr(
-              leftDotColor: Colors.redAccent,
-              rightDotColor: Colors.black,
-              size: 40
+          child: LoadingAnimationWidget.halfTriangleDot(
+            size: 50.0, color: Colors.redAccent,
           ),
         ),
       )

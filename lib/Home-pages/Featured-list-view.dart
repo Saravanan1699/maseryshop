@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../cartpage.dart';
 import '../home.dart';
 
 class Product {
@@ -108,6 +109,7 @@ class _GraphicsCardState extends State<GraphicsCard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
@@ -143,7 +145,9 @@ class _GraphicsCardState extends State<GraphicsCard> {
         ),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            },
             child: Stack(
               children: [
                 Padding(
@@ -166,7 +170,8 @@ class _GraphicsCardState extends State<GraphicsCard> {
                       backgroundColor: Colors.red,
                       child: Text(
                         '$totalItems',
-                        style: TextStyle(fontSize: 12, color: Colors.white),
+                        style: GoogleFonts.montserrat(
+                            fontSize: 12, color: Colors.white),
                       ),
                     ),
                   ),
@@ -176,27 +181,20 @@ class _GraphicsCardState extends State<GraphicsCard> {
         ],
       ),
       body: isLoading
-          ?  Center(
-        child: Container(
-          child: LoadingAnimationWidget.flickr(
-              leftDotColor: Colors.redAccent,
-              rightDotColor: Colors.black,
-              size: 40
-          ),
-        ),
-      )
+          ? Center(
+              child: Container(
+                child: LoadingAnimationWidget.halfTriangleDot(
+                  size: 50.0,
+                  color: Colors.redAccent,
+                ),
+              ),
+            )
           : hasError
               ? Center(child: Text('Failed to load data'))
               : LayoutBuilder(
                   builder: (context, constraints) {
                     double screenWidth = constraints.maxWidth;
                     double screenHeight = constraints.maxHeight;
-
-                    TextStyle commonTextStyle = TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2B2B2B),
-                    );
 
                     return Column(
                       children: [
@@ -207,6 +205,9 @@ class _GraphicsCardState extends State<GraphicsCard> {
                             focusNode: _focusNode,
                             decoration: InputDecoration(
                               hintText: 'Search any Product...',
+                              hintStyle: GoogleFonts.montserrat(
+
+                              ),
                               prefixIcon:
                                   Icon(Icons.search, color: Color(0xffBBBBBB)),
                               border: OutlineInputBorder(
@@ -229,7 +230,7 @@ class _GraphicsCardState extends State<GraphicsCard> {
                                       padding: const EdgeInsets.all(15.0),
                                       child: Text(
                                         '52,082+ Items',
-                                        style: TextStyle(
+                                        style: GoogleFonts.montserrat(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -289,7 +290,6 @@ class _GraphicsCardState extends State<GraphicsCard> {
                                           child: ResponsiveCardRow(
                                             screenWidth: screenWidth,
                                             screenHeight: screenHeight,
-                                            commonTextStyle: commonTextStyle,
                                             imagePath1:
                                                 product.imagePaths.isNotEmpty
                                                     ? product.imagePaths[0]
@@ -322,7 +322,6 @@ class _GraphicsCardState extends State<GraphicsCard> {
 class ResponsiveCardRow extends StatefulWidget {
   final double screenWidth;
   final double screenHeight;
-  final TextStyle commonTextStyle;
   final String imagePath1;
   final String brand1;
   final String description1;
@@ -335,7 +334,6 @@ class ResponsiveCardRow extends StatefulWidget {
   ResponsiveCardRow({
     required this.screenWidth,
     required this.screenHeight,
-    required this.commonTextStyle,
     required this.imagePath1,
     required this.brand1,
     required this.description1,
@@ -360,60 +358,71 @@ class _ResponsiveCardRowState extends State<ResponsiveCardRow> {
       children: [
         Expanded(
           child: Card(
+            color: Colors.white,
             elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.imagePath1.isNotEmpty
-                    ? Image.network(
-                        widget.imagePath1,
-                        height: widget.screenHeight * 0.25,
-                        width: double.infinity,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Placeholder(
-                              fallbackHeight: widget.screenHeight * 0.25);
-                        },
-                      )
+                    ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.network(
+                          widget.imagePath1,
+                          height: widget.screenHeight * 0.25,
+                          width: double.infinity,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Placeholder(
+                                fallbackHeight: widget.screenHeight * 0.25);
+                          },
+                        ),
+                    )
                     : Placeholder(fallbackHeight: widget.screenHeight * 0.25),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.brand1, style: widget.commonTextStyle),
+                  child: Text(widget.brand1,
+                      style: GoogleFonts.montserrat(
+                          fontSize: 17, fontWeight: FontWeight.bold)),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:
-                      _buildDescription(widget.description1, _isExpanded1, () {
-                    setState(() {
-                      _isExpanded1 = !_isExpanded1;
-                    });
-                  }),
+                  child: Text(
+                    widget.description1,
+                    style: GoogleFonts.montserrat(fontSize: 15),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(widget.price1,
-                      style: TextStyle(
+                      style: GoogleFonts.montserrat(
                           fontSize: widget.screenWidth * 0.035,
                           fontWeight: FontWeight.bold)),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle the add to cart action here
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added to Cart!')),
-                      );
-                    },
-                    child: Text('Add to Cart'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Handle the add to cart action here
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Added to Cart!')),
+                        );
+                      },
+                      child: Text('Add to Cart'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                       ),
                     ),
                   ),
@@ -424,60 +433,69 @@ class _ResponsiveCardRowState extends State<ResponsiveCardRow> {
         ),
         Expanded(
           child: Card(
+            color: Colors.white,
             elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.imagePath2.isNotEmpty
-                    ? Image.network(
-                        widget.imagePath2,
-                        height: widget.screenHeight * 0.25,
-                        width: double.infinity,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Placeholder(
-                              fallbackHeight: widget.screenHeight * 0.25);
-                        },
-                      )
+                    ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.network(
+                          widget.imagePath2,
+                          height: widget.screenHeight * 0.25,
+                          width: double.infinity,
+                          fit: BoxFit.contain,
+
+                        ),
+                    )
                     : Placeholder(fallbackHeight: widget.screenHeight * 0.25),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.brand2, style: widget.commonTextStyle),
+                  child: Text(widget.brand2,
+                      style: GoogleFonts.montserrat(
+                          fontSize: 17, fontWeight: FontWeight.bold)),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:
-                      _buildDescription(widget.description2, _isExpanded2, () {
-                    setState(() {
-                      _isExpanded2 = !_isExpanded2;
-                    });
-                  }),
+                  child: Text(
+                    widget.description2,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 15,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(widget.price2,
-                      style: TextStyle(
+                      style: GoogleFonts.montserrat(
                           fontSize: widget.screenWidth * 0.035,
                           fontWeight: FontWeight.bold)),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  child: TextButton(
-                    onPressed: () {
-                      // Handle the add to cart action here
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Added to Cart!')),
-                      );
-                    },
-                    child: Text('Add to Cart'),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
+                    child: TextButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Added to Cart!')),
+                        );
+                      },
+                      child: Text('Add to Cart'),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                       ),
                     ),
                   ),
@@ -486,31 +504,6 @@ class _ResponsiveCardRowState extends State<ResponsiveCardRow> {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildDescription(
-      String description, bool isExpanded, VoidCallback onReadMore) {
-    final maxLines = isExpanded ? null : 3;
-    final overflow = isExpanded ? TextOverflow.visible : TextOverflow.ellipsis;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          description,
-          maxLines: maxLines,
-          overflow: overflow,
-        ),
-        if (description.length > 100) // Adjust the length threshold as needed
-          InkWell(
-            onTap: onReadMore,
-            child: Text(
-              isExpanded ? 'Read Less' : 'Read More',
-              style: TextStyle(color: Colors.blue),
-            ),
-          ),
       ],
     );
   }

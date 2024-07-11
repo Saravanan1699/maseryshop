@@ -20,12 +20,14 @@ class _SigninState extends State<Signin> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _saveToLocalStorage(String token, String username) async {
+  Future<void> _saveToLocalStorage(String token,String name, String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print("Token is $token");
-    print("email is $username");
+    print("name is $name");
+    print("email is $email");
     await prefs.setString('token', token);
-    await prefs.setString('email', username);
+    await prefs.setString('name', name);
+    await prefs.setString('email', email);
   }
 
   Future<Map<String, dynamic>> _authenticate(
@@ -49,15 +51,17 @@ class _SigninState extends State<Signin> {
         print(
             'Response data: $responseData'); // Print the entire response for inspection
         final String token = responseData['data']['token'] ?? '';
-        final String email = responseData['data']['email'] ?? '';
-        print('Retrieved username: $username');
+        final String Email = responseData['data']['userDetails']['email'] ?? '';
+        final String name = responseData['data']['userDetails']['name'] ?? '';
+        print('Retrieved username: $Email');
 
-        await _saveToLocalStorage(token, username);
+        await _saveToLocalStorage(token, Email,name);
         return {
           'success': true,
           'message': 'User LoggedIn Successfully!',
           'token': token,
-          'email': email,
+          'email': Email,
+          'name': name,
         };
       } else {
         throw Exception('Failed to authenticate');

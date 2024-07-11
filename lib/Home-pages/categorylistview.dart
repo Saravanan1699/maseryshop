@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../home.dart';
 
 class Product {
   final int id;
@@ -155,30 +158,45 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shopping App'),
+        title: Text('Category',
+        style: GoogleFonts.montserrat(),),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              margin: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Color(0xffF2F2F2),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_outlined,
+                  size: 15,
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomePage()));
+                },
+              ),
+            );
+          },
+        ),
       ),
       body: isLoading
-          ?  Center(
+          ? Center(
         child: Container(
-          child: LoadingAnimationWidget.flickr(
-              leftDotColor: Colors.redAccent,
-              rightDotColor: Colors.black,
-              size: 40
+          child: LoadingAnimationWidget.halfTriangleDot(
+            size: 50.0, color: Colors.redAccent,
           ),
         ),
       )
           : hasError
-              ? Center(child: Text('Failed to load data'))
+              ? Center(child: Text('Failed to load data',
+      style: GoogleFonts.montserrat(),))
               : LayoutBuilder(
                   builder: (context, constraints) {
                     double screenWidth = constraints.maxWidth;
                     double screenHeight = constraints.maxHeight;
-
-                    TextStyle commonTextStyle = TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2B2B2B),
-                    );
 
                     return Column(
                       children: [
@@ -189,6 +207,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             focusNode: _focusNode,
                             decoration: InputDecoration(
                               hintText: 'Search any Product...',
+                              hintStyle: GoogleFonts.montserrat(),
                               prefixIcon:
                                   Icon(Icons.search, color: Color(0xffBBBBBB)),
                               border: OutlineInputBorder(
@@ -207,32 +226,9 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                               padding: const EdgeInsets.all(15.0),
                               child: Text(
                                 '52,082+',
-                                style: TextStyle(
+                                style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => _showFilterDialog(context),
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: SizedBox(
-                                  height: 30.0,
-                                  width: 85.0,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(''),
-                                      SizedBox(width: 8.0),
-                                      Icon(Icons.filter_alt,
-                                          color: Colors.black),
-                                    ],
-                                  ),
                                 ),
                               ),
                             ),
@@ -245,25 +241,18 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                               ),
                               child: GestureDetector(
                                 onTap: () => _showBrandDialog(context),
-                                child: Card(
-                                  color: Colors.white,
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: SizedBox(
-                                    height: 30.0,
-                                    width: 85.0,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text('Brands'),
-                                        SizedBox(width: 8.0),
-                                        Icon(Icons.filter_list,
-                                            color: Colors.black),
-                                      ],
-                                    ),
+                                child: SizedBox(
+                                  height: 30.0,
+                                  width: 85.0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('Brands',
+                                      style: GoogleFonts.montserrat(),),
+                                      SizedBox(width: 8.0),
+                                      Icon(Icons.filter_list,
+                                          color: Colors.black),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -302,7 +291,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text('Filter'),
+                                      Text('Filter',
+                                      style: GoogleFonts.montserrat(),),
                                       SizedBox(width: 8.0),
                                       Icon(Icons.filter_alt,
                                           color: Colors.black),
@@ -324,7 +314,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                                           child: ResponsiveCardRow(
                                             screenWidth: screenWidth,
                                             screenHeight: screenHeight,
-                                            commonTextStyle: commonTextStyle,
                                             imagePath1:
                                                 product.imageList.isNotEmpty
                                                     ? product.imageList[0]
@@ -358,7 +347,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Category Option'),
+          title: Text('Category Option',
+          style: GoogleFonts.montserrat(),),
           content: Container(
             width: double.minPositive,
             child: ListView(
@@ -373,14 +363,16 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text('Cancel',
+              style: GoogleFonts.montserrat(),),
             ),
             TextButton(
               onPressed: () {
                 // Handle filter logic
                 Navigator.of(context).pop();
               },
-              child: Text('Apply'),
+              child: Text('Apply',
+              style: GoogleFonts.montserrat(),),
             ),
           ],
         );
@@ -408,14 +400,16 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text('Cancel',
+              style: GoogleFonts.montserrat(),),
             ),
             TextButton(
               onPressed: () {
                 // Handle filter logic
                 Navigator.of(context).pop();
               },
-              child: Text('Apply'),
+              child: Text('Apply',
+              style: GoogleFonts.montserrat(),),
             ),
           ],
         );
@@ -431,7 +425,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
           _filterOptions[title] = value!;
         });
       },
-      title: Text(title),
+      title: Text(title,style: GoogleFonts.montserrat(),),
     );
   }
 }
@@ -439,7 +433,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
 class ResponsiveCardRow extends StatefulWidget {
   final double screenWidth;
   final double screenHeight;
-  final TextStyle commonTextStyle;
   final String imagePath1;
   final String brand1;
   final String description1;
@@ -452,7 +445,6 @@ class ResponsiveCardRow extends StatefulWidget {
   ResponsiveCardRow({
     required this.screenWidth,
     required this.screenHeight,
-    required this.commonTextStyle,
     required this.imagePath1,
     required this.brand1,
     required this.description1,
@@ -531,8 +523,17 @@ class _ResponsiveCardRowState extends State<ResponsiveCardRow> {
                     width: widget.screenWidth * 0.4,
                     color: Colors.grey),
             SizedBox(height: 8.0),
-            Text(brand, style: widget.commonTextStyle),
-            _buildDescription(description, isExpanded, onReadMore),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                widget.description2,
+                style: GoogleFonts.montserrat(
+                  fontSize: 15,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             Text(price,
                 style: TextStyle(
                     fontSize: widget.screenWidth * 0.04,
@@ -547,7 +548,7 @@ class _ResponsiveCardRowState extends State<ResponsiveCardRow> {
     if (imagePath.startsWith('http')) {
       return Image.network(
         imagePath,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         height: widget.screenHeight * 0.2,
         width: widget.screenWidth * 0.4,
         errorBuilder: (context, error, stackTrace) {
@@ -581,28 +582,5 @@ class _ResponsiveCardRowState extends State<ResponsiveCardRow> {
     }
   }
 
-  Widget _buildDescription(
-      String description, bool isExpanded, VoidCallback onReadMore) {
-    final maxLines = isExpanded ? null : 3;
-    final overflow = isExpanded ? TextOverflow.visible : TextOverflow.ellipsis;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          description,
-          maxLines: maxLines,
-          overflow: overflow,
-        ),
-        if (description.length > 100) // Adjust the length threshold as needed
-          InkWell(
-            onTap: onReadMore,
-            child: Text(
-              isExpanded ? 'Read Less' : 'Read More',
-              style: TextStyle(color: Colors.blue),
-            ),
-          ),
-      ],
-    );
-  }
 }
