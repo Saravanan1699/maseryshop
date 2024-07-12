@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Authentication/Sing-in.dart';
 import '../Base_Url/BaseUrl.dart';
@@ -155,7 +156,13 @@ class _ProfileState extends State<Profile> {
                       future: _getFromLocalStorage(),
                       builder: (BuildContext context, AsyncSnapshot<Map<String, String>> snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(
+                            child: Container(
+                              child: LoadingAnimationWidget.halfTriangleDot(
+                                size: 50.0, color: Colors.redAccent,
+                              ),
+                            ),
+                          );
                         } else if (snapshot.hasError) {
                           return Center(child: Text('Error: ${snapshot.error}'));
                         } else {

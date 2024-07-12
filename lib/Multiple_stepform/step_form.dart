@@ -660,6 +660,7 @@ class _MultistepFormState extends State<MultistepForm> {
                                             fontWeight: FontWeight.w500,
                                             fontSize: 16,
                                           ),
+
                                         ),
                                         SizedBox(height: 10),
                                         Row(

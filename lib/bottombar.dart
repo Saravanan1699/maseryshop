@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:maseryshop/wishlist.dart';
 import 'dart:convert';
 import 'Home-pages/cartview.dart';
 import 'Home-pages/categorylistview.dart';
+import 'Notification.dart';
 import 'Settings/My_Profile.dart';
 import 'cartpage.dart';
 import 'home.dart';
@@ -52,7 +54,8 @@ class _BottomBarState extends State<BottomBar> {
       backgroundColor: Colors.white,
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-        // BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Wishlist'),
+        BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Wishlist'),
+        BottomNavigationBarItem(icon: Icon(Icons.notifications_on_outlined), label: 'Notification'),
         BottomNavigationBarItem(
           icon: Stack(
             children: [
@@ -97,16 +100,18 @@ class _BottomBarState extends State<BottomBar> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
             break;
           case 1:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist(favoriteProducts: [],)));
             break;
           case 2:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryDescription()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
             break;
           case 3:
-          //   Navigator.push(context, MaterialPageRoute(builder: (context) => Profile()));
-          //   break;
-          // case 4:
-            Scaffold.of(context).openEndDrawer();
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+
+            break;
+          case 4:
+            Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryDescription()));
+
             break;
           default:
             break;
