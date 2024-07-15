@@ -646,7 +646,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                                            '\$$formattedOfferPrice',
                                                            style:
                                                            GoogleFonts.montserrat(
-                                                             fontSize: 17,
+                                                             fontSize: 15,
                                                              fontWeight:
                                                              FontWeight.bold,
                                                            ),
@@ -657,7 +657,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                                      Text(
                                                        '\$$formattedSalePrice',
                                                        style:  GoogleFonts.montserrat(
-                                                         fontSize: 17,
+                                                         fontSize: 15,
                                                          fontWeight:
                                                          FontWeight.bold,
                                                        ),

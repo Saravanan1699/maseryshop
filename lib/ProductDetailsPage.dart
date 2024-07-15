@@ -14,7 +14,7 @@ class ProductDetailsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'Product Details',
+          'Product Details ',
           style: GoogleFonts.raleway(
             fontWeight: FontWeight.w700,
             color: Color(0xFF2B2B2B),

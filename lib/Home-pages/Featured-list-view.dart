@@ -46,6 +46,7 @@ class Product {
 }
 
 class GraphicsCard extends StatefulWidget {
+
   const GraphicsCard({super.key});
 
   @override
@@ -290,16 +291,56 @@ class ProductCard extends StatelessWidget {
     required this.product,
   });
 
+  Future<void> addToCart(BuildContext context, Product product) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/${product.slug}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'product': {'id': product.id, 'slug': product.slug},
+          'quantity': 3,
+          'shipTo': 1,
+          'shippingZoneId': 1,
+          'handling': 1,
+        }),
+      );
+
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Added ${product.slug} to cart')),
+        );
+      } else if (response.statusCode == 402) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(responseBody['message'] ??
+                  'This item is already in the cart')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to add product to cart')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailsPage(product: product),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ProductDetailsPage(product: product),
+        //   ),
+        // );
       },
       child: Card(
         color: Colors.white,
@@ -351,73 +392,17 @@ class ProductCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: ElevatedButton(
                   onPressed: () async {
-                    Map<String, String> productMap = {
-                      'quantity': '1',
-                      'shipTo': '1',
-                      'shippingZoneId': '1',
-                      'handling': '1'
-                    };
-
-                    Future<void> addToCart(Map<String, String> product) async {
-                      try {
-                        final productSlug = product['slug'] ?? ''; // Access the correct property
-                        final url = Uri.parse(
-                            'https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/$productSlug');
-
-                        final response = await http.post(
-                          url,
-                          headers: {'Content-Type': 'application/json'},
-                          body: jsonEncode(product),
-                        );
-
-                        // Log the status code and response body for debugging
-                        print('Status Code: ${response.statusCode}');
-                        print('Response Body: ${response.body}');
-
-                        final responseBody = jsonDecode(response.body);
-
-                        if (response.statusCode == 200) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Added $productSlug to cart')),
-                          );
-                        } else if (response.statusCode == 402) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(responseBody['message'] ??
-                                    'This item is already in the cart')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Failed to add product to cart')),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('An error occurred: $e')),
-                        );
-                      }
-                    }
-
-                    // Call the addToCart function once
-                    await addToCart(productMap);
+                    await addToCart(context, product);
                   },
-                  child: Text(
-                    'Add to Cart',
-                    style: GoogleFonts.montserrat(
-
-                    ),
-                  ),
-                  style:  ElevatedButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    padding:
-                    EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
+                  child: Text('Add to Cart'),
                 ),
               ),
             ),

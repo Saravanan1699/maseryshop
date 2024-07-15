@@ -100,7 +100,7 @@ class _BottomBarState extends State<BottomBar> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
             break;
           case 1:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist(favoriteProducts: [],)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist()));
             break;
           case 2:
             Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));

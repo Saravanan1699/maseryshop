@@ -1,17 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'dart:convert';
+
 import 'bottombar.dart';
 import 'home.dart';
 
 class Wishlist extends StatefulWidget {
-  final List<Map<String, dynamic>> favoriteProducts;
-
-  const Wishlist({super.key, required this.favoriteProducts});
+  const Wishlist({Key? key}) : super(key: key);
 
   @override
   State<Wishlist> createState() => _WishlistState();
 }
 
 class _WishlistState extends State<Wishlist> {
+  List<dynamic> favoriteProducts = []; // Initialize your list
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWishlistData();
+  }
+
+  Future<void> _fetchWishlistData() async {
+    final url = Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/getwishlist');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          favoriteProducts = data['wishlist']['data'];
+          isLoading = false; // Update loading state
+        });
+      } else {
+        throw Exception('Failed to load wishlist');
+      }
+    } catch (e) {
+      print('Error fetching wishlist: $e');
+      // Handle error state if needed
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+  Future<void> _removeFromWishlist(int productId) async {
+    print('Removing product with ID: $productId'); // Print ID to terminal
+
+    final url = Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/removefromWishlist/$productId');
+    final headers = {
+      // Add headers if required (e.g., Authorization)
+      // 'Authorization': 'Bearer your_access_token',
+      'Content-Type': 'application/json', // Set the content type to JSON
+    };
+    final body = jsonEncode({'product_id': productId});
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          favoriteProducts.removeWhere((product) => product['id'] == productId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Item removed from wishlist'),
+          duration: Duration(seconds: 2),
+        ));
+      }else if (response.statusCode == 404) {
+        final responseBody = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(responseBody['error']),
+          duration: Duration(seconds: 2),
+        ));
+      }  else {
+        throw Exception('Failed to remove from wishlist: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error removing from wishlist: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to remove item from wishlist'),
+        duration: Duration(seconds: 2),
+      ));
+      // Handle error if needed
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -46,63 +127,81 @@ class _WishlistState extends State<Wishlist> {
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border_outlined)),
+            child: IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.favorite_border_outlined),
+            ),
           ),
         ],
       ),
-      body: widget.favoriteProducts.isEmpty
+      body: isLoading
+          ? Center(
+        child: LoadingAnimationWidget.halfTriangleDot(
+          size: 50.0,
+          color: Colors.redAccent,
+        ),
+      )
+          : favoriteProducts.isEmpty
           ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.shopping_cart_outlined,
-              size: screenWidth * 0.25,
-              color: Colors.grey,
+            Image.asset(
+              'assets/wishlist-empty.png',
+              height: 150,
+              width: 250,
             ),
-            SizedBox(height: screenHeight * 0.02),
+            SizedBox(height: 5),
             Text(
-              'Your Wishlist is Empty',
-              style: TextStyle(
-                fontSize: screenWidth * 0.06,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
+              'Your Wishlist is empty!',
+              style: GoogleFonts.montserrat(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
               ),
             ),
-            SizedBox(height: screenHeight * 0.4),
+            Text(
+              'Seems like you don\'t have wishes here.',
+              style: GoogleFonts.montserrat(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[400],
+              ),
+            ),Text(
+              'Make a wish!',
+              style: GoogleFonts.montserrat(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[400],
+              ),
+            ),
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
               },
+              child: Text(
+                'Start shopping',
+                style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff0D6EFD),
-                padding: EdgeInsets.symmetric(
-                  vertical: screenHeight * 0.02,
-                  horizontal: screenWidth * 0.25,
-                ),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)
+                  borderRadius: BorderRadius.circular(5),
                 ),
-              ),
-              child: Text(
-                'Start Shopping',
-                style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.white),
               ),
             ),
           ],
         ),
       )
-          : GridView.builder(
-        padding: const EdgeInsets.all(8.0),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: screenWidth < 600 ? 2 : 4,
-          crossAxisSpacing: screenWidth * 0.02,
-          mainAxisSpacing: screenHeight * 0.02,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: widget.favoriteProducts.length,
+          : ListView.builder(
+        itemCount: favoriteProducts.length,
         itemBuilder: (context, index) {
-          final product = widget.favoriteProducts[index];
+          final product = favoriteProducts[index]['inventory'];
+          final productId = favoriteProducts[index]['id'];
+
+          // Check if product['image'] is valid
+          final imageUrl = product['image'] ?? ''; // Default to empty string if null
+
           return Container(
             padding: EdgeInsets.all(screenWidth * 0.02),
             child: Card(
@@ -110,48 +209,52 @@ class _WishlistState extends State<Wishlist> {
               color: Colors.white,
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                          size: screenWidth * 0.05,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: imageUrl.isNotEmpty
+                              ? Image.network(
+                            imageUrl,
+                            width: screenWidth * 0.3,
+                            height: screenHeight * 0.15,
+                            fit: BoxFit.cover,
+                          )
+                              : Image.asset(
+                            'assets/no-data.png',
+                            height: 200,
+                            width: 150,
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            product['isFavorite'] = !product['isFavorite'];
-                            if (!product['isFavorite']) {
-                              widget.favoriteProducts.removeAt(index);
-                            }
-                          });
-                        },
+                        IconButton(
+                          onPressed: () {
+                            _removeFromWishlist(productId); // Assuming 'id' is the key for the product ID
+                          },
+                          icon: Icon(Icons.delete),
+                        ),
+
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Column(
+                    children: [
+                      Text(
+                        product['title'] ?? '',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.04,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      SizedBox(width: screenWidth * 0.02),
-                      Expanded(
-                        child: Image.asset(
-                          product['image'],
-                          width: screenWidth * 0.3,
-                          height: screenHeight * 0.15,
+                      Text(
+                        '\$${product['sale_price']}',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.035,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  Text(
-                    product['name'],
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  Text(
-                    product['price'],
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.035,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ],
               ),
@@ -161,9 +264,9 @@ class _WishlistState extends State<Wishlist> {
       ),
       bottomNavigationBar: BottomBar(
         onTap: (index) {
-          setState(() {});
+          // Handle bottom bar tap if necessary
         },
-        favoriteProducts: widget.favoriteProducts,
+        favoriteProducts: [],
       ),
     );
   }

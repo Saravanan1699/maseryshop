@@ -21,56 +21,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Map<String, dynamic>> mostpopular = [
-    {
-      'image': 'assets/mp_1.png',
-      'name': 'Graphics Card',
-      'price': '\$300',
-      'isFavorite': false,
-    },
-    {
-      'image': 'assets/mp_2.png',
-      'name': 'Mobile Phone',
-      'price': '\$700',
-      'isFavorite': false,
-    },
-    {
-      'image': 'assets/mp_2.png',
-      'name': 'Mobile Phone',
-      'price': '\$700',
-      'isFavorite': false,
-    },
-    {
-      'image': 'assets/mp_3.png',
-      'name': 'SSD',
-      'price': '\$120',
-      'isFavorite': false,
-    },
-    {
-      'image': 'assets/mp_4.png',
-      'name': 'Electronics',
-      'price': '\$450',
-      'isFavorite': false,
-    },
-    {
-      'image': 'assets/mp_5.png',
-      'name': 'Accessories',
-      'price': '\$80',
-      'isFavorite': false,
-    },
-    {
-      'image': 'assets/mp_5.png',
-      'name': 'Accessories',
-      'price': '\$80',
-      'isFavorite': false,
-    },
-  ];
   List<dynamic> banners = [];
   List<dynamic> featuredProducts = [];
   List<dynamic> recentProducts = [];
   List<dynamic> allProducts = [];
   List<dynamic> categoryBasedProducts = [];
   List<dynamic> about = [];
+  List<int> wishlistIds = []; // List to store wishlist item IDs
   late PageController _pageController;
   double _currentPage = 0.0;
   Timer? _timer;
@@ -82,6 +39,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _pageController = PageController(viewportFraction: 0.8);
     fetchData();
+    fetchWishlistIds(); // Fetch wishlist items on widget initialization
 
     // Start the timer to auto-scroll every 3 seconds
     _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
@@ -121,6 +79,55 @@ class _HomePageState extends State<HomePage> {
     _timer?.cancel();
     super.dispose();
   }
+  Future<void> fetchWishlistIds() async {
+    try {
+      final apiUrl = 'https://sgitjobs.com/MaseryShoppingNew/public/api/getwishlist';
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final wishlistData = data['wishlist']['data'] as List<dynamic>;
+        setState(() {
+          wishlistIds = wishlistData.map<int>((item) => item['id'] as int).toList();
+        });
+      } else {
+        throw Exception('Failed to fetch wishlist items');
+      }
+    } catch (e) {
+      print('Error fetching wishlist: $e');
+    }
+  }
+
+  bool isInWishlist = false;
+
+  void toggleWishlist() async {
+    try {
+      final apiUrl = isInWishlist
+          ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/removefromWishlist/hp'
+          : 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/hp'; // Adjust endpoint as per your API structure
+
+      final response = await http.post(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        setState(() {
+          isInWishlist = !isInWishlist;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isInWishlist ? 'Added to wishlist' : 'Removed from wishlist'),
+          ),
+        );
+      } else {
+        throw Exception('Failed to ${isInWishlist ? 'remove from' : 'add to'} wishlist');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,19 +141,11 @@ class _HomePageState extends State<HomePage> {
           fontSize: 20,
           fontWeight: FontWeight.bold
         ),)),
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Profile()),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage('assets/logo.png'),
-              backgroundColor: Color(0xffF2F2F2),
-            ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundImage: AssetImage('assets/logo.png'),
+            backgroundColor: Color(0xffF2F2F2),
           ),
         ),
         actions: [
@@ -316,33 +315,58 @@ class _HomePageState extends State<HomePage> {
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: featuredProducts.length,
+
                               itemBuilder: (context, index) {
                                 final product = featuredProducts[index];
-                                final imageUrl =
-                                    'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
+                                final slug = product['slug']; // Assuming slug is available in your product data
+                                final productId = product['id']; // Assuming productId is available in your product data
+                                final imageUrl = 'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
 
-                                final offerStart =
-                                    DateTime.parse(product['offer_start']);
-                                final offerEnd =
-                                    DateTime.parse(product['offer_end']);
+                                final offerStart = DateTime.parse(product['offer_start']);
+                                final offerEnd = DateTime.parse(product['offer_end']);
                                 final currentDate = DateTime.now();
 
-                                final bool isOfferPeriod =
-                                    currentDate.isAfter(offerStart) &&
-                                        currentDate.isBefore(offerEnd);
-                                final salePrice =
-                                    double.parse(product['sale_price']);
-                                final offerPrice =
-                                    double.parse(product['offer_price']);
+                                final bool isOfferPeriod = currentDate.isAfter(offerStart) && currentDate.isBefore(offerEnd);
+                                final salePrice = double.parse(product['sale_price']);
+                                final offerPrice = double.parse(product['offer_price']);
 
                                 String formattedSalePrice = salePrice.toStringAsFixed(2);
                                 String formattedOfferPrice = offerPrice.toStringAsFixed(2);
 
-                                final double discountPercentage =
-                                    ((salePrice - offerPrice) / salePrice) * 100;
+                                final double discountPercentage = ((salePrice - offerPrice) / salePrice) * 100;
+                                final int discountPercentageRounded = discountPercentage.ceil();
 
-                                final int discountPercentageRounded =
-                                    discountPercentage.ceil();
+                                // Determine if the product is in the wishlist
+                                bool isInWishlist = product['isInWishlist'] ?? false; // Adjust based on your data structure
+
+                                void toggleWishlist(slug,int productId) async {
+                                  try {
+                                    final apiUrl = isInWishlist
+                                        ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/removeFromWishlist/$productId'
+                                        : 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/$slug'; // Adjust endpoint as per your API structure
+
+                                    final response = await http.post(Uri.parse(apiUrl));
+
+                                    if (response.statusCode == 200) {
+                                      setState(() {
+                                        isInWishlist = !isInWishlist;
+                                      });
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(isInWishlist ? 'Added to wishlist' : 'Removed from wishlist'),
+                                        ),
+                                      );
+                                    } else {
+                                      throw Exception('Failed to ${isInWishlist ? 'remove from' : 'add to'} wishlist');
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error: $e'),
+                                      ),
+                                    );
+                                  }
+                                }
 
                                 return GestureDetector(
                                   onTap: () {
@@ -369,16 +393,14 @@ class _HomePageState extends State<HomePage> {
                                                 borderRadius: BorderRadius.circular(15.0),
                                               ),
                                               child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Padding(
                                                     padding: const EdgeInsets.all(8.0),
                                                     child: Container(
                                                       height: 150,
                                                       decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            const BorderRadius.vertical(
+                                                        borderRadius: const BorderRadius.vertical(
                                                           top: Radius.circular(15.0),
                                                         ),
                                                         image: DecorationImage(
@@ -389,11 +411,10 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                   ),
                                                   Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(8.0),
+                                                    padding: const EdgeInsets.all(8.0),
                                                     child: Text(
                                                       product['title'],
-                                                      style:  GoogleFonts.montserrat(
+                                                      style: GoogleFonts.montserrat(
                                                         fontSize: 11,
                                                         fontWeight: FontWeight.normal,
                                                       ),
@@ -402,39 +423,27 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                   ),
                                                   Padding(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                                     child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         if (isOfferPeriod) ...[
                                                           Row(
                                                             children: [
                                                               Text(
                                                                 '\$$formattedSalePrice',
-                                                                style:
-                                                                GoogleFonts.montserrat(
+                                                                style: GoogleFonts.montserrat(
                                                                   fontSize: 15,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  decoration:
-                                                                      TextDecoration
-                                                                          .lineThrough,
+                                                                  fontWeight: FontWeight.normal,
+                                                                  decoration: TextDecoration.lineThrough,
                                                                 ),
                                                               ),
-                                                              SizedBox(
-                                                                width: 10,
-                                                              ),
+                                                              SizedBox(width: 10),
                                                               Text(
                                                                 '\$$formattedOfferPrice',
-                                                                style:
-                                                                GoogleFonts.montserrat(
-                                                                  fontSize: 17,
-                                                                  fontWeight:
-                                                                      FontWeight.bold,
+                                                                style: GoogleFonts.montserrat(
+                                                                  fontSize: 15,
+                                                                  fontWeight: FontWeight.bold,
                                                                 ),
                                                               ),
                                                             ],
@@ -442,10 +451,9 @@ class _HomePageState extends State<HomePage> {
                                                         ] else ...[
                                                           Text(
                                                             '\$$formattedSalePrice',
-                                                            style:  GoogleFonts.montserrat(
-                                                              fontSize: 17,
-                                                              fontWeight:
-                                                                  FontWeight.bold,
+                                                            style: GoogleFonts.montserrat(
+                                                              fontSize: 15,
+                                                              fontWeight: FontWeight.bold,
                                                             ),
                                                           ),
                                                         ],
@@ -464,30 +472,25 @@ class _HomePageState extends State<HomePage> {
                                                   width: 40,
                                                   decoration: BoxDecoration(
                                                     color: Colors.orangeAccent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(30.0),
+                                                    borderRadius: BorderRadius.circular(30.0),
                                                   ),
-                                                  padding:
-                                                      const EdgeInsets.all(4.0),
+                                                  padding: const EdgeInsets.all(4.0),
                                                   child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                    mainAxisAlignment: MainAxisAlignment.center,
                                                     children: [
                                                       Text(
                                                         '$discountPercentageRounded%',
-                                                        style:  GoogleFonts.montserrat(
+                                                        style: GoogleFonts.montserrat(
                                                           fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                          fontWeight: FontWeight.bold,
                                                           color: Colors.white,
                                                         ),
                                                       ),
                                                       Text(
                                                         'OFF',
-                                                        style:  GoogleFonts.montserrat(
+                                                        style: GoogleFonts.montserrat(
                                                           fontSize: 9,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                          fontWeight: FontWeight.bold,
                                                           color: Colors.white,
                                                         ),
                                                       ),
@@ -495,6 +498,25 @@ class _HomePageState extends State<HomePage> {
                                                   ),
                                                 ),
                                               ),
+                                            Positioned(
+                                              top: 0,
+                                              right: 0,
+                                              child: GestureDetector(
+                                                onTap: () => toggleWishlist(slug,productId),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(30),
+                                                  ),
+                                                  child: Icon(
+                                                    isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                                    color: isInWishlist ? Colors.red : Colors.grey,
+                                                    size: 15,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -885,7 +907,7 @@ class _HomePageState extends State<HomePage> {
                                                               '\$$formattedOfferPrice',
                                                               style:
                                                               GoogleFonts.montserrat(
-                                                                fontSize: 17,
+                                                                fontSize: 15,
                                                                 fontWeight:
                                                                     FontWeight.bold,
                                                               ),
@@ -896,7 +918,7 @@ class _HomePageState extends State<HomePage> {
                                                         Text(
                                                           '\$$formattedSalePrice',
                                                           style:  GoogleFonts.montserrat(
-                                                            fontSize: 17,
+                                                            fontSize: 15,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -1131,7 +1153,7 @@ class _HomePageState extends State<HomePage> {
                                                               '\$$formattedOfferPrice',
                                                               style:
                                                               GoogleFonts.montserrat(
-                                                                fontSize: 17,
+                                                                fontSize: 15,
                                                                 fontWeight:
                                                                     FontWeight.bold,
                                                               ),
@@ -1142,7 +1164,7 @@ class _HomePageState extends State<HomePage> {
                                                         Text(
                                                           '\$$formattedSalePrice',
                                                           style:  GoogleFonts.montserrat(
-                                                            fontSize: 17,
+                                                            fontSize: 15,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -1212,9 +1234,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomBar(
         onTap: (index) {
           // Handle bottom bar tap if necessary
-        },
-        favoriteProducts:
-            mostpopular.where((product) => product['isFavorite']).toList(),
+        }, favoriteProducts: [],
+
       ),
     );
   }
