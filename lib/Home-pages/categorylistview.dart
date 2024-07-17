@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-import '../cartpage.dart';
 import '../home.dart';
 
 class Product {
@@ -57,7 +55,7 @@ class CategoryDescription extends StatefulWidget {
 class _CategoryDescriptionState extends State<CategoryDescription> {
   TextEditingController _searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
-  List<dynamic> recentProducts = [];
+  List<dynamic> allProducts = [];
   List<Product> filteredProducts = [];
 
   bool isLoading = true;
@@ -85,7 +83,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
         print("Response body: $responseBody"); // Debugging line
         final data = jsonDecode(response.body)['data']['allProducts'] as List;
         setState(() {
-          recentProducts = data.map((productJson) => Product.fromJson(productJson)).toList();
+          allProducts = data.map((productJson) => Product.fromJson(productJson)).toList();
           isLoading = false;
         });
       } else {
@@ -126,7 +124,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
         data.map((productJson) => Product.fromJson(productJson)).toList();
 
         setState(() {
-          recentProducts = product;
+          allProducts = product;
           filteredProducts = product;
           totalItems = product.length;
           isLoading = false;
@@ -357,13 +355,13 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                           ),
                         ),
                       ),
-                      for (var i = 0; i < recentProducts.length; i += 2)
+                      for (var i = 0; i < allProducts.length; i += 2)
                         ResponsiveCardRow(
                           screenWidth: screenWidth,
                           screenHeight: screenHeight,
-                          product1: recentProducts[i],
-                          product2: (i + 1 < recentProducts.length)
-                              ? recentProducts[i + 1]
+                          product1: allProducts[i],
+                          product2: (i + 1 < allProducts.length)
+                              ? allProducts[i + 1]
                               : null,
                         ),
                     ],
