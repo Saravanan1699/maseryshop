@@ -313,7 +313,7 @@ class _CartPageState extends State<CartPage> {
                                                   '',
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 17,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ),
@@ -392,6 +392,7 @@ class _CartPageState extends State<CartPage> {
                                             width: 10,
                                           ),
                                           Text(
+
                                             '\$${totalPrice.toStringAsFixed(2)}',
                                             style: GoogleFonts.montserrat(
                                               fontSize: 17,
@@ -447,6 +448,7 @@ class _CartPageState extends State<CartPage> {
                               ),
                             );
                           }).toList(),
+
                         );
                       },
                     ),

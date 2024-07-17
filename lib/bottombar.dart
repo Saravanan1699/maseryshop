@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:maseryshop/wishlist.dart';
 import 'dart:convert';
-import 'Home-pages/cartview.dart';
 import 'Home-pages/categorylistview.dart';
 import 'Notification.dart';
-import 'Settings/My_Profile.dart';
 import 'cartpage.dart';
 import 'home.dart';
 
 class BottomBar extends StatefulWidget {
   final Function(int) onTap;
-  final List<Map<String, dynamic>> favoriteProducts;
 
-  BottomBar({required this.onTap, required this.favoriteProducts});
+  BottomBar({required this.onTap});
 
   @override
   _BottomBarState createState() => _BottomBarState();
@@ -55,7 +52,7 @@ class _BottomBarState extends State<BottomBar> {
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Wishlist'),
-        BottomNavigationBarItem(icon: Icon(Icons.notifications_on_outlined), label: 'Notification'),
+        BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notification'),
         BottomNavigationBarItem(
           icon: Stack(
             children: [
@@ -64,20 +61,20 @@ class _BottomBarState extends State<BottomBar> {
                 Positioned(
                   right: 0,
                   child: Container(
-                    padding: EdgeInsets.all(1),
+                    padding: EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     constraints: BoxConstraints(
-                      minWidth: 14,
-                      minHeight: 14,
+                      minWidth: 16,
+                      minHeight: 16,
                     ),
                     child: Text(
                       '$totalItems',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 8,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
@@ -89,7 +86,6 @@ class _BottomBarState extends State<BottomBar> {
           label: 'Cart',
         ),
         BottomNavigationBarItem(icon: Icon(Icons.category_outlined), label: 'Categories'),
-        // BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
       ],
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.black,
@@ -103,15 +99,12 @@ class _BottomBarState extends State<BottomBar> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist()));
             break;
           case 2:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
-            break;
+            Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));            break;
           case 3:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-
             break;
           case 4:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryDescription()));
-
             break;
           default:
             break;

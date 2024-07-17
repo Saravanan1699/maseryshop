@@ -86,6 +86,7 @@ class _ProductDetailState extends State<ProductDetail> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        centerTitle: true,
         title: Text(
           product['title'],
           style: GoogleFonts.montserrat(),

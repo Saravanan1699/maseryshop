@@ -11,6 +11,7 @@ import 'Home-pages/ourbest_product.dart';
 import 'Home-pages/recent_product.dart';
 import 'Settings/My_Profile.dart';
 import 'bottombar.dart';
+import 'like.dart';
 import 'single-prodect-view.dart';
 
 class HomePage extends StatefulWidget {
@@ -100,25 +101,28 @@ class _HomePageState extends State<HomePage> {
 
   bool isInWishlist = false;
 
-  void toggleWishlist() async {
+
+  void toggleWishlist(String slug, int productId, bool currentWishlistStatus) async {
+    bool newWishlistStatus = !currentWishlistStatus;
     try {
-      final apiUrl = isInWishlist
-          ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/removefromWishlist/hp'
-          : 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/hp'; // Adjust endpoint as per your API structure
+      final apiUrl = newWishlistStatus
+          ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/$slug'
+          : 'https://sgitjobs.com/MaseryShoppingNew/public/api/removeFromWishlist/$productId';
 
       final response = await http.post(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
         setState(() {
-          isInWishlist = !isInWishlist;
+          featuredProducts.firstWhere((product) => product['slug'] == slug)['isInWishlist'] = newWishlistStatus;
         });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isInWishlist ? 'Added to wishlist' : 'Removed from wishlist'),
+            content: Text(newWishlistStatus ? 'Added to wishlist' : 'Removed from wishlist'),
           ),
         );
       } else {
-        throw Exception('Failed to ${isInWishlist ? 'remove from' : 'add to'} wishlist');
+        throw Exception('Failed to ${newWishlistStatus ? 'add to' : 'remove from'} wishlist');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -296,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => GraphicsCard()),
+                                                builder: (context) => LikePage()),
                                           );
                                         },
                                         icon: Icon(
@@ -315,11 +319,10 @@ class _HomePageState extends State<HomePage> {
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: featuredProducts.length,
-
                               itemBuilder: (context, index) {
                                 final product = featuredProducts[index];
-                                final slug = product['slug']; // Assuming slug is available in your product data
-                                final productId = product['id']; // Assuming productId is available in your product data
+                                final slug = product['slug'];
+                                final productId = product['id'];
                                 final imageUrl = 'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
 
                                 final offerStart = DateTime.parse(product['offer_start']);
@@ -336,37 +339,7 @@ class _HomePageState extends State<HomePage> {
                                 final double discountPercentage = ((salePrice - offerPrice) / salePrice) * 100;
                                 final int discountPercentageRounded = discountPercentage.ceil();
 
-                                // Determine if the product is in the wishlist
-                                bool isInWishlist = product['isInWishlist'] ?? false; // Adjust based on your data structure
-
-                                void toggleWishlist(slug,int productId) async {
-                                  try {
-                                    final apiUrl = isInWishlist
-                                        ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/removeFromWishlist/$productId'
-                                        : 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/$slug'; // Adjust endpoint as per your API structure
-
-                                    final response = await http.post(Uri.parse(apiUrl));
-
-                                    if (response.statusCode == 200) {
-                                      setState(() {
-                                        isInWishlist = !isInWishlist;
-                                      });
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(isInWishlist ? 'Added to wishlist' : 'Removed from wishlist'),
-                                        ),
-                                      );
-                                    } else {
-                                      throw Exception('Failed to ${isInWishlist ? 'remove from' : 'add to'} wishlist');
-                                    }
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error: $e'),
-                                      ),
-                                    );
-                                  }
-                                }
+                                bool isInWishlist = (product['wishlists'] as List).isNotEmpty;
 
                                 return GestureDetector(
                                   onTap: () {
@@ -502,7 +475,7 @@ class _HomePageState extends State<HomePage> {
                                               top: 0,
                                               right: 0,
                                               child: GestureDetector(
-                                                onTap: () => toggleWishlist(slug,productId),
+                                                onTap: () => toggleWishlist(slug, productId, isInWishlist),
                                                 child: Container(
                                                   padding: EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
@@ -510,7 +483,7 @@ class _HomePageState extends State<HomePage> {
                                                     borderRadius: BorderRadius.circular(30),
                                                   ),
                                                   child: Icon(
-                                                    isInWishlist ? Icons.favorite : Icons.favorite_border,
+                                                    Icons.favorite,
                                                     color: isInWishlist ? Colors.red : Colors.grey,
                                                     size: 15,
                                                   ),
@@ -671,9 +644,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           const SizedBox(height: 15),
-                          // Featured Products Section
                           // Container(
-                          //   height: 300,
+                          //   height: 190 ,
                           //   child: ListView.builder(
                           //     scrollDirection: Axis.horizontal,
                           //     itemCount: about.length,
@@ -687,20 +659,20 @@ class _HomePageState extends State<HomePage> {
                           //       return Padding(
                           //         padding: const EdgeInsets.all(8.0),
                           //         child: Container(
-                          //           width: 200,
+                          //           width: 150,
                           //           child: Column(
                           //             crossAxisAlignment:
                           //                 CrossAxisAlignment.start,
                           //             children: [
                           //               Container(
-                          //                 height: 150,
+                          //                 height: 50,
                           //                 decoration: BoxDecoration(
                           //                   borderRadius: BorderRadius.vertical(
                           //                     top: Radius.circular(15.0),
                           //                   ),
                           //                   image: DecorationImage(
                           //                     image: NetworkImage(imageUrl),
-                          //                     fit: BoxFit.cover,
+                          //                     fit: BoxFit.contain,
                           //                   ),
                           //                 ),
                           //               ),
@@ -1233,9 +1205,7 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomBar(
         onTap: (index) {
-          // Handle bottom bar tap if necessary
-        }, favoriteProducts: [],
-
+        },
       ),
     );
   }

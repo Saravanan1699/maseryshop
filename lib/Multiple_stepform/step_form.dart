@@ -27,7 +27,6 @@ class _MultistepFormState extends State<MultistepForm> {
   List<Map<String, dynamic>>? total;
   List<Map<String, dynamic>> quatityData = [];
 
-
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
@@ -55,7 +54,6 @@ class _MultistepFormState extends State<MultistepForm> {
         setState(() {
           productData = List<Map<String, dynamic>>.from(
               json.decode(response.body)['data'][0]['inventories']);
-
         });
       } else {
         throw Exception('Failed to load product data');
@@ -68,13 +66,15 @@ class _MultistepFormState extends State<MultistepForm> {
   Future<void> orderData() async {
     try {
       String cartId = await fetchCartId();
-      String url = 'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/$cartId/checkout';
+      String url =
+          'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/$cartId/checkout';
 
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         setState(() {
-          quatityData = List<Map<String, dynamic>>.from(jsonDecode(response.body)['data']);
+          quatityData = List<Map<String, dynamic>>.from(
+              jsonDecode(response.body)['data']);
         });
       } else {
         throw Exception('Failed to load product data');
@@ -83,7 +83,6 @@ class _MultistepFormState extends State<MultistepForm> {
       print('Error: $e');
     }
   }
-
 
   Future<String> fetchCartId() async {
     final response = await http.get(Uri.parse(
@@ -209,8 +208,10 @@ class _MultistepFormState extends State<MultistepForm> {
         Step(
           state: _activeStepIndex <= 0 ? StepState.editing : StepState.complete,
           isActive: _activeStepIndex >= 0,
-          title:  Text('Address',
-          style: GoogleFonts.montserrat(),),
+          title: Text(
+            'Address',
+            style: GoogleFonts.montserrat(),
+          ),
           content: Column(
             children: [
               Form(
@@ -605,15 +606,19 @@ class _MultistepFormState extends State<MultistepForm> {
         Step(
           state: _activeStepIndex <= 1 ? StepState.editing : StepState.complete,
           isActive: _activeStepIndex >= 1,
-          title:  Text('Order',style: GoogleFonts.montserrat(),),
+          title: Text(
+            'Order',
+            style: GoogleFonts.montserrat(),
+          ),
           content: productData == null
-              ?  Center(
-            child: Container(
-              child: LoadingAnimationWidget.halfTriangleDot(
-                size: 50.0, color: Colors.redAccent,
-              ),
-            ),
-          )
+              ? Center(
+                  child: Container(
+                    child: LoadingAnimationWidget.halfTriangleDot(
+                      size: 50.0,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                )
               : SingleChildScrollView(
                   child: Column(
                     children: productData!.map((product) {
@@ -645,8 +650,9 @@ class _MultistepFormState extends State<MultistepForm> {
                                             width: 140,
                                             child: Center(
                                                 child: Text(
-                                                    'Image not available',
-                                                style: GoogleFonts.montserrat(),)),
+                                              'Image not available',
+                                              style: GoogleFonts.montserrat(),
+                                            )),
                                           ),
                                     SizedBox(width: 8),
                                     Column(
@@ -660,7 +666,6 @@ class _MultistepFormState extends State<MultistepForm> {
                                             fontWeight: FontWeight.w500,
                                             fontSize: 16,
                                           ),
-
                                         ),
                                         SizedBox(height: 10),
                                         Row(
@@ -717,183 +722,193 @@ class _MultistepFormState extends State<MultistepForm> {
                   ),
                 ),
         ),
-    Step(
-      state: StepState.complete,
-      isActive: _activeStepIndex >= 2,
-      title:  Text('Payment',
-      style: GoogleFonts.montserrat(),),
-      content: Container(
-        child: SingleChildScrollView(
-          child: Column(
-            children: quatityData.map((product) {
-              String quantity = product['item_count'] ?? 'N/A';
-              String total;
-              if (product['total'] != null) {
-                total = double.tryParse(product['total'].toString())?.toStringAsFixed(2) ?? 'N/A';
-              } else {
-                total = 'N/A';
-              }
+        Step(
+          state: StepState.complete,
+          isActive: _activeStepIndex >= 2,
+          title: Text(
+            'Payment',
+            style: GoogleFonts.montserrat(),
+          ),
+          content: Container(
+            child: SingleChildScrollView(
+              child: Column(
+                children: quatityData.map((product) {
+                  String quantity = product['item_count'] ?? 'N/A';
+                  String total;
+                  if (product['total'] != null) {
+                    total = double.tryParse(product['total'].toString())
+                            ?.toStringAsFixed(2) ??
+                        'N/A';
+                  } else {
+                    total = 'N/A';
+                  }
 
-              return Column(
-                children: [
-                  Divider(color: Colors.grey[300]),
-                  SizedBox(height: 10),
-                  Row(
+                  return Column(
                     children: [
-                      SizedBox(width: 20),
-                      Text(
-                        'Price',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),Text(
-                        '($quantity)item',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Spacer(),
-                      Text(
-                        '\$$total', // Display total here
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(width: 20)
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    children: [
-                      SizedBox(width: 20),
-                      Text(
-                        'Delivery Charges',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0XFFA8A8A9),
-                        ),
-                      ),
-                      Spacer(),
-                      Text(
-                        '\$40',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0XFFA8A8A9),
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        'FREE', // Display total here
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                      SizedBox(width: 20)
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Divider(
-                    color: Colors.grey[600],
-                    indent: 15,
-                    endIndent: 15,
-                  ),
-                  SizedBox(height: 15),
-                  Row(
-                    children: [
-                      SizedBox(width: 20),
-                      Text(
-                        'Total',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Spacer(),
-                      Text(
-                        '\$$total',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(width: 20)
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Divider(
-                    color: Colors.grey[300],
-                    indent: 15,
-                    endIndent: 15,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(width: 20),
-                      Text(
-                        'Payment',
-                        style: GoogleFonts.montserrat(fontSize: 20),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isClicked = !_isClicked; // Toggle the state on each tap
-                        _isPaymentMethodSelected = true; // Mark payment method as selected
-                      });
-                    },
-                    child: Container(
-                      height: 60,
-                      width: 340,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF4F4F4),
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(
-                          color: _isClicked ? Colors.green : Colors.transparent,
-                        ), // Apply border color only if clicked
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Divider(color: Colors.grey[300]),
+                      SizedBox(height: 10),
+                      Row(
                         children: [
-                          Icon(Icons.attach_money,
-                              color: Color(0XFF6E7179)),
+                          SizedBox(width: 20),
                           Text(
-                            'Cash on Delivery',
+                            'Price',
                             style: GoogleFonts.montserrat(
-                              color: Color(0XFF6E7179),
-                              fontSize: 20,
+                              fontSize: 17,
                               fontWeight: FontWeight.w500,
+                              color: Colors.black,
                             ),
+                          ),
+                          Text(
+                            '($quantity)item',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            '\$$total', // Display total here
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(width: 20)
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      Row(
+                        children: [
+                          SizedBox(width: 20),
+                          Text(
+                            'Delivery Charges',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0XFFA8A8A9),
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            '\$40',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0XFFA8A8A9),
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'FREE', // Display total here
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(width: 20)
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      Divider(
+                        color: Colors.grey[600],
+                        indent: 15,
+                        endIndent: 15,
+                      ),
+                      SizedBox(height: 15),
+                      Row(
+                        children: [
+                          SizedBox(width: 20),
+                          Text(
+                            'Total',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            '\$$total',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(width: 20)
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      Divider(
+                        color: Colors.grey[300],
+                        indent: 15,
+                        endIndent: 15,
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(width: 20),
+                          Text(
+                            'Payment',
+                            style: GoogleFonts.montserrat(fontSize: 20),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                ],
-              );
-            }).toList(),
+                      SizedBox(height: 15),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isClicked =
+                                !_isClicked; // Toggle the state on each tap
+                            _isPaymentMethodSelected =
+                                true; // Mark payment method as selected
+                          });
+                        },
+                        child: Container(
+                          height: 60,
+                          width: 340,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color:
+                                  _isClicked ? Colors.green : Color(0XFFA8A8A9),
+                            ), // Apply border color only if clicked
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/cash.png',
+                                height: 45,
+                                // width: 250,
+                              ),
+                              Text(
+                                'Cash on Delivery',
+                                style: GoogleFonts.montserrat(
+                                  color: Color(0XFF6E7179),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-
-  ];
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -901,129 +916,147 @@ class _MultistepFormState extends State<MultistepForm> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title:  Text('Checkout',
-        style: GoogleFonts.montserrat(),),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_outlined,
-            size: 15,
-          ),
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomePage()));
+        centerTitle: true,
+        title: Text(
+          'Checkout',
+          style: GoogleFonts.montserrat(),
+        ),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              margin: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Color(0xffF2F2F2),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_outlined,
+                  size: 15,
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomePage()));
+                },
+              ),
+            );
           },
         ),
       ),
       body: productData == null
-          ?  Center(
-        child: Container(
-          child: LoadingAnimationWidget.halfTriangleDot(
-            size: 50.0, color: Colors.redAccent,
-          ),
-        ),
-      )
+          ? Center(
+              child: Container(
+                child: LoadingAnimationWidget.halfTriangleDot(
+                  size: 50.0,
+                  color: Colors.redAccent,
+                ),
+              ),
+            )
           : Container(
-        color: Colors.white,
-            child: Stepper(
-                    type: StepperType.horizontal,
-                    currentStep: _activeStepIndex,
-                    steps: stepList(),
-                    connectorColor: MaterialStateProperty.all(Color(0xff0D6EFD)),
-                    onStepContinue: () {
-            if (_activeStepIndex == 0) {
-              if (_formKey.currentState!.validate()) {
-                setState(() {
-                  _activeStepIndex += 1;
-                });
-              }
-            } else if (_activeStepIndex < (stepList().length - 1)) {
-              setState(() {
-                _activeStepIndex += 1;
-              });
-            } else {
-              print('Submitted');
-            }
-                    },
-                    onStepCancel: () {
-            if (_activeStepIndex > 0) {
-              setState(() {
-                _activeStepIndex -= 1;
-              });
-            }
-                    },
-                    onStepTapped: (int index) {
-            setState(() {
-              _activeStepIndex = index;
-            });
-                    },
-                    controlsBuilder: (BuildContext context, ControlsDetails details) {
-            final isLastStep = _activeStepIndex == stepList().length - 1;
+              color: Colors.white,
+              child: Stepper(
+                type: StepperType.horizontal,
+                currentStep: _activeStepIndex,
+                steps: stepList(),
+                connectorColor: MaterialStateProperty.all(Color(0xff0D6EFD)),
+                onStepContinue: () {
+                  if (_activeStepIndex == 0) {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        _activeStepIndex += 1;
+                      });
+                    }
+                  } else if (_activeStepIndex < (stepList().length - 1)) {
+                    setState(() {
+                      _activeStepIndex += 1;
+                    });
+                  } else {
+                    print('Submitted');
+                  }
+                },
+                onStepCancel: () {
+                  if (_activeStepIndex > 0) {
+                    setState(() {
+                      _activeStepIndex -= 1;
+                    });
+                  }
+                },
+                onStepTapped: (int index) {
+                  setState(() {
+                    _activeStepIndex = index;
+                  });
+                },
+                controlsBuilder:
+                    (BuildContext context, ControlsDetails details) {
+                  final isLastStep = _activeStepIndex == stepList().length - 1;
 
-            return Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (!isLastStep) {
-                        details.onStepContinue!();
-                      } else {
-                        setState(() {
-                          _activeStepIndex -= 1;
-                        });
-                      }
-                    },
-                    child: Text(
-                      isLastStep ? 'Back' : 'Save',
-                      style: GoogleFonts.montserrat(
-                        color: Color(0xff0D6EFD),
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (!isLastStep) {
+                              details.onStepContinue!();
+                            } else {
+                              setState(() {
+                                _activeStepIndex -= 1;
+                              });
+                            }
+                          },
+                          child: Text(
+                            isLastStep ? 'Back' : 'Save',
+                            style: GoogleFonts.montserrat(
+                              color: Color(0xff0D6EFD),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Color(0xff0D6EFD)),
+                            ),
+                            minimumSize: Size(150, 50),
+                          ),
+                        ),
                       ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: Color(0xff0D6EFD)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (isLastStep) {
+                              _handleCheckout();
+                            } else if (_activeStepIndex > 0) {
+                              setState(() {
+                                _activeStepIndex -= 1;
+                              });
+                            }
+                          },
+                          child: Text(
+                            isLastStep ? 'Pay Now' : 'Back',
+                            style: GoogleFonts.montserrat(
+                              color:
+                                  isLastStep ? Colors.white : Color(0xff0D6EFD),
+                              fontSize: 17,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                isLastStep ? Color(0xff0D6EFD) : Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Color(0xff0D6EFD)),
+                            ),
+                            minimumSize: Size(150, 50),
+                          ),
+                        ),
                       ),
-                      minimumSize: Size(150, 50),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (isLastStep) {
-                        _handleCheckout();
-                      } else if (_activeStepIndex > 0) {
-                        setState(() {
-                          _activeStepIndex -= 1;
-                        });
-                      }
-                    },
-                    child: Text(
-                      isLastStep ? 'Pay Now' : 'Back',
-                      style: GoogleFonts.montserrat(
-                        color: isLastStep ? Colors.white : Color(0xff0D6EFD),
-                        fontSize: 17,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isLastStep ? Color(0xff0D6EFD) : Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(color: Color(0xff0D6EFD)),
-                      ),
-                      minimumSize: Size(150, 50),
-                    ),
-                  ),
-                ),
-              ],
-            );
-                    },
-                  ),
-          ) ,
+                    ],
+                  );
+                },
+              ),
+            ),
     );
   }
 }

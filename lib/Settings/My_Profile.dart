@@ -241,7 +241,6 @@ class _ProfileState extends State<Profile> {
         onTap: (index) {
           setState(() {});
         },
-        favoriteProducts: [],
       ),
     );
   }

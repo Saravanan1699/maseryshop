@@ -15,7 +15,7 @@ class Wishlist extends StatefulWidget {
 }
 
 class _WishlistState extends State<Wishlist> {
-  List<dynamic> favoriteProducts = []; // Initialize your list
+  List<dynamic> favoriteProducts = [];
   bool isLoading = true;
 
   @override
@@ -33,27 +33,23 @@ class _WishlistState extends State<Wishlist> {
         final data = jsonDecode(response.body);
         setState(() {
           favoriteProducts = data['wishlist']['data'];
-          isLoading = false; // Update loading state
+          isLoading = false;
         });
       } else {
         throw Exception('Failed to load wishlist');
       }
     } catch (e) {
       print('Error fetching wishlist: $e');
-      // Handle error state if needed
       setState(() {
         isLoading = false;
       });
     }
   }
-  Future<void> _removeFromWishlist(int productId) async {
-    print('Removing product with ID: $productId'); // Print ID to terminal
 
+  Future<void> _removeFromWishlist(int productId) async {
     final url = Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/removefromWishlist/$productId');
     final headers = {
-      // Add headers if required (e.g., Authorization)
-      // 'Authorization': 'Bearer your_access_token',
-      'Content-Type': 'application/json', // Set the content type to JSON
+      'Content-Type': 'application/json',
     };
     final body = jsonEncode({'product_id': productId});
 
@@ -72,13 +68,13 @@ class _WishlistState extends State<Wishlist> {
           content: Text('Item removed from wishlist'),
           duration: Duration(seconds: 2),
         ));
-      }else if (response.statusCode == 404) {
+      } else if (response.statusCode == 404) {
         final responseBody = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(responseBody['error']),
           duration: Duration(seconds: 2),
         ));
-      }  else {
+      } else {
         throw Exception('Failed to remove from wishlist: ${response.statusCode}');
       }
     } catch (e) {
@@ -87,11 +83,53 @@ class _WishlistState extends State<Wishlist> {
         content: Text('Failed to remove item from wishlist'),
         duration: Duration(seconds: 2),
       ));
-      // Handle error if needed
     }
   }
 
+  Future<void> _addToCart(String slug) async {
+    final url = Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/$slug');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'quantity': 1,
+      'shipTo': 1,
+      'shippingZoneId': 1,
+      'handling': 1
+    });
 
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Item added to cart'),
+          duration: Duration(seconds: 2),
+        ));
+      } else if (response.statusCode == 402) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(responseBody['message'] ?? 'This item is already in the cart')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(responseBody['message'] ?? 'Failed to add product to cart')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('An error occurred: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +141,10 @@ class _WishlistState extends State<Wishlist> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
-        title: Text('Favorite'),
+        title: Text(
+          'Favorite',
+          style: GoogleFonts.montserrat(),
+        ),
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
@@ -124,15 +165,6 @@ class _WishlistState extends State<Wishlist> {
             );
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.favorite_border_outlined),
-            ),
-          ),
-        ],
       ),
       body: isLoading
           ? Center(
@@ -166,7 +198,8 @@ class _WishlistState extends State<Wishlist> {
                 fontWeight: FontWeight.w400,
                 color: Colors.grey[400],
               ),
-            ),Text(
+            ),
+            Text(
               'Make a wish!',
               style: GoogleFonts.montserrat(
                 fontSize: 15,
@@ -198,9 +231,9 @@ class _WishlistState extends State<Wishlist> {
         itemBuilder: (context, index) {
           final product = favoriteProducts[index]['inventory'];
           final productId = favoriteProducts[index]['id'];
+          final productSlug = product['slug'];
 
-          // Check if product['image'] is valid
-          final imageUrl = product['image'] ?? ''; // Default to empty string if null
+          final imageUrl = product['image'] ?? '';
 
           return Container(
             padding: EdgeInsets.all(screenWidth * 0.02),
@@ -229,29 +262,63 @@ class _WishlistState extends State<Wishlist> {
                         ),
                         IconButton(
                           onPressed: () {
-                            _removeFromWishlist(productId); // Assuming 'id' is the key for the product ID
+                            print('$productId');
+                            _removeFromWishlist(productId);
                           },
-                          icon: Icon(Icons.delete),
+                          icon: Icon(Icons.delete, color: Colors.orangeAccent),
                         ),
-
                       ],
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.01),
-                  Column(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text(
-                        product['title'] ?? '',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product['title'] ?? '',
+                              style: GoogleFonts.montserrat(
+                                fontSize: screenWidth * 0.04,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '\$${double.parse(product['sale_price']).toStringAsFixed(2)}',
+                              style: GoogleFonts.montserrat(
+                                fontSize: screenWidth * 0.035,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        '\$${product['sale_price']}',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.035,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                print('Adding to cart: $productSlug');
+                                _addToCart(productSlug);
+                              },
+                              child: Text(
+                                'Add to Cart',
+                                style: GoogleFonts.montserrat(color: Color(0xff0D6EFD), fontSize: 15),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(color: Color(0xff0D6EFD)),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -263,10 +330,7 @@ class _WishlistState extends State<Wishlist> {
         },
       ),
       bottomNavigationBar: BottomBar(
-        onTap: (index) {
-          // Handle bottom bar tap if necessary
-        },
-        favoriteProducts: [],
+        onTap: (index) {},
       ),
     );
   }

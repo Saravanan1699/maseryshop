@@ -510,7 +510,7 @@ class _SettingsState extends State<Settings> {
       bottomNavigationBar: BottomBar(
         onTap: (index) {
           setState(() {});
-        }, favoriteProducts: [],
+        },
       ),
     );
   }

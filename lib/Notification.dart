@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'bottombar.dart';
 import 'home.dart';
@@ -24,7 +25,8 @@ class _notificationState extends State<notification > {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
-        title: Text('Notification'),
+        title: Text('Notification',
+        style: GoogleFonts.montserrat(),),
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
@@ -45,53 +47,41 @@ class _notificationState extends State<notification > {
             );
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border_outlined)),
-          ),
-        ],
       ),
       body: widget.favoriteProducts.isEmpty
           ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.notifications_off_outlined,
-              size: screenWidth * 0.25,
-              color: Colors.grey,
+            Image.asset(
+              'assets/no-notification.png',
+              height: 150,
+              width: 250,
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              'No notification',
-              style: TextStyle(
-                fontSize: screenWidth * 0.06,
+              'No message notification',
+              style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.bold,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: screenHeight * 0.4),
+            SizedBox(height: screenHeight * 0.02),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
               },
+              child: Text(
+                'Return to home page',
+                style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff0D6EFD),
-                padding: EdgeInsets.symmetric(
-                  vertical: screenHeight * 0.02,
-                  horizontal: screenWidth * 0.25,
-                ),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)
+                  borderRadius: BorderRadius.circular(5),
                 ),
               ),
-              child: Text(
-                'Start Shopping',
-                style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.white),
-              ),
-            ),
-          ],
+            ),          ],
         ),
       )
           : GridView.builder(
@@ -164,7 +154,7 @@ class _notificationState extends State<notification > {
       bottomNavigationBar: BottomBar(
         onTap: (index) {
           setState(() {});
-        }, favoriteProducts: [],
+        },
       ),
     );
   }
