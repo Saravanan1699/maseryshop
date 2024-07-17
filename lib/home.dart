@@ -11,7 +11,6 @@ import 'Home-pages/ourbest_product.dart';
 import 'Home-pages/recent_product.dart';
 import 'Settings/My_Profile.dart';
 import 'bottombar.dart';
-import 'like.dart';
 import 'single-prodect-view.dart';
 
 class HomePage extends StatefulWidget {
@@ -300,7 +299,7 @@ class _HomePageState extends State<HomePage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => LikePage()),
+                                                builder: (context) => GraphicsCard()),
                                           );
                                         },
                                         icon: Icon(
