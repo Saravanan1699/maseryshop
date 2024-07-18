@@ -31,7 +31,8 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     var images = json['product']?['image'] as List? ?? [];
     List<String> imageList = images
-        .map((i) => 'https://sgitjobs.com/MaseryShoppingNew/public/${i['path']}')
+        .map(
+            (i) => 'https://sgitjobs.com/MaseryShoppingNew/public/${i['path']}')
         .toList();
     return Product(
       id: json['id'] ?? 0,
@@ -77,30 +78,31 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
 
   Future<void> fetchFeaturedProducts() async {
     try {
-      final response = await http.get(Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+      final response = await http.get(
+        Uri.parse(
+            'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'),
+      );
       if (response.statusCode == 200) {
-        final responseBody = response.body;
-        print("Response body: $responseBody"); // Debugging line
         final data = jsonDecode(response.body)['data']['allProducts'] as List;
+        List<Product> products =
+        data.map((productJson) => Product.fromJson(productJson)).toList();
+
         setState(() {
-          allProducts = data.map((productJson) => Product.fromJson(productJson)).toList();
+          allProducts = products;
+          filteredProducts = products;
           isLoading = false;
         });
       } else {
-        print("Failed with status code: ${response.statusCode}"); // Debugging line
-        setState(() {
-          isLoading = false;
-          hasError = true;
-        });
+        throw Exception('Failed to load featured products');
       }
     } catch (e) {
-      print("Error: $e"); // Debugging line
       setState(() {
         isLoading = false;
         hasError = true;
       });
     }
   }
+
 
   Future<void> fetchFilteredProducts({
     required List<int> brandIds,
@@ -120,13 +122,12 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as List;
-        List<Product> product =
+        List<Product> products =
         data.map((productJson) => Product.fromJson(productJson)).toList();
 
         setState(() {
-          allProducts = product;
-          filteredProducts = product;
-          totalItems = product.length;
+          allProducts = products;
+          filteredProducts = products;
           isLoading = false;
         });
       } else {
@@ -150,86 +151,205 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Brands and Price Range'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  CheckboxListTile(
-                    title: Text('Nord'),
-                    value: selectedBrands.contains(1),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value == true) {
-                          selectedBrands.add(1);
-                        } else {
-                          selectedBrands.remove(1);
-                        }
-                      });
-                    },
-                  ),
-                  CheckboxListTile(
-                    title: Text('Asus Vivobook'),
-                    value: selectedBrands.contains(2),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value == true) {
-                          selectedBrands.add(2);
-                        } else {
-                          selectedBrands.remove(2);
-                        }
-                      });
-                    },
-                  ),
-                  CheckboxListTile(
-                    title: Text('Lenovo'),
-                    value: selectedBrands.contains(3),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value == true) {
-                          selectedBrands.add(3);
-                        } else {
-                          selectedBrands.remove(3);
-                        }
-                      });
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text('Price Range: \$'),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Min',
-                          ),
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            minPrice = double.tryParse(value) ?? 0;
+          backgroundColor: Colors.white,
+          title: Text('Select Brands'),
+          content: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        _buildBrandFilterItem(
+                          brandId: 5,
+                          brandName: 'Acer',
+                          isSelected: selectedBrands.contains(5),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(5)) {
+                                selectedBrands.remove(5);
+                              } else {
+                                selectedBrands.add(5);
+                              }
+                            });
                           },
                         ),
-                      ),
-                      SizedBox(width: 10),
-                      Text('to \$'),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Max',
-                          ),
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            maxPrice = double.tryParse(value) ?? 2000;
+                        SizedBox(
+                          width: 10,
+                        ),
+                        _buildBrandFilterItem(
+                          brandId: 7,
+                          brandName: 'Samsung',
+                          isSelected: selectedBrands.contains(7),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(7)) {
+                                selectedBrands.remove(7);
+                              } else {
+                                selectedBrands.add(7);
+                              }
+                            });
                           },
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
+                        // Repeat for other brands
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        _buildBrandFilterItem(
+                          brandId: 12,
+                          brandName: 'Asus Vivobook',
+                          isSelected: selectedBrands.contains(12),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(12)) {
+                                selectedBrands.remove(12);
+                              } else {
+                                selectedBrands.add(12);
+                              }
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        _buildBrandFilterItem(
+                          brandId: 6,
+                          brandName: 'Hp',
+                          isSelected: selectedBrands.contains(6),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(6)) {
+                                selectedBrands.remove(6);
+                              } else {
+                                selectedBrands.add(6);
+                              }
+                            });
+                          },
+                        ),
+
+                        // Repeat for other brands
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        _buildBrandFilterItem(
+                          brandId: 11,
+                          brandName: 'Xiaomi',
+                          isSelected: selectedBrands.contains(11),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(11)) {
+                                selectedBrands.remove(11);
+                              } else {
+                                selectedBrands.add(11);
+                              }
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        _buildBrandFilterItem(
+                          brandId: 17,
+                          brandName: 'Samsung Galaxy',
+                          isSelected: selectedBrands.contains(17),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(17)) {
+                                selectedBrands.remove(17);
+                              } else {
+                                selectedBrands.add(17);
+                              }
+                            });
+                          },
+                        ),
+
+                        // Repeat for other brands
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        _buildBrandFilterItem(
+                          brandId: 15,
+                          brandName: 'Samsung Galaxy A11',
+                          isSelected: selectedBrands.contains(15),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(15)) {
+                                selectedBrands.remove(15);
+                              } else {
+                                selectedBrands.add(15);
+                              }
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        _buildBrandFilterItem(
+                          brandId: 18,
+                          brandName: 'IQOO',
+                          isSelected: selectedBrands.contains(18),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(18)) {
+                                selectedBrands.remove(18);
+                              } else {
+                                selectedBrands.add(7);
+                              }
+                            });
+                          },
+                        ),
+
+                        // Repeat for other brands
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        _buildBrandFilterItem(
+                          brandId: 21,
+                          brandName: 'OnePlus',
+                          isSelected: selectedBrands.contains(21),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(21)) {
+                                selectedBrands.remove(21);
+                              } else {
+                                selectedBrands.add(21);
+                              }
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        _buildBrandFilterItem(
+                          brandId: 2,
+                          brandName: 'Asus',
+                          isSelected: selectedBrands.contains(2),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBrands.contains(2)) {
+                                selectedBrands.remove(2);
+                              } else {
+                                selectedBrands.add(2);
+                              }
+                            });
+                          },
+                        ),
+                        // Repeat for other brands
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -255,6 +375,107 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     );
   }
 
+  Widget _buildBrandFilterItem({
+    required int brandId,
+    required String brandName,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        margin: EdgeInsets.symmetric(vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.greenAccent : Colors.white,
+          border: Border.all(color: isSelected ? Colors.green : Colors.grey),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          brandName,
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showFilterprice() async {
+    List<int> selectedBrands = [];
+    double minPrice = 0;
+    double maxPrice = 10000;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              title: Text('Select Price Range'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  RangeSlider(
+                    values: RangeValues(minPrice, maxPrice),
+                    min: 0,
+                    max: 10000,
+                    divisions: 100, // Adjust divisions as needed
+                    onChanged: (RangeValues values) {
+                      setState(() {
+                        minPrice = values.start;
+                        maxPrice = values.end;
+                      });
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text('Min: \$${minPrice.toStringAsFixed(2)}'),
+                      Text('Max: \$${maxPrice.toStringAsFixed(2)}'),
+                    ],
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('Filter'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    fetchFilteredProducts(
+                      brandIds: selectedBrands,
+                      minPrice: minPrice,
+                      maxPrice: maxPrice,
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  void _searchProducts(String query) {
+    setState(() {
+      allProducts = allProducts
+          .where((product) =>
+      product.title.toLowerCase().contains(query.toLowerCase()) ||
+          product.slug.toLowerCase().contains(query.toLowerCase()) ||
+          product.description.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
 
 
   @override
@@ -286,92 +507,165 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                 ),
                 onPressed: () {
                   setState(() {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomePage()));
                   });
                 },
               ),
             );
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.filter_list),
-            onPressed: () {
-              _showFilterDialog();
-            },
-          ),
-        ],
+        //     actions: [
+        //   IconButton(
+        //   icon: Icon(Icons.filter_list),
+        //   onPressed: () {
+        //     _showFilterDialog();
+        //   },
+        // ),
+        //     ],
       ),
-      body:  isLoading
+      body: isLoading
           ? Center(
-        child: Container(
-          child: LoadingAnimationWidget.halfTriangleDot(
-            size: 50.0,
-            color: Colors.redAccent,
-          ),
-        ),
-      )
-          : hasError
-          ? Center(child: Text('Failed to load data'))
-          : LayoutBuilder(
-        builder: (context, constraints) {
-          double screenWidth = constraints.maxWidth;
-          double screenHeight = constraints.maxHeight;
-
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Search any Product...',
-                    hintStyle: GoogleFonts.montserrat(
-                    ),
-                    prefixIcon:
-                    Icon(Icons.search, color: Color(0xffBBBBBB)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Color(0xffF2F2F2),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+              child: Container(
+                child: LoadingAnimationWidget.halfTriangleDot(
+                  size: 50.0,
+                  color: Colors.redAccent,
                 ),
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Text(
-                          '52,082+ Items',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+            )
+          : hasError
+              ? Center(child: Text('Failed to load data'))
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    double screenWidth = constraints.maxWidth;
+                    double screenHeight = constraints.maxHeight;
+
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _searchProducts,
+                            focusNode: _focusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Search any Product...',
+                              hintStyle: GoogleFonts.montserrat(),
+                              prefixIcon:
+                                  Icon(Icons.search, color: Color(0xffBBBBBB)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Color(0xffF2F2F2),
+                              contentPadding: EdgeInsets.zero,
+                            ),
                           ),
                         ),
-                      ),
-                      for (var i = 0; i < allProducts.length; i += 2)
-                        ResponsiveCardRow(
-                          screenWidth: screenWidth,
-                          screenHeight: screenHeight,
-                          product1: allProducts[i],
-                          product2: (i + 1 < allProducts.length)
-                              ? allProducts[i + 1]
-                              : null,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Text(
+                                        '52,082+ Items',
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 40,
+                                      width: 120,
+                                      child: Card(
+                                        color: Colors.white,
+                                        elevation: 4,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                        child: Center(
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                'Brands',
+                                                style: GoogleFonts.montserrat(),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.filter_list,
+                                                  size: 20,
+                                                ),
+                                                onPressed: () {
+                                                  _showFilterDialog();
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 40,
+                                      width: 105,
+                                      child: Card(
+                                        color: Colors.white,
+                                        elevation: 4,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                        child: Center(
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                'Price',
+                                                style: GoogleFonts.montserrat(),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.price_change_outlined,
+                                                  size: 20,
+                                                ),
+                                                onPressed: () {
+                                                  _showFilterprice();
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                for (var i = 0; i < allProducts.length; i += 2)
+                                  ResponsiveCardRow(
+                                    screenWidth: screenWidth,
+                                    screenHeight: screenHeight,
+                                    product1: allProducts[i],
+                                    product2: (i + 1 < allProducts.length)
+                                        ? allProducts[i + 1]
+                                        : null,
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
-                    ],
-                  ),
+                      ],
+                    );
+                  },
                 ),
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
 }
@@ -437,18 +731,17 @@ class ProductCard extends StatelessWidget {
         children: [
           product.imagePaths.isNotEmpty
               ? Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.network(
-              product.imagePaths[0],
-              height: screenHeight * 0.25,
-              width: double.infinity,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Placeholder(
-                    fallbackHeight: screenHeight * 0.25);
-              },
-            ),
-          )
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.network(
+                    product.imagePaths[0],
+                    height: screenHeight * 0.25,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Placeholder(fallbackHeight: screenHeight * 0.25);
+                    },
+                  ),
+                )
               : Placeholder(fallbackHeight: screenHeight * 0.25),
           Padding(
             padding: const EdgeInsets.all(8.0),
