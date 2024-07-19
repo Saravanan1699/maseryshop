@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../ProductDetailsPage.dart';
+import '../bottombar.dart';
 import '../cartpage.dart';
 import '../home.dart';
 
@@ -72,6 +73,7 @@ class _GraphicsCardState extends State<GraphicsCard> {
   void initState() {
     super.initState();
     fetchData();
+    fetchTotalItems();
   }
 
   Future<void> fetchData() async {
@@ -101,6 +103,25 @@ class _GraphicsCardState extends State<GraphicsCard> {
     }
   }
 
+  Future<void> fetchTotalItems() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          totalItems = int.parse(data['total_items']);
+        });
+      } else {
+        throw Exception('Failed to load total items');
+      }
+    } catch (e) {
+      print('Error fetching total items: $e');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,45 +150,44 @@ class _GraphicsCardState extends State<GraphicsCard> {
                   size: 15,
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                  setState(() {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                  });
                 },
               ),
             );
           },
         ),
         actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-            },
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    child: Icon(
-                      Icons.shopping_bag,
-                      size: 24.0,
-                      color: Colors.white,
-                    ),
-                    backgroundColor: Colors.blue,
-                  ),
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+                },
+                icon: Icon(
+                  Icons.shopping_bag,
+                  size: 24.0,
+                  color: Colors.blue,
                 ),
-                if (totalItems > 0)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: CircleAvatar(
-                      radius: 8,
-                      backgroundColor: Colors.red,
-                      child: Text(
-                        '$totalItems',
-                        style: GoogleFonts.montserrat(fontSize: 12, color: Colors.white),
+              ),
+              if (totalItems > 0)
+                Positioned(
+                  right: 4,
+                  top: 4,
+                  child: CircleAvatar(
+                    radius: 8,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      '$totalItems',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ],
       ),
@@ -239,6 +259,11 @@ class _GraphicsCardState extends State<GraphicsCard> {
           );
         },
       ),
+      bottomNavigationBar: BottomBar(
+        onTap: (index) {
+        },
+      ),
+
     );
   }
 }
@@ -335,12 +360,12 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ProductDetailsPage(product: product),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsPage(product: product),
+          ),
+        );
       },
       child: Card(
         color: Colors.white,

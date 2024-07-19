@@ -4,6 +4,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'Home-pages/recent_product.dart';
+import 'bottombar.dart';
 import 'home.dart';
 
 class ProductDetail extends StatefulWidget {
@@ -724,6 +725,11 @@ class _ProductDetailState extends State<ProductDetail> {
                 ],
               ),
             ),
+      bottomNavigationBar: BottomBar(
+        onTap: (index) {
+        },
+      ),
+
     );
   }
 }

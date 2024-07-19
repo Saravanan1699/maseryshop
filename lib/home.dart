@@ -170,27 +170,27 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              focusNode: _focusNode,
-              decoration: InputDecoration(
-                hintText: 'Search any Product...',
-                hintStyle: GoogleFonts.montserrat(
-
-                ),
-                prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Color(0xffF2F2F2),
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: TextField(
+          //     controller: _searchController,
+          //     focusNode: _focusNode,
+          //     decoration: InputDecoration(
+          //       hintText: 'Search any Product...',
+          //       hintStyle: GoogleFonts.montserrat(
+          //
+          //       ),
+          //       prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
+          //       border: OutlineInputBorder(
+          //         borderRadius: BorderRadius.circular(15.0),
+          //         borderSide: BorderSide.none,
+          //       ),
+          //       filled: true,
+          //       fillColor: Color(0xffF2F2F2),
+          //       contentPadding: EdgeInsets.zero,
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: banners.isEmpty
                 ?  Center(

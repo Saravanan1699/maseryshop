@@ -52,7 +52,7 @@ class _BottomBarState extends State<BottomBar> {
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Wishlist'),
-        BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notification'),
+        // BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notification'),
         BottomNavigationBarItem(
           icon: Stack(
             children: [
@@ -98,12 +98,13 @@ class _BottomBarState extends State<BottomBar> {
           case 1:
             Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist()));
             break;
+          // case 2:
+          //   Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
+          //   break;
           case 2:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));            break;
-          case 3:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
             break;
-          case 4:
+          case 3:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryDescription()));
             break;
           default:

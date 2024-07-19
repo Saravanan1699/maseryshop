@@ -655,31 +655,31 @@ class _MultistepFormState extends State<MultistepForm> {
                                             )),
                                           ),
                                     SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          product['title'] ??
-                                              'Title not available',
-                                          style: GoogleFonts.montserrat(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        SizedBox(height: 10),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              'Price: \$${product['sale_price'] != null ? double.tryParse(product['sale_price'])?.toStringAsFixed(2) ?? 'N/A' : 'N/A'}',
-                                              style: GoogleFonts.montserrat(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 17,
-                                              ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            product['title'] ?? 'Title not available',
+                                            style: GoogleFonts.montserrat(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 16,
                                             ),
-                                          ],
-                                        ),
-                                      ],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            'Price: \$${product['sale_price'] != null ? double.tryParse(product['offer_price'])?.toStringAsFixed(2) ?? 'N/A' : 'N/A'}',
+                                            style: GoogleFonts.montserrat(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -704,7 +704,9 @@ class _MultistepFormState extends State<MultistepForm> {
                                     ),
                                     Spacer(),
                                     Text(
-                                      '\$${product['pivot']?['unit_price'] != null ? double.tryParse(product['pivot']?['unit_price'])?.toStringAsFixed(2) ?? 'N/A' : 'N/A'}',
+                                      '\$${(product['pivot']?['quantity'] != null && product['sale_price'] != null)
+                                          ? (int.tryParse(product['pivot']['quantity'].toString())! * double.tryParse(product['offer_price'])!).toStringAsFixed(2)
+                                          : 'N/A'}',
                                       style: GoogleFonts.montserrat(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 15,

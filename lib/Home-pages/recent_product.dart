@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../bottombar.dart';
 import '../cartpage.dart';
 import '../home.dart';
 
@@ -146,38 +147,35 @@ class _GraphicsCard1State extends State<GraphicsCard1> {
           },
         ),
         actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-            },
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    child: Icon(
-                      Icons.shopping_bag,
-                      size: 24.0,
-                      color: Colors.white,
-                    ),
-                    backgroundColor: Colors.blue,
-                  ),
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+                },
+                icon: Icon(
+                  Icons.shopping_bag,
+                  size: 24.0,
+                  color: Colors.blue,
                 ),
-                if (totalItems > 0)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: CircleAvatar(
-                      radius: 8,
-                      backgroundColor: Colors.red,
-                      child: Text(
-                        '$totalItems',
-                        style: TextStyle(fontSize: 12, color: Colors.white),
+              ),
+              if (totalItems > 0)
+                Positioned(
+                  right: 4,
+                  top: 4,
+                  child: CircleAvatar(
+                    radius: 8,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      '$totalItems',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ],
       ),
@@ -251,6 +249,11 @@ class _GraphicsCard1State extends State<GraphicsCard1> {
           );
         },
       ),
+      bottomNavigationBar: BottomBar(
+        onTap: (index) {
+        },
+      ),
+
     );
   }
 }

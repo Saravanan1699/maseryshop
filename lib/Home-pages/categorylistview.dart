@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../ProductDetailsPage.dart';
+import '../bottombar.dart';
+import '../category-productview.dart';
 import '../home.dart';
 
-class Product {
+class CategotyProduct {
   final int id;
   final String title;
   final String description;
@@ -16,7 +19,7 @@ class Product {
   final List<String> imagePaths;
   final String slug;
 
-  Product({
+  CategotyProduct({
     required this.id,
     required this.title,
     required this.description,
@@ -28,13 +31,13 @@ class Product {
     required this.slug,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
+  factory CategotyProduct.fromJson(Map<String, dynamic> json) {
     var images = json['product']?['image'] as List? ?? [];
     List<String> imageList = images
         .map(
             (i) => 'https://sgitjobs.com/MaseryShoppingNew/public/${i['path']}')
         .toList();
-    return Product(
+    return CategotyProduct(
       id: json['id'] ?? 0,
       title: json['title'] ?? '',
       slug: json['slug'] ?? '',
@@ -57,7 +60,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   TextEditingController _searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
   List<dynamic> allProducts = [];
-  List<Product> filteredProducts = [];
+  List<CategotyProduct> filteredProducts = [];
 
   bool isLoading = true;
   bool hasError = false;
@@ -84,8 +87,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data']['allProducts'] as List;
-        List<Product> products =
-        data.map((productJson) => Product.fromJson(productJson)).toList();
+        List<CategotyProduct> products =
+            data.map((productJson) => CategotyProduct.fromJson(productJson)).toList();
 
         setState(() {
           allProducts = products;
@@ -102,7 +105,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       });
     }
   }
-
 
   Future<void> fetchFilteredProducts({
     required List<int> brandIds,
@@ -122,8 +124,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as List;
-        List<Product> products =
-        data.map((productJson) => Product.fromJson(productJson)).toList();
+        List<CategotyProduct> products =
+            data.map((productJson) => CategotyProduct.fromJson(productJson)).toList();
 
         setState(() {
           allProducts = products;
@@ -140,7 +142,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       });
     }
   }
-
 
   Future<void> _showFilterDialog() async {
     List<int> selectedBrands = [];
@@ -465,18 +466,16 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     );
   }
 
-
   void _searchProducts(String query) {
     setState(() {
       allProducts = allProducts
           .where((product) =>
-      product.title.toLowerCase().contains(query.toLowerCase()) ||
-          product.slug.toLowerCase().contains(query.toLowerCase()) ||
-          product.description.toLowerCase().contains(query.toLowerCase()))
+              product.title.toLowerCase().contains(query.toLowerCase()) ||
+              product.slug.toLowerCase().contains(query.toLowerCase()) ||
+              product.description.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -666,6 +665,11 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                     );
                   },
                 ),
+      bottomNavigationBar: BottomBar(
+        onTap: (index) {
+        },
+      ),
+
     );
   }
 }
@@ -673,8 +677,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
 class ResponsiveCardRow extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
-  final Product product1;
-  final Product? product2;
+  final CategotyProduct product1;
+  final CategotyProduct? product2;
 
   ResponsiveCardRow({
     required this.screenWidth,
@@ -710,7 +714,7 @@ class ResponsiveCardRow extends StatelessWidget {
 class ProductCard extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
-  final Product product;
+  final CategotyProduct product;
 
   ProductCard({
     required this.screenWidth,
@@ -720,52 +724,62 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          product.imagePaths.isNotEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.network(
-                    product.imagePaths[0],
-                    height: screenHeight * 0.25,
-                    width: double.infinity,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Placeholder(fallbackHeight: screenHeight * 0.25);
-                    },
-                  ),
-                )
-              : Placeholder(fallbackHeight: screenHeight * 0.25),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(product.title,
-                style: GoogleFonts.montserrat(
-                    fontSize: 17, fontWeight: FontWeight.bold)),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              product.description,
-              style: GoogleFonts.montserrat(fontSize: 15),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: () {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ProductDetailsPage(product: CategotyProduct,),
+        //   ),
+        // );
+      },
+      child: Card(
+        color: Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            product.imagePaths.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.network(
+                      product.imagePaths[0],
+                      height: screenHeight * 0.25,
+                      width: double.infinity,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Placeholder(fallbackHeight: screenHeight * 0.25);
+                      },
+                    ),
+                  )
+                : Placeholder(fallbackHeight: screenHeight * 0.25),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(product.title,
+                  style: GoogleFonts.montserrat(
+                      fontSize: 17, fontWeight: FontWeight.bold)),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('\$${product.salePrice}',
-                style: GoogleFonts.montserrat(
-                    fontSize: screenWidth * 0.035,
-                    fontWeight: FontWeight.bold)),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                product.description,
+                style: GoogleFonts.montserrat(fontSize: 15),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('\$${product.salePrice}',
+                  style: GoogleFonts.montserrat(
+                      fontSize: screenWidth * 0.035,
+                      fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }

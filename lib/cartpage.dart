@@ -19,6 +19,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   List<dynamic> carts = [];
   bool isLoading = true;
+  double totalItems = 0;
 
   Future<void> fetchData() async {
     try {
@@ -525,9 +526,9 @@ class _CartPageState extends State<CartPage> {
     for (var cart in carts) {
       for (var inventory in cart['inventories']) {
         int quantity = inventory['quantity'] ?? 1;
-        grandTotal +=
-            (double.tryParse(inventory['pivot']['unit_price']) ?? 0.0) *
-                quantity;
+        double unitPrice =
+            double.tryParse(inventory['pivot']['unit_price']) ?? 0.0;
+        grandTotal += unitPrice * quantity;
       }
     }
     return grandTotal;

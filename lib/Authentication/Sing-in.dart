@@ -48,14 +48,13 @@ class _SigninState extends State<Signin> {
 
       if (response.statusCode == 200) {
         responseData = jsonDecode(response.body);
-        print(
-            'Response data: $responseData'); // Print the entire response for inspection
+        print('Response data: $responseData'); // Print the entire response for inspection
         final String token = responseData['data']['token'] ?? '';
         final String Email = responseData['data']['userDetails']['email'] ?? '';
         final String name = responseData['data']['userDetails']['name'] ?? '';
         print('Retrieved username: $Email');
 
-        await _saveToLocalStorage(token, Email,name);
+        await _saveToLocalStorage(token, Email, name);
         return {
           'success': true,
           'message': 'User LoggedIn Successfully!',
@@ -63,13 +62,24 @@ class _SigninState extends State<Signin> {
           'email': Email,
           'name': name,
         };
+      } else if (response.statusCode == 402) {
+        responseData = jsonDecode(response.body);
+        final String errorMessage = responseData['data']['error'] ?? 'Unauthorized';
+        return {
+          'success': false,
+          'message': errorMessage,
+        };
       } else {
         throw Exception('Failed to authenticate');
       }
     } catch (e) {
-      throw Exception('Failed to authenticate: $e');
+      return {
+        'success': false,
+        'message': 'Failed to authenticate: $e',
+      };
     }
   }
+
 
   Future<void> _login() async {
     final email = _emailController.text;
@@ -269,9 +279,8 @@ class _SigninState extends State<Signin> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
-                  } else if (!RegExp(r'^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$')
-                      .hasMatch(value)) {
-                    return 'Password must be at least 8 characters and contain a special character';
+                  } else if (value.length < 8) {
+                    return 'Password must be at least 8 characters long';
                   }
                   return null;
                 },

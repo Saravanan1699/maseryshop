@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../bottombar.dart';
 import '../cartpage.dart';
 import '../home.dart';
 
@@ -115,14 +116,24 @@ class _OurbestproductListState extends State<OurbestproductList> {
             color: Color(0xFF2B2B2B),
           ),
         ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_outlined,
-            size: 15,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+        leading: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              margin: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Color(0xffF2F2F2),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_outlined,
+                  size: 15,
+                ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                },
+              ),
+            );
           },
         ),
         actions: [
@@ -135,7 +146,7 @@ class _OurbestproductListState extends State<OurbestproductList> {
                 icon: Icon(
                   Icons.shopping_bag,
                   size: 24.0,
-                  color: Colors.blue,
+                  color: Colors.blue, 
                 ),
               ),
               if (totalItems > 0)
@@ -212,6 +223,11 @@ class _OurbestproductListState extends State<OurbestproductList> {
           ),
         ),
       ),
+      bottomNavigationBar: BottomBar(
+        onTap: (index) {
+        },
+      ),
+
     );
   }
 }
