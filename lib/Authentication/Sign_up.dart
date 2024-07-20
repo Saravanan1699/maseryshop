@@ -376,6 +376,38 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               SizedBox(height: screenHeight * 0.04),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF7F7F9),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: screenWidth * 0.15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/Google.png',
+                      height: screenHeight * 0.03,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Sign up with Google',
+                      style: GoogleFonts.raleway(
+                        fontSize: screenWidth * 0.04,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2B2B2B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.04),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
