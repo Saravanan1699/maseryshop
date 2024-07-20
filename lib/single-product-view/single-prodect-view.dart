@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'Base_Url/BaseUrl.dart';
-import 'Home-pages/recent_product.dart';
-import 'bottombar.dart';
-import 'home.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../Product-pages/recent_product.dart';
+import '../bottombar/bottombar.dart';
+import '../Home-pages/home.dart';
 
 class ProductDetail extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -505,7 +505,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                    Navigator.push(
                                      context,
                                      MaterialPageRoute(
-                                         builder: (context) => GraphicsCard1()),
+                                         builder: (context) => RecentProducts()),
                                    );
                                  },
                                  icon: Icon(

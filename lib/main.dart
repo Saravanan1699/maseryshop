@@ -1,8 +1,7 @@
-// main.dart
 import 'package:flutter/material.dart';
-import 'package:maseryshop/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Authentication/startscreen.dart';
+import 'Home-pages/home.dart';
 
 void main() {
   runApp(const MyApp());

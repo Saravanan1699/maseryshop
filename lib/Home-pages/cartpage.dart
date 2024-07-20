@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'Authentication/Sing-in.dart';
-import 'Base_Url/BaseUrl.dart';
-import 'Multiple_stepform/step_form.dart';
+import '../Authentication/Sing-in.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../Multiple_stepform/step_form.dart';
 import 'home.dart';
 
 class CartPage extends StatefulWidget {

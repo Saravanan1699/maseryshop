@@ -3,9 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:convert';
-
-import 'Base_Url/BaseUrl.dart';
-import 'bottombar.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../bottombar/bottombar.dart';
 import 'home.dart';
 
 class Wishlist extends StatefulWidget {
@@ -26,7 +25,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   Future<void> _fetchWishlistData() async {
-    final url = Uri.parse('${ApiConfig.baseUrl}getwishlist');
+    final url = Uri.parse('${ApiConfig.baseUrl}/getwishlist');
     try {
       final response = await http.get(url);
 
@@ -48,7 +47,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   Future<void> _removeFromWishlist(int productId) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}removefromWishlist/$productId');
+    final url = Uri.parse('${ApiConfig.baseUrl}/removefromWishlist/$productId');
     final headers = {
       'Content-Type': 'application/json',
     };
@@ -88,7 +87,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   Future<void> _addToCart(String slug) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}addToCart/$slug');
+    final url = Uri.parse('${ApiConfig.baseUrl}/addToCart/$slug');
     final headers = {
       'Content-Type': 'application/json',
     };

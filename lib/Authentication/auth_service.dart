@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../cartpage.dart';
+import '../Home-pages/cartpage.dart';
 import 'Sing-in.dart';
 
 class AuthService {

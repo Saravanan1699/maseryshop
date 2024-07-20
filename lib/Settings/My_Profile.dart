@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,9 +5,9 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Authentication/Sing-in.dart';
 import '../Base_Url/BaseUrl.dart';
-import '../bottombar.dart';
-import '../home.dart';
-import 'Settings.dart';
+import '../Home-pages/home.dart';
+import '../bottombar/bottombar.dart';
+import '../my-order-list/myorderlist.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -47,7 +46,7 @@ class _ProfileState extends State<Profile> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/logout'),
+        Uri.parse('${ApiConfig.baseUrl}logout'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -197,7 +196,36 @@ class _ProfileState extends State<Profile> {
                         color: Color(0xFF2B2B2B),
                       ),
                     ),
+                    // Add Order History Row
                     SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Order History',
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF2B2B2B),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_forward_ios,
+                            size: screenWidth * 0.05,
+                            color: Color(0xFF2B2B2B),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Orderlist()),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -230,6 +258,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ],
                     ),
+
                   ],
                 ),
               ),
