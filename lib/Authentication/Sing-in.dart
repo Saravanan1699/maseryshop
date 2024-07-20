@@ -286,24 +286,24 @@ class _SigninState extends State<Signin> {
                 },
               ),
               SizedBox(height: screenHeight * 0.01),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPassword()));
-                  },
-                  child: Text(
-                    'Recovery Password ?',
-                    style: GoogleFonts.raleway(
-                      // Using Google Fonts
-                      fontSize: screenWidth * 0.035, // Responsive font size
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF707B81),
-                    ),
-                    textAlign: TextAlign.center, // Align the text to the center
-                  ),
-                ),
-              ),
+              // Align(
+              //   alignment: Alignment.centerRight,
+              //   child: GestureDetector(
+              //     onTap: () {
+              //       // Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPassword()));
+              //     },
+              //     child: Text(
+              //       'Recovery Password ?',
+              //       style: GoogleFonts.raleway(
+              //         // Using Google Fonts
+              //         fontSize: screenWidth * 0.035, // Responsive font size
+              //         fontWeight: FontWeight.w400,
+              //         color: Color(0xFF707B81),
+              //       ),
+              //       textAlign: TextAlign.center, // Align the text to the center
+              //     ),
+              //   ),
+              // ),
               SizedBox(height: screenHeight * 0.02),
               ElevatedButton(
                 onPressed: () {
@@ -331,41 +331,6 @@ class _SigninState extends State<Signin> {
                     color: Color(0xFFFFFFFF),
                   ),
                   textAlign: TextAlign.center, // Align the text to the center
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.04),
-              ElevatedButton(
-                onPressed: () {
-                  // Add your Google sign-in logic here
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF7F7F9), // Button background color
-                  padding: EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: screenWidth * 0.18,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        12.0), // Curved border with 12.0 radius
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/Google.png', // Path to your Google logo asset
-                      height: screenHeight * 0.03, // Adjust as needed
-                    ),
-                    SizedBox(width: 10), // Spacing between logo and text
-                    Text(
-                      'Sign up with Google',
-                      style: GoogleFonts.raleway(
-                        fontSize: screenWidth * 0.04, // Responsive font size
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2B2B2B),
-                      ),
-                    ),
-                  ],
                 ),
               ),
               SizedBox(height: screenHeight * 0.06),
