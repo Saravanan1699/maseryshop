@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
-import 'Authentication/Sing-in.dart';
-import 'Multiple_stepform/step_form.dart';
+import '../Authentication/Sing-in.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../Multiple_stepform/step_form.dart';
 import 'home.dart';
 
 class CartPage extends StatefulWidget {
@@ -24,7 +24,7 @@ class _CartPageState extends State<CartPage> {
   Future<void> fetchData() async {
     try {
       final response = await http.get(
-          Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/carts'));
+          Uri.parse('${ApiConfig.baseUrl}carts'));
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         if (responseData['success'] == true) {
@@ -56,7 +56,7 @@ class _CartPageState extends State<CartPage> {
   Future<void> updateCartItemQuantity(
       BuildContext context, int cartId, int itemId, int newQuantity) async {
     final String url =
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/$cartId/update?item=$itemId&quantity=$newQuantity';
+        '${ApiConfig.baseUrl}cart/$cartId/update?item=$itemId&quantity=$newQuantity';
 
     try {
       final response = await http.put(Uri.parse(url));
@@ -103,7 +103,7 @@ class _CartPageState extends State<CartPage> {
 
   Future<void> removeItemFromCart(int cartId, int itemId) async {
     final String url =
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/removeItem?cart=$cartId&item=$itemId';
+        '${ApiConfig.baseUrl}cart/removeItem?cart=$cartId&item=$itemId';
     try {
       final response = await http.delete(Uri.parse(url));
 

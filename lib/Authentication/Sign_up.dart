@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../Base_Url/BaseUrl.dart';
 import 'Sing-in.dart';
 
 class SignUp extends StatefulWidget {
@@ -24,7 +25,7 @@ class _SignUpState extends State<SignUp> {
   Future<void> registerUser(String name, String email, String password,
       String password_confirmation) async {
     final url =
-        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/register');
+        Uri.parse('${ApiConfig.baseUrl}register');
     try {
       final response = await http.post(
         url,

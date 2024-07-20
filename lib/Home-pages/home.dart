@@ -5,13 +5,14 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'Home-pages/Featured-list-view.dart';
-import 'Home-pages/categorylistview.dart';
-import 'Home-pages/ourbest_product.dart';
-import 'Home-pages/recent_product.dart';
-import 'Settings/My_Profile.dart';
-import 'bottombar.dart';
-import 'single-prodect-view.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../Product-pages/Featured-list-view.dart';
+import '../Product-pages/categorylistview.dart';
+import '../Product-pages/ourbest_product.dart';
+import '../Product-pages/recent_product.dart';
+import '../Settings/My_Profile.dart';
+import '../bottombar/bottombar.dart';
+import '../single-product-view/single-prodect-view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -56,7 +57,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+        '${ApiConfig.baseUrl}homescreen'));
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> {
   }
   Future<void> fetchWishlistIds() async {
     try {
-      final apiUrl = 'https://sgitjobs.com/MaseryShoppingNew/public/api/getwishlist';
+      final apiUrl = '${ApiConfig.baseUrl}getwishlist';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -105,8 +106,8 @@ class _HomePageState extends State<HomePage> {
     bool newWishlistStatus = !currentWishlistStatus;
     try {
       final apiUrl = newWishlistStatus
-          ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/$slug'
-          : 'https://sgitjobs.com/MaseryShoppingNew/public/api/removeFromWishlist/$productId';
+          ? '${ApiConfig.baseUrl}addToWishlist/$slug'
+          : '${ApiConfig.baseUrl}removeFromWishlist/$productId';
 
       final response = await http.post(Uri.parse(apiUrl));
 
@@ -299,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => GraphicsCard()),
+                                                builder: (context) => Featuredpage()),
                                           );
                                         },
                                         icon: Icon(
@@ -950,6 +951,252 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
 
+                          // Row(
+                          //   children: [
+                          //     Text(
+                          //       'All Products',
+                          //       style: GoogleFonts.montserrat(
+                          //         fontSize: 20,
+                          //         fontWeight: FontWeight.bold,
+                          //       ),
+                          //     ),
+                          //     Spacer(),
+                          //     Text(
+                          //       'See All',
+                          //       style: GoogleFonts.montserrat(
+                          //           fontSize: 17, fontWeight: FontWeight.bold),
+                          //     ),
+                          //     SizedBox(
+                          //       width: 10,
+                          //     ),
+                          //     Container(
+                          //         height: 35,
+                          //         decoration: const BoxDecoration(
+                          //           color: Colors.blue,
+                          //           shape: BoxShape.circle,
+                          //         ),
+                          //         child: IconButton(
+                          //           onPressed: () {
+                          //             Navigator.push(
+                          //               context,
+                          //               MaterialPageRoute(
+                          //                   builder: (context) =>
+                          //                       GraphicsCard1()),
+                          //             );
+                          //           },
+                          //           icon: Icon(
+                          //             Icons.arrow_forward,
+                          //             size: 20,
+                          //             color: Colors.white,
+                          //           ),
+                          //         ))
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 16),
+                          // Container(
+                          //   height: 260,
+                          //   child: ListView.builder(
+                          //     scrollDirection: Axis.horizontal,
+                          //     itemCount: allProducts.length,
+                          //     itemBuilder: (context, index) {
+                          //       final product = allProducts[index];
+                          //       final imagePath =
+                          //       product['product']?['image']?[0]?['path'];
+                          //       final imageUrl = imagePath != null
+                          //           ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                          //           : 'https://example.com/placeholder.png'; // Placeholder image URL
+                          //
+                          //       final offerStartStr = product['offer_start'];
+                          //       final offerEndStr = product['offer_end'];
+                          //       final salePriceStr = product['sale_price'];
+                          //       final offerPriceStr = product['offer_price'];
+                          //
+                          //       if (offerStartStr == null ||
+                          //           offerEndStr == null ||
+                          //           salePriceStr == null ||
+                          //           offerPriceStr == null) {
+                          //         // Skip this item if critical data is missing
+                          //         return SizedBox.shrink();
+                          //       }
+                          //
+                          //       final offerStart = DateTime.parse(offerStartStr);
+                          //       final offerEnd = DateTime.parse(offerEndStr);
+                          //       final currentDate = DateTime.now();
+                          //
+                          //       final bool isOfferPeriod =
+                          //           currentDate.isAfter(offerStart) &&
+                          //               currentDate.isBefore(offerEnd);
+                          //       final salePrice = double.parse(salePriceStr);
+                          //       final offerPrice = double.parse(offerPriceStr);
+                          //
+                          //       String formattedSalePrice = salePrice.toStringAsFixed(2);
+                          //       String formattedOfferPrice = offerPrice.toStringAsFixed(2);
+                          //
+                          //
+                          //       final double discountPercentage =
+                          //           ((salePrice - offerPrice) / salePrice) * 100;
+                          //       final int discountPercentageRounded =
+                          //       discountPercentage.ceil();
+                          //
+                          //       return GestureDetector(
+                          //         onTap: () {
+                          //           Navigator.push(
+                          //             context,
+                          //             MaterialPageRoute(
+                          //               builder: (context) =>
+                          //                   ProductDetail(product: product),
+                          //             ),
+                          //           );
+                          //         },
+                          //         child: Padding(
+                          //           padding: const EdgeInsets.all(8.0),
+                          //           child: Container(
+                          //             width: 200,
+                          //             child: Stack(
+                          //               children: [
+                          //                 Card(
+                          //                   color: Colors.white,
+                          //                   elevation: 4,
+                          //                   shape: RoundedRectangleBorder(
+                          //                     borderRadius: BorderRadius.circular(15.0),
+                          //                   ),
+                          //                   child: Column(
+                          //                     crossAxisAlignment:
+                          //                     CrossAxisAlignment.start,
+                          //                     children: [
+                          //                       Padding(
+                          //                         padding: const EdgeInsets.all(8.0),
+                          //                         child: Container(
+                          //                           height: 150,
+                          //                           decoration: BoxDecoration(
+                          //                             borderRadius:
+                          //                             const BorderRadius.vertical(
+                          //                               top: Radius.circular(15.0),
+                          //                             ),
+                          //                             image: DecorationImage(
+                          //                               image: NetworkImage(imageUrl),
+                          //                               fit: BoxFit.contain,
+                          //                             ),
+                          //                           ),
+                          //                         ),
+                          //                       ),
+                          //                       Padding(
+                          //                           padding:
+                          //                           const EdgeInsets.all(8.0),
+                          //                           child: Text(
+                          //                             product['title'] ?? 'No title',
+                          //                             style: GoogleFonts.montserrat(
+                          //                               fontSize: 11,
+                          //                               fontWeight: FontWeight.normal,
+                          //                             ),
+                          //                             maxLines: 1,
+                          //                             overflow: TextOverflow.ellipsis,
+                          //                           )
+                          //
+                          //                       ),
+                          //                       Padding(
+                          //                         padding:
+                          //                         const EdgeInsets.symmetric(
+                          //                             horizontal: 8.0),
+                          //                         child: Column(
+                          //                           crossAxisAlignment:
+                          //                           CrossAxisAlignment.start,
+                          //                           children: [
+                          //                             if (isOfferPeriod) ...[
+                          //                               Row(
+                          //                                 children: [
+                          //                                   Text(
+                          //                                     '\$$formattedSalePrice',
+                          //                                     style:
+                          //                                     GoogleFonts.montserrat(
+                          //                                       fontSize: 15,
+                          //                                       fontWeight:
+                          //                                       FontWeight
+                          //                                           .normal,
+                          //                                       decoration:
+                          //                                       TextDecoration
+                          //                                           .lineThrough,
+                          //                                     ),
+                          //                                   ),
+                          //                                   SizedBox(
+                          //                                     width: 10,
+                          //                                   ),
+                          //                                   Text(
+                          //                                     '\$$formattedOfferPrice',
+                          //                                     style:
+                          //                                     GoogleFonts.montserrat(
+                          //                                       fontSize: 15,
+                          //                                       fontWeight:
+                          //                                       FontWeight.bold,
+                          //                                     ),
+                          //                                   ),
+                          //                                 ],
+                          //                               ),
+                          //                             ] else ...[
+                          //                               Text(
+                          //                                 '\$$formattedSalePrice',
+                          //                                 style:  GoogleFonts.montserrat(
+                          //                                   fontSize: 15,
+                          //                                   fontWeight:
+                          //                                   FontWeight.bold,
+                          //                                 ),
+                          //                               ),
+                          //                             ],
+                          //                           ],
+                          //                         ),
+                          //                       ),
+                          //                     ],
+                          //                   ),
+                          //                 ),
+                          //                 if (isOfferPeriod)
+                          //                   Positioned(
+                          //                     top: 0,
+                          //                     left: 0,
+                          //                     child: Container(
+                          //                       height: 40,
+                          //                       width: 40,
+                          //                       decoration: BoxDecoration(
+                          //                         color: Colors.orangeAccent,
+                          //                         borderRadius:
+                          //                         BorderRadius.circular(30.0),
+                          //                       ),
+                          //                       padding:
+                          //                       const EdgeInsets.all(4.0),
+                          //                       child: Column(
+                          //                         mainAxisAlignment:
+                          //                         MainAxisAlignment.center,
+                          //                         children: [
+                          //                           Text(
+                          //                             '$discountPercentageRounded%',
+                          //                             style:  GoogleFonts.montserrat(
+                          //                               fontSize: 12,
+                          //                               fontWeight:
+                          //                               FontWeight.bold,
+                          //                               color: Colors.white,
+                          //                             ),
+                          //                           ),
+                          //                           Text(
+                          //                             'OFF',
+                          //                             style:  GoogleFonts.montserrat(
+                          //                               fontSize: 9,
+                          //                               fontWeight:
+                          //                               FontWeight.bold,
+                          //                               color: Colors.white,
+                          //                             ),
+                          //                           ),
+                          //                         ],
+                          //                       ),
+                          //                     ),
+                          //                   ),
+                          //               ],
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       );
+                          //     },
+                          //   ),
+                          // ),
+
                           Row(
                             children: [
                                Text(
@@ -980,7 +1227,7 @@ class _HomePageState extends State<HomePage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                GraphicsCard1()),
+                                                RecentProducts()),
                                       );
                                     },
                                     icon: Icon(

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:maseryshop/home.dart';
-
-import 'Sing-in.dart';
+import '../Home-pages/home.dart';
 
 class PageViewExampleApp extends StatefulWidget {
   const PageViewExampleApp({Key? key}) : super(key: key);

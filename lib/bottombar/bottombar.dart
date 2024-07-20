@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:maseryshop/wishlist.dart';
 import 'dart:convert';
-import 'Home-pages/categorylistview.dart';
-import 'Notification.dart';
-import 'cartpage.dart';
-import 'home.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../Home-pages/home.dart';
+import '../Home-pages/wishlist.dart';
+import '../Product-pages/categorylistview.dart';
+import '../Home-pages/cartpage.dart';
 
 class BottomBar extends StatefulWidget {
   final Function(int) onTap;
@@ -27,7 +27,7 @@ class _BottomBarState extends State<BottomBar> {
 
   Future<void> fetchTotalItems() async {
     try {
-      final response = await http.get(Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'));
+      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         setState(() {

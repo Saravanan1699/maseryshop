@@ -3,53 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import '../ProductDetailsPage.dart';
-import '../bottombar.dart';
-import '../category-productview.dart';
-import '../home.dart';
+import '../Base_Url/BaseUrl.dart';
+import '../Home-pages/home.dart';
+import '../single-product-view/single-prodect-view.dart';
+import '../bottombar/bottombar.dart';
 
-class CategotyProduct {
-  final int id;
-  final String title;
-  final String description;
-  final double salePrice;
-  final double offerPrice;
-  final double minPrice;
-  final double maxPrice;
-  final List<String> imagePaths;
-  final String slug;
-
-  CategotyProduct({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.salePrice,
-    required this.offerPrice,
-    required this.minPrice,
-    required this.maxPrice,
-    required this.imagePaths,
-    required this.slug,
-  });
-
-  factory CategotyProduct.fromJson(Map<String, dynamic> json) {
-    var images = json['product']?['image'] as List? ?? [];
-    List<String> imageList = images
-        .map(
-            (i) => 'https://sgitjobs.com/MaseryShoppingNew/public/${i['path']}')
-        .toList();
-    return CategotyProduct(
-      id: json['id'] ?? 0,
-      title: json['title'] ?? '',
-      slug: json['slug'] ?? '',
-      description: json['description'] ?? '',
-      salePrice: double.parse(json['sale_price'] ?? '0'),
-      offerPrice: double.parse(json['offer_price'] ?? '0'),
-      imagePaths: imageList,
-      minPrice: double.tryParse(json['min_price']?.toString() ?? '0.0') ?? 0.0,
-      maxPrice: double.tryParse(json['max_price']?.toString() ?? '0.0') ?? 0.0,
-    );
-  }
-}
 
 class CategoryDescription extends StatefulWidget {
   @override
@@ -57,14 +15,21 @@ class CategoryDescription extends StatefulWidget {
 }
 
 class _CategoryDescriptionState extends State<CategoryDescription> {
-  TextEditingController _searchController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
   List<dynamic> allProducts = [];
-  List<CategotyProduct> filteredProducts = [];
-
+  List<dynamic> filteredProducts = [];
+  dynamic about;
   bool isLoading = true;
   bool hasError = false;
-  int totalItems = 0;
+  bool hasResults = true; // New variable to track search results
+
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   @override
   void dispose() {
@@ -73,30 +38,26 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchFeaturedProducts();
-  }
-
-  Future<void> fetchFeaturedProducts() async {
+  Future<void> fetchData() async {
     try {
-      final response = await http.get(
-        Uri.parse(
-            'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body)['data']['allProducts'] as List;
-        List<CategotyProduct> products =
-            data.map((productJson) => CategotyProduct.fromJson(productJson)).toList();
+      final response = await http.get(Uri.parse(
+          '${ApiConfig.baseUrl}homescreen'));
 
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
         setState(() {
-          allProducts = products;
-          filteredProducts = products;
+          allProducts = jsonResponse['data']['allProducts'];
+          filteredProducts = allProducts; // Initialize filteredProducts
+          about = jsonResponse['data']['about'];
           isLoading = false;
+          hasError = false;
         });
       } else {
-        throw Exception('Failed to load featured products');
+        setState(() {
+          isLoading = false;
+          hasError = true;
+        });
+        throw Exception('Failed to load data');
       }
     } catch (e) {
       setState(() {
@@ -119,17 +80,14 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     try {
       final brandQueries = brandIds.map((id) => 'brand=$id').join('&');
       final url =
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/search?$brandQueries&min_price=$minPrice&max_price=$maxPrice';
+          '${ApiConfig.baseUrl}search?$brandQueries&min_price=$minPrice&max_price=$maxPrice';
 
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as List;
-        List<CategotyProduct> products =
-            data.map((productJson) => CategotyProduct.fromJson(productJson)).toList();
-
         setState(() {
-          allProducts = products;
-          filteredProducts = products;
+          allProducts = data;
+          filteredProducts = data;
           isLoading = false;
         });
       } else {
@@ -176,9 +134,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
+                        SizedBox(width: 10),
                         _buildBrandFilterItem(
                           brandId: 7,
                           brandName: 'Samsung',
@@ -347,6 +303,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                         // Repeat for other brands
                       ],
                     ),
+                    // Add more brand filter rows as needed
                   ],
                 );
               },
@@ -403,7 +360,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     );
   }
 
-  Future<void> _showFilterprice() async {
+  Future<void> _showFilterPrice() async {
     List<int> selectedBrands = [];
     double minPrice = 0;
     double maxPrice = 10000;
@@ -468,14 +425,28 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
 
   void _searchProducts(String query) {
     setState(() {
-      allProducts = allProducts
+      filteredProducts = allProducts
           .where((product) =>
-              product.title.toLowerCase().contains(query.toLowerCase()) ||
-              product.slug.toLowerCase().contains(query.toLowerCase()) ||
-              product.description.toLowerCase().contains(query.toLowerCase()))
+              (product['title'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              (product['slug'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              (product['description'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
           .toList();
+
+      hasResults = filteredProducts.isNotEmpty; // Update hasResults
     });
   }
+
+  String _getItemCountText() {
+    final itemCount = filteredProducts.length;
+    return '$itemCount Items';
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -486,8 +457,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
         centerTitle: true,
         title: Text(
           'Category',
-          style: GoogleFonts.raleway(
-            fontWeight: FontWeight.w700, // Regular weight for the description
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w700,
             color: Color(0xFF2B2B2B),
           ),
         ),
@@ -505,31 +476,21 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                   size: 15,
                 ),
                 onPressed: () {
-                  setState(() {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
-                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                  );
                 },
               ),
             );
           },
         ),
-        //     actions: [
-        //   IconButton(
-        //   icon: Icon(Icons.filter_list),
-        //   onPressed: () {
-        //     _showFilterDialog();
-        //   },
-        // ),
-        //     ],
       ),
       body: isLoading
           ? Center(
-              child: Container(
-                child: LoadingAnimationWidget.halfTriangleDot(
-                  size: 50.0,
-                  color: Colors.redAccent,
-                ),
+              child: LoadingAnimationWidget.halfTriangleDot(
+                size: 50.0,
+                color: Colors.redAccent,
               ),
             )
           : hasError
@@ -562,114 +523,101 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: Text(
-                                        '52,082+ Items',
-                                        style: GoogleFonts.montserrat(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 40,
-                                      width: 120,
-                                      child: Card(
-                                        color: Colors.white,
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                        ),
-                                        child: Center(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Text(
-                                                'Brands',
-                                                style: GoogleFonts.montserrat(),
-                                              ),
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.filter_list,
-                                                  size: 20,
-                                                ),
-                                                onPressed: () {
-                                                  _showFilterDialog();
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 40,
-                                      width: 105,
-                                      child: Card(
-                                        color: Colors.white,
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                        ),
-                                        child: Center(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Text(
-                                                'Price',
-                                                style: GoogleFonts.montserrat(),
-                                              ),
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.price_change_outlined,
-                                                  size: 20,
-                                                ),
-                                                onPressed: () {
-                                                  _showFilterprice();
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                _getItemCountText(),  // Use the method to get the item count
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                for (var i = 0; i < allProducts.length; i += 2)
-                                  ResponsiveCardRow(
-                                    screenWidth: screenWidth,
-                                    screenHeight: screenHeight,
-                                    product1: allProducts[i],
-                                    product2: (i + 1 < allProducts.length)
-                                        ? allProducts[i + 1]
-                                        : null,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              GestureDetector(
+                                onTap: _showFilterDialog,
+                                child: SizedBox(
+                                  width: 90,
+                                  height: 40,
+                                  child: Card(
+                                    color: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      'Brands',
+                                      style: GoogleFonts.montserrat(),
+                                    )),
                                   ),
-                              ],
-                            ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              GestureDetector(
+                                onTap: _showFilterPrice,
+                                child: SizedBox(
+                                  width: 90,
+                                  height: 40,
+                                  child: Card(
+                                    color: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      'Price',
+                                      style: GoogleFonts.montserrat(),
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        Expanded(
+                          child: filteredProducts.isEmpty
+                              ? Center(
+                                  child: Text('No data found',
+                                      style:
+                                          GoogleFonts.montserrat(fontSize: 18)))
+                              : ListView.builder(
+                                  itemCount:
+                                      (filteredProducts.length / 2).ceil(),
+                                  itemBuilder: (context, index) {
+                                    final int firstProductIndex = index * 2;
+                                    final int secondProductIndex =
+                                        firstProductIndex + 1;
+
+                                    return ResponsiveCardRow(
+                                      screenWidth: screenWidth,
+                                      screenHeight: screenHeight,
+                                      product1:
+                                          filteredProducts[firstProductIndex],
+                                      product2: secondProductIndex <
+                                              filteredProducts.length
+                                          ? filteredProducts[secondProductIndex]
+                                          : null,
+                                    );
+                                  },
+                                ),
                         ),
                       ],
                     );
                   },
                 ),
       bottomNavigationBar: BottomBar(
-        onTap: (index) {
-        },
+        onTap: (index) {},
       ),
-
     );
   }
 }
@@ -677,8 +625,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
 class ResponsiveCardRow extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
-  final CategotyProduct product1;
-  final CategotyProduct? product2;
+  final dynamic product1;
+  final dynamic product2;
 
   ResponsiveCardRow({
     required this.screenWidth,
@@ -714,7 +662,7 @@ class ResponsiveCardRow extends StatelessWidget {
 class ProductCard extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
-  final CategotyProduct product;
+  final dynamic product;
 
   ProductCard({
     required this.screenWidth,
@@ -724,14 +672,24 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagePaths = product['product'] != null &&
+            product['product']['image'] != null &&
+            (product['product']['image'] as List).isNotEmpty
+        ? product['product']['image'] as List
+        : [];
+
+    final imageUrl = imagePaths.isNotEmpty
+        ? 'https://sgitjobs.com/MaseryShoppingNew/public/${imagePaths[0]['path']}'
+        : '';
+
     return GestureDetector(
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ProductDetailsPage(product: CategotyProduct,),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetail(product: product),
+          ),
+        );
       },
       child: Card(
         color: Colors.white,
@@ -742,30 +700,31 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            product.imagePaths.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Image.network(
-                      product.imagePaths[0],
-                      height: screenHeight * 0.25,
-                      width: double.infinity,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Placeholder(fallbackHeight: screenHeight * 0.25);
-                      },
-                    ),
-                  )
-                : Placeholder(fallbackHeight: screenHeight * 0.25),
+            if (imageUrl.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.network(
+                  imageUrl,
+                  height: screenHeight * 0.25,
+                  width: double.infinity,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Placeholder(fallbackHeight: screenHeight * 0.25);
+                  },
+                ),
+              )
+            else
+              Placeholder(fallbackHeight: screenHeight * 0.25),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(product.title,
+              child: Text(product['title'] ?? '',
                   style: GoogleFonts.montserrat(
                       fontSize: 17, fontWeight: FontWeight.bold)),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                product.description,
+                product['description'] ?? '',
                 style: GoogleFonts.montserrat(fontSize: 15),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -773,11 +732,12 @@ class ProductCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text('\$${product.salePrice}',
-                  style: GoogleFonts.montserrat(
-                      fontSize: screenWidth * 0.035,
-                      fontWeight: FontWeight.bold)),
-            ),
+              child: Text(
+                '\$${(product['sale_price'] != null && product['offer_price'] != null) ? double.tryParse(product['offer_price'].toString())?.toStringAsFixed(2) ?? 'N/A' : 'N/A'}',
+                style: GoogleFonts.montserrat(
+                    fontSize: screenWidth * 0.035, fontWeight: FontWeight.bold),
+              ),
+            )
           ],
         ),
       ),
