@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:maseryshop/wishlist.dart';
 import 'dart:convert';
+import 'Base_Url/BaseUrl.dart';
 import 'Home-pages/categorylistview.dart';
 import 'Notification.dart';
 import 'cartpage.dart';
@@ -27,7 +28,7 @@ class _BottomBarState extends State<BottomBar> {
 
   Future<void> fetchTotalItems() async {
     try {
-      final response = await http.get(Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'));
+      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         setState(() {

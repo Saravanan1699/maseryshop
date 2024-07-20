@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../Base_Url/BaseUrl.dart';
 import '../ProductDetailsPage.dart';
 import '../bottombar.dart';
 import '../cartpage.dart';
@@ -79,7 +80,7 @@ class _GraphicsCardState extends State<GraphicsCard> {
   Future<void> fetchData() async {
     try {
       final response = await http.get(
-          Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+          Uri.parse('${ApiConfig.baseUrl}homescreen'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'];
         setState(() {
@@ -106,7 +107,7 @@ class _GraphicsCardState extends State<GraphicsCard> {
   Future<void> fetchTotalItems() async {
     try {
       final response = await http.get(
-        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'),
+        Uri.parse('${ApiConfig.baseUrl}totalitems'),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -319,7 +320,7 @@ class ProductCard extends StatelessWidget {
   Future<void> addToCart(BuildContext context, Product product) async {
     try {
       final response = await http.post(
-        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/${product.slug}'),
+        Uri.parse('${ApiConfig.baseUrl}addToCart/${product.slug}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'product': {'id': product.id, 'slug': product.slug},

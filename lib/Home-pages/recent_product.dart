@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../Base_Url/BaseUrl.dart';
 import '../bottombar.dart';
 import '../cartpage.dart';
 import '../home.dart';
@@ -72,7 +73,7 @@ class _GraphicsCard1State extends State<GraphicsCard1> {
 
   Future<void> fetchFeaturedProducts() async {
     try {
-      final response = await http.get(Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
       if (response.statusCode == 200) {
         final responseBody = response.body;
         print("Response body: $responseBody"); // Debugging line
@@ -98,7 +99,7 @@ class _GraphicsCard1State extends State<GraphicsCard1> {
   }
 
   Future<void> fetchTotalItems() async {
-    final response = await http.get(Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'));
+    final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {

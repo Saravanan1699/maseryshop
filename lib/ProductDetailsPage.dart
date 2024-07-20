@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dots_indicator/dots_indicator.dart'; // Add this dependency to your pubspec.yaml
 import 'package:maseryshop/bottombar.dart';
+import 'Base_Url/BaseUrl.dart';
 import 'Home-pages/Featured-list-view.dart';
 import 'home.dart';
 
@@ -43,7 +44,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+        '${ApiConfig.baseUrl}homescreen'));
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -59,7 +60,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Future<void> fetchTotalItems() async {
     try {
       final response = await http.get(Uri.parse(
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'));
+          '${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         setState(() {
@@ -269,7 +270,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         try {
                           final productSlug = widget.product.slug;
                           final url = Uri.parse(
-                              'https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/$productSlug');
+                              '${ApiConfig.baseUrl}addToCart/$productSlug');
 
                           final response = await http.post(
                             url,

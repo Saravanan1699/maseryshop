@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../Base_Url/BaseUrl.dart';
 import '../Multiple_stepform/step_form.dart';
 
 
@@ -61,7 +62,7 @@ class _cartviewState extends State<cartview> {
 
   Future<Product> fetchProduct() async {
     final response = await http.get(Uri.parse(
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/get/product/samsung'));
+        '${ApiConfig.baseUrl}get/product/samsung'));
     if (response.statusCode == 200) {
       return Product.fromJson(jsonDecode(response.body)['data']);
     } else {
@@ -320,7 +321,7 @@ class _cartviewState extends State<cartview> {
 
                       // Function to add the product to the cart
                       Future<void> addToCart(Map<String, String> product) async {
-                        final url = Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/acer');
+                        final url = Uri.parse('${ApiConfig.baseUrl}addToCart/acer');
                         final response = await http.post(
                           url,
                           headers: {'Content-Type': 'application/json'},

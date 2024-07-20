@@ -5,6 +5,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Base_Url/BaseUrl.dart';
 import '../home.dart';
 
 class MultistepForm extends StatefulWidget {
@@ -46,7 +47,7 @@ class _MultistepFormState extends State<MultistepForm> {
     try {
       String cartId = await fetchCartId();
       String url =
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/$cartId/checkout';
+          '${ApiConfig.baseUrl}cart/$cartId/checkout';
 
       final response = await http.get(Uri.parse(url));
 
@@ -67,7 +68,7 @@ class _MultistepFormState extends State<MultistepForm> {
     try {
       String cartId = await fetchCartId();
       String url =
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/$cartId/checkout';
+          '${ApiConfig.baseUrl}cart/$cartId/checkout';
 
       final response = await http.get(Uri.parse(url));
 
@@ -86,7 +87,7 @@ class _MultistepFormState extends State<MultistepForm> {
 
   Future<String> fetchCartId() async {
     final response = await http.get(Uri.parse(
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'));
+        '${ApiConfig.baseUrl}totalitems'));
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
@@ -117,7 +118,7 @@ class _MultistepFormState extends State<MultistepForm> {
     try {
       final cartId = await fetchCartId();
       final url =
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/cart/$cartId/checkout';
+          '${ApiConfig.baseUrl}cart/$cartId/checkout';
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

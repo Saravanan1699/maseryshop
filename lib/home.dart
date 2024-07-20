@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'Base_Url/BaseUrl.dart';
 import 'Home-pages/Featured-list-view.dart';
 import 'Home-pages/categorylistview.dart';
 import 'Home-pages/ourbest_product.dart';
@@ -56,7 +57,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+        '${ApiConfig.baseUrl}homescreen'));
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> {
   }
   Future<void> fetchWishlistIds() async {
     try {
-      final apiUrl = 'https://sgitjobs.com/MaseryShoppingNew/public/api/getwishlist';
+      final apiUrl = '${ApiConfig.baseUrl}getwishlist';
       final response = await http.get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
@@ -105,8 +106,8 @@ class _HomePageState extends State<HomePage> {
     bool newWishlistStatus = !currentWishlistStatus;
     try {
       final apiUrl = newWishlistStatus
-          ? 'https://sgitjobs.com/MaseryShoppingNew/public/api/addToWishlist/$slug'
-          : 'https://sgitjobs.com/MaseryShoppingNew/public/api/removeFromWishlist/$productId';
+          ? '${ApiConfig.baseUrl}addToWishlist/$slug'
+          : '${ApiConfig.baseUrl}removeFromWishlist/$productId';
 
       final response = await http.post(Uri.parse(apiUrl));
 

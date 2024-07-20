@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'Base_Url/BaseUrl.dart';
 import 'Home-pages/recent_product.dart';
 import 'bottombar.dart';
 import 'home.dart';
@@ -44,7 +45,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'));
+        '${ApiConfig.baseUrl}homescreen'));
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -60,7 +61,7 @@ class _ProductDetailState extends State<ProductDetail> {
   Future<void> fetchTotalItems() async {
     try {
       final response = await http.get(Uri.parse(
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/totalitems'));
+          '${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         setState(() {
@@ -314,7 +315,7 @@ class _ProductDetailState extends State<ProductDetail> {
                               try {
                                 final productSlug = widget.product['slug'];
                                 final url = Uri.parse(
-                                    'https://sgitjobs.com/MaseryShoppingNew/public/api/addToCart/$productSlug');
+                                    '${ApiConfig.baseUrl}addToCart/$productSlug');
 
                                 final response = await http.post(
                                   url,

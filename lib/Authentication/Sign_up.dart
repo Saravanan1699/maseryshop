@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../Base_Url/BaseUrl.dart';
 import 'Sing-in.dart';
 
 class SignUp extends StatefulWidget {
@@ -24,7 +25,7 @@ class _SignUpState extends State<SignUp> {
   Future<void> registerUser(String name, String email, String password,
       String password_confirmation) async {
     final url =
-        Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/register');
+        Uri.parse('${ApiConfig.baseUrl}register');
     try {
       final response = await http.post(
         url,
@@ -372,38 +373,6 @@ class _SignUpState extends State<SignUp> {
                     color: Color(0xFFFFFFFF),
                   ),
                   textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.04),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF7F7F9),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: screenWidth * 0.15,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/Google.png',
-                      height: screenHeight * 0.03,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      'Sign up with Google',
-                      style: GoogleFonts.raleway(
-                        fontSize: screenWidth * 0.04,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2B2B2B),
-                      ),
-                    ),
-                  ],
                 ),
               ),
               SizedBox(height: screenHeight * 0.04),

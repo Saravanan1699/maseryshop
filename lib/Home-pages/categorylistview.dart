@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../Base_Url/BaseUrl.dart';
 import '../ProductDetailsPage.dart';
 import '../bottombar.dart';
 import '../category-productview.dart';
@@ -83,7 +84,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://sgitjobs.com/MaseryShoppingNew/public/api/homescreen'),
+            '${ApiConfig.baseUrl}homescreen'),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data']['allProducts'] as List;
@@ -119,7 +120,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     try {
       final brandQueries = brandIds.map((id) => 'brand=$id').join('&');
       final url =
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/search?$brandQueries&min_price=$minPrice&max_price=$maxPrice';
+          '${ApiConfig.baseUrl}search?$brandQueries&min_price=$minPrice&max_price=$maxPrice';
 
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
