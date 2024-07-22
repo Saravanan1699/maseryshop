@@ -8,7 +8,6 @@ import '../Home-pages/home.dart';
 import '../single-product-view/single-prodect-view.dart';
 import '../bottombar/bottombar.dart';
 
-
 class CategoryDescription extends StatefulWidget {
   @override
   _CategoryDescriptionState createState() => _CategoryDescriptionState();
@@ -20,7 +19,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   dynamic about;
   bool isLoading = true;
   bool hasError = false;
-  bool hasResults = true; // New variable to track search results
+  bool hasResults = true;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -40,14 +39,14 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse(
-          '${ApiConfig.baseUrl}homescreen'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         setState(() {
           allProducts = jsonResponse['data']['allProducts'];
-          filteredProducts = allProducts; // Initialize filteredProducts
+          filteredProducts = allProducts;
           about = jsonResponse['data']['about'];
           isLoading = false;
           hasError = false;
@@ -149,9 +148,10 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        // Repeat for other brands
+                        // Repeat for other brands in the first row
                       ],
                     ),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -169,9 +169,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
+                        SizedBox(width: 10),
                         _buildBrandFilterItem(
                           brandId: 6,
                           brandName: 'Hp',
@@ -186,10 +184,10 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-
-                        // Repeat for other brands
+                        // Repeat for other brands in the second row
                       ],
                     ),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -207,9 +205,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
+                        SizedBox(width: 10),
                         _buildBrandFilterItem(
                           brandId: 17,
                           brandName: 'Samsung Galaxy',
@@ -224,10 +220,10 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-
-                        // Repeat for other brands
+                        // Repeat for other brands in the third row
                       ],
                     ),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -245,9 +241,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
+                        SizedBox(width: 10),
                         _buildBrandFilterItem(
                           brandId: 18,
                           brandName: 'IQOO',
@@ -257,15 +251,15 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                               if (selectedBrands.contains(18)) {
                                 selectedBrands.remove(18);
                               } else {
-                                selectedBrands.add(7);
+                                selectedBrands.add(18);
                               }
                             });
                           },
                         ),
-
-                        // Repeat for other brands
+                        // Repeat for other brands in the fourth row
                       ],
                     ),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -283,9 +277,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
+                        SizedBox(width: 10),
                         _buildBrandFilterItem(
                           brandId: 2,
                           brandName: 'Asus',
@@ -300,10 +292,9 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                             });
                           },
                         ),
-                        // Repeat for other brands
+                        // Repeat for other brands in the fifth row
                       ],
                     ),
-                    // Add more brand filter rows as needed
                   ],
                 );
               },
@@ -337,23 +328,20 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     required int brandId,
     required String brandName,
     required bool isSelected,
-    required VoidCallback onTap,
+    required Function() onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        margin: EdgeInsets.symmetric(vertical: 5),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.greenAccent : Colors.white,
-          border: Border.all(color: isSelected ? Colors.green : Colors.grey),
-          borderRadius: BorderRadius.circular(5),
+          color: isSelected ? Colors.blue : Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           brandName,
           style: TextStyle(
-            color: Colors.black,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? Colors.white : Colors.black,
           ),
         ),
       ),
@@ -380,7 +368,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                     values: RangeValues(minPrice, maxPrice),
                     min: 0,
                     max: 10000,
-                    divisions: 100, // Adjust divisions as needed
+                    divisions: 100,
                     onChanged: (RangeValues values) {
                       setState(() {
                         minPrice = values.start;
@@ -438,7 +426,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                   .contains(query.toLowerCase()))
           .toList();
 
-      hasResults = filteredProducts.isNotEmpty; // Update hasResults
+      hasResults = filteredProducts.isNotEmpty;
     });
   }
 
@@ -446,7 +434,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     final itemCount = filteredProducts.length;
     return '$itemCount Items';
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -531,7 +518,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                                 width: 10,
                               ),
                               Text(
-                                _getItemCountText(),  // Use the method to get the item count
+                                _getItemCountText(), // Use the method to get the item count
                                 style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -587,9 +574,18 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                         Expanded(
                           child: filteredProducts.isEmpty
                               ? Center(
-                                  child: Text('No data found',
-                                      style:
-                                          GoogleFonts.montserrat(fontSize: 18)))
+                                  child: Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/search-no-data.png',
+                                      height: 300,
+                                      width: 300,
+                                    ),
+                                    Text('No Result!',
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 15)),
+                                  ],
+                                ))
                               : ListView.builder(
                                   itemCount:
                                       (filteredProducts.length / 2).ceil(),
