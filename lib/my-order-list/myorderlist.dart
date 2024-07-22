@@ -148,131 +148,134 @@ class OrderListView extends StatelessWidget {
       itemCount: orders.length,
       itemBuilder: (context, index) {
         final order = orders[index];
-        return ListTile(
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    order.status == 'Delivered'
-                        ? Icons.check_box
-                        : (order.status == 'Cancelled'
-                            ? Icons.cancel
-                            : Icons.hourglass_empty),
-                    color: order.status == 'Delivered'
-                        ? Colors.green
-                        : (order.status == 'Cancelled'
-                            ? Colors.red
-                            : Colors.orange),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    order.status,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
+        return Card(
+          margin: const EdgeInsets.all(8.0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      order.status == 'Delivered'
+                          ? Icons.check_box
+                          : (order.status == 'Cancelled'
+                          ? Icons.cancel
+                          : Icons.hourglass_empty),
                       color: order.status == 'Delivered'
                           ? Colors.green
                           : (order.status == 'Cancelled'
-                              ? Colors.red
-                              : Colors.orange),
+                          ? Colors.red
+                          : Colors.orange),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Order ID: ${order.orderId}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  Text(
-                    order.date,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Track ID: ${order.trackid}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Quantity: ${order.quantity}'),
-                  Text(
-                    'Total Amount: ${order.totalAmount}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => orderdetails()));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, // Background color
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(8), // Rounded corners
+                    SizedBox(width: 8),
+                    Text(
+                      order.status,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: order.status == 'Delivered'
+                            ? Colors.green
+                            : (order.status == 'Cancelled'
+                            ? Colors.red
+                            : Colors.orange),
                       ),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
-                    child: Text(
-                      'Details',
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Order ID: ${order.orderId}',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    Text(
+                      order.date,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Track ID: ${order.trackid}',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Quantity: ${order.quantity}'),
+                    Text(
+                      'Total Amount: ${order.totalAmount}',
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Colors.black54,
                       ),
                     ),
-                  ),
-                  Text(
-                    order.status,
-                    style: GoogleFonts.montserrat(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: order.status == 'Delivered'
-                          ? Colors.green
-                          : (order.status == 'Cancelled'
-                              ? Colors.red
-                              : Colors.orange),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => orderdetails()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white, // Background color
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(8), // Rounded corners
+                        ),
+                        padding:
+                        EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      ),
+                      child: Text(
+                        'Details',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-            ],
+                    Text(
+                      order.status,
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: order.status == 'Delivered'
+                            ? Colors.green
+                            : (order.status == 'Cancelled'
+                            ? Colors.red
+                            : Colors.orange),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
