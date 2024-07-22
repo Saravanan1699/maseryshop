@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../bottombar/bottombar.dart';
+import 'order-details.dart';
 
 class Order {
   final String title;
@@ -129,8 +130,7 @@ class _OrderlistState extends State<Orderlist> {
           ],
         ),
         bottomNavigationBar: BottomBar(
-          onTap: (index) {
-          },
+          onTap: (index) {},
         ),
       ),
     );
@@ -158,13 +158,13 @@ class OrderListView extends StatelessWidget {
                     order.status == 'Delivered'
                         ? Icons.check_box
                         : (order.status == 'Cancelled'
-                        ? Icons.cancel
-                        : Icons.hourglass_empty),
+                            ? Icons.cancel
+                            : Icons.hourglass_empty),
                     color: order.status == 'Delivered'
                         ? Colors.green
                         : (order.status == 'Cancelled'
-                        ? Colors.red
-                        : Colors.orange),
+                            ? Colors.red
+                            : Colors.orange),
                   ),
                   SizedBox(width: 8),
                   Text(
@@ -174,8 +174,8 @@ class OrderListView extends StatelessWidget {
                       color: order.status == 'Delivered'
                           ? Colors.green
                           : (order.status == 'Cancelled'
-                          ? Colors.red
-                          : Colors.orange),
+                              ? Colors.red
+                              : Colors.orange),
                     ),
                   ),
                 ],
@@ -233,13 +233,20 @@ class OrderListView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: order.onPressed,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => orderdetails()));
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white, // Background color
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8), // Rounded corners
+                        borderRadius:
+                            BorderRadius.circular(8), // Rounded corners
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     ),
                     child: Text(
                       'Details',
@@ -249,8 +256,6 @@ class OrderListView extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-
-
                   ),
                   Text(
                     order.status,
@@ -260,14 +265,13 @@ class OrderListView extends StatelessWidget {
                       color: order.status == 'Delivered'
                           ? Colors.green
                           : (order.status == 'Cancelled'
-                          ? Colors.red
-                          : Colors.orange),
+                              ? Colors.red
+                              : Colors.orange),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10),
-
             ],
           ),
         );

@@ -138,7 +138,7 @@ class _ProfileState extends State<Profile> {
             bool isLoggedIn = snapshot.data ?? false;
             return SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(15.0),
                 child: Column(
                   children: [
                     Row(
@@ -151,80 +151,94 @@ class _ProfileState extends State<Profile> {
                         SizedBox(width: 16),
                       ],
                     ),
-                    isLoggedIn ? FutureBuilder<Map<String, String>>(
-                      future: _getFromLocalStorage(),
-                      builder: (BuildContext context, AsyncSnapshot<Map<String, String>> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(
-                            child: Container(
-                              child: LoadingAnimationWidget.halfTriangleDot(
-                                size: 50.0, color: Colors.redAccent,
-                              ),
+                    isLoggedIn
+                        ? FutureBuilder<Map<String, String>>(
+                            future: _getFromLocalStorage(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, String>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: Container(
+                                    child:
+                                        LoadingAnimationWidget.halfTriangleDot(
+                                      size: 50.0,
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else {
+                                var data = snapshot.data!;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${data['name']}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: screenWidth * 0.05,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF2B2B2B),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${data['email']}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: screenWidth * 0.04,
+                                        color: Color(0xFF2B2B2B),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          )
+                        : Text(
+                            'No Profile',
+                            style: GoogleFonts.poppins(
+                              fontSize: screenWidth * 0.05,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF2B2B2B),
                             ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else {
-                          var data = snapshot.data!;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${data['name']}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: screenWidth * 0.05,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2B2B2B),
-                                ),
-                              ),
-                              Text(
-                                '${data['email']}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: screenWidth * 0.04,
-                                  color: Color(0xFF2B2B2B),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    ) : Text(
-                      'No Profile',
-                      style: GoogleFonts.poppins(
-                        fontSize: screenWidth * 0.05,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF2B2B2B),
-                      ),
-                    ),
+                          ),
                     // Add Order History Row
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
+                    Divider(
+                      color: Colors.grey[300],
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Order History',
                           style: GoogleFonts.poppins(
-                            fontSize: screenWidth * 0.05,
-                            fontWeight: FontWeight.w500,
+                            fontSize: screenWidth * 0.038,
+                            fontWeight: FontWeight.w700,
                             color: Color(0xFF2B2B2B),
                           ),
                         ),
                         IconButton(
                           icon: Icon(
-                            Icons.arrow_forward_ios,
-                            size: screenWidth * 0.05,
+                            Icons.arrow_forward_ios_rounded,
+                            size: screenWidth * 0.06,
                             color: Color(0xFF2B2B2B),
                           ),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => Orderlist()),
+                              MaterialPageRoute(
+                                  builder: (context) => Orderlist()),
                             );
                           },
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    Divider(
+                      color: Colors.grey[300],
+                    ),
+                    SizedBox(height: 10),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,7 +272,11 @@ class _ProfileState extends State<Profile> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 10),
 
+                    Divider(
+                      color: Colors.grey[300],
+                    ),
                   ],
                 ),
               ),

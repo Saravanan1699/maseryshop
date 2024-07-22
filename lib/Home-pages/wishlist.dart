@@ -87,7 +87,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   Future<void> _addToCart(String slug) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/addToCart/$slug');
+    final url = Uri.parse('${ApiConfig.baseUrl}addToCart/$slug');
     final headers = {
       'Content-Type': 'application/json',
     };
