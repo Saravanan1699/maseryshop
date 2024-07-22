@@ -25,7 +25,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   Future<void> _fetchWishlistData() async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/getwishlist');
+    final url = Uri.parse('${ApiConfig.baseUrl}getwishlist');
     try {
       final response = await http.get(url);
 
@@ -47,7 +47,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   Future<void> _removeFromWishlist(int productId) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/removefromWishlist/$productId');
+    final url = Uri.parse('${ApiConfig.baseUrl}removefromWishlist/$productId');
     final headers = {
       'Content-Type': 'application/json',
     };
