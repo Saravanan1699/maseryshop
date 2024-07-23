@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:convert';
 import '../Base_Url/BaseUrl.dart';
+import '../Responsive/responsive.dart';
 import '../bottombar/bottombar.dart';
 import 'home.dart';
 
@@ -133,8 +134,8 @@ class _WishlistState extends State<Wishlist> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final responsive = Responsive(context);
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -169,7 +170,7 @@ class _WishlistState extends State<Wishlist> {
       body: isLoading
           ? Center(
         child: LoadingAnimationWidget.halfTriangleDot(
-          size: 50.0,
+          size: responsive.textSize(10),
           color: Colors.redAccent,
         ),
       )
@@ -180,21 +181,21 @@ class _WishlistState extends State<Wishlist> {
           children: [
             Image.asset(
               'assets/wishlist-empty.png',
-              height: 150,
-              width: 250,
+              height: responsive.heightPercentage(20),
+              width: responsive.widthPercentage(40),
             ),
-            SizedBox(height: 5),
+            SizedBox(height: responsive.heightPercentage(1)),
             Text(
               'Your Wishlist is empty!',
               style: GoogleFonts.montserrat(
-                fontSize: 15,
+                fontSize: responsive.textSize(2.5),
                 fontWeight: FontWeight.w400,
               ),
             ),
             Text(
               'Seems like you don\'t have wishes here.',
               style: GoogleFonts.montserrat(
-                fontSize: 15,
+                fontSize: responsive.textSize(2.5),
                 fontWeight: FontWeight.w400,
                 color: Colors.grey[400],
               ),
@@ -202,24 +203,24 @@ class _WishlistState extends State<Wishlist> {
             Text(
               'Make a wish!',
               style: GoogleFonts.montserrat(
-                fontSize: 15,
+                fontSize: responsive.textSize(2.5),
                 fontWeight: FontWeight.w400,
                 color: Colors.grey[400],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: responsive.heightPercentage(2)),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
               },
               child: Text(
                 'Start shopping',
-                style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15),
+                style: GoogleFonts.montserrat(color: Colors.white, fontSize: responsive.textSize(2.5)),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff0D6EFD),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: responsive.borderRadiusPercentage(2),
                 ),
               ),
             ),
@@ -236,28 +237,28 @@ class _WishlistState extends State<Wishlist> {
           final imageUrl = product['image'] ?? '';
 
           return Container(
-            padding: EdgeInsets.all(screenWidth * 0.02),
+            padding: responsive.paddingPercentage(2, 2, 2, 2),
             child: Card(
               elevation: 4,
               color: Colors.white,
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: responsive.paddingPercentage(2, 2, 2, 2),
                     child: Row(
                       children: [
                         Expanded(
                           child: imageUrl.isNotEmpty
                               ? Image.network(
                             imageUrl,
-                            width: screenWidth * 0.3,
-                            height: screenHeight * 0.15,
+                            width: responsive.widthPercentage(30),
+                            height: responsive.heightPercentage(15),
                             fit: BoxFit.cover,
                           )
                               : Image.asset(
                             'assets/no-data.png',
-                            height: 200,
-                            width: 150,
+                            height: responsive.heightPercentage(20),
+                            width: responsive.widthPercentage(30),
                           ),
                         ),
                         IconButton(
@@ -265,31 +266,32 @@ class _WishlistState extends State<Wishlist> {
                             print('$productId');
                             _removeFromWishlist(productId);
                           },
-                          icon: Icon(Icons.delete, color: Colors.orangeAccent),
+                          icon: Icon(Icons.delete,
+                              color: Colors.orangeAccent),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.01),
+                  SizedBox(height: responsive.heightPercentage(1)),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: responsive.paddingPercentage(2, 2, 2, 2),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               product['title'] ?? '',
                               style: GoogleFonts.montserrat(
-                                fontSize: screenWidth * 0.04,
+                                fontSize: responsive.textSize(3),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             Text(
                               '\$${double.parse(product['sale_price']).toStringAsFixed(2)}',
                               style: GoogleFonts.montserrat(
-                                fontSize: screenWidth * 0.035,
+                                fontSize: responsive.textSize(2.5),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -297,7 +299,7 @@ class _WishlistState extends State<Wishlist> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: responsive.paddingPercentage(2, 2, 2, 2),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -308,12 +310,12 @@ class _WishlistState extends State<Wishlist> {
                               },
                               child: Text(
                                 'Add to Cart',
-                                style: GoogleFonts.montserrat(color: Color(0xff0D6EFD), fontSize: 15),
+                                style: GoogleFonts.montserrat(color: Color(0xff0D6EFD), fontSize: responsive.textSize(2.5)),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: responsive.borderRadiusPercentage(2),
                                   side: BorderSide(color: Color(0xff0D6EFD)),
                                 ),
                               ),

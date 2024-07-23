@@ -20,6 +20,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   bool isLoading = true;
   bool hasError = false;
   bool hasResults = true;
+  List<dynamic> selectedBrands = []; // Correct initialization
+
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -77,10 +79,20 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     });
 
     try {
-      final brandQueries = brandIds.map((id) => 'brand=$id').join('&');
-      final url =
-          '${ApiConfig.baseUrl}search?$brandQueries&min_price=$minPrice&max_price=$maxPrice';
+      // Construct the brand query parameters if there are any brand IDs
+      final brandQueries = brandIds.isNotEmpty
+          ? brandIds.map((id) => 'brand=$id').join('&')
+          : '';
 
+      // Construct the price query parameters
+      final priceQuery = 'min_price=$minPrice&max_price=$maxPrice';
+
+      // Construct the full URL with brand and price queries
+      final url = '${ApiConfig.baseUrl}search'
+          '${brandQueries.isNotEmpty ? '?$brandQueries' : ''}'
+          '${brandQueries.isNotEmpty && priceQuery.isNotEmpty ? '&' : (brandQueries.isEmpty ? '?' : '')}$priceQuery';
+
+      // Make the HTTP GET request
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as List;
@@ -100,6 +112,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     }
   }
 
+
+
   Future<void> _showFilterDialog() async {
     List<int> selectedBrands = [];
     double minPrice = 0;
@@ -110,7 +124,8 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Text('Select Brands'),
+          title: Text('Select Brands',
+              style: GoogleFonts.montserrat()),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
@@ -301,18 +316,38 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
             ),
           ),
           actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
+            ElevatedButton(
+              child: Text('Cancel',
+                  style: GoogleFonts.montserrat(
+                      color: Color(0xff0D6EFD), fontSize: 12)
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: BorderSide(color: Color(0xff0D6EFD)),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
-              child: Text('Filter'),
+            ElevatedButton(
+              child: Text('Filter',
+                  style: GoogleFonts.montserrat(
+                      color: Colors.white, fontSize: 15)
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff0D6EFD),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 fetchFilteredProducts(
                   brandIds: selectedBrands,
+
                   minPrice: minPrice,
                   maxPrice: maxPrice,
                 );
@@ -340,7 +375,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
         ),
         child: Text(
           brandName,
-          style: TextStyle(
+          style: GoogleFonts.montserrat(
             color: isSelected ? Colors.white : Colors.black,
           ),
         ),
@@ -360,11 +395,13 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              title: Text('Select Price Range'),
+              title: Text('Select Price Range',
+              style: GoogleFonts.montserrat(),),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   RangeSlider(
+                    activeColor: Color(0xff0D6EFD),
                     values: RangeValues(minPrice, maxPrice),
                     min: 0,
                     max: 10000,
@@ -379,21 +416,43 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text('Min: \$${minPrice.toStringAsFixed(2)}'),
-                      Text('Max: \$${maxPrice.toStringAsFixed(2)}'),
+                      Text('Min: \$${minPrice.toStringAsFixed(2)}',
+                      style: GoogleFonts.montserrat(),),
+                      Text('Max: \$${maxPrice.toStringAsFixed(2)}',
+                      style: GoogleFonts.montserrat(),),
                     ],
                   ),
                 ],
               ),
               actions: <Widget>[
-                TextButton(
-                  child: Text('Cancel'),
+                ElevatedButton(
+                  child: Text('Cancel',
+                      style: GoogleFonts.montserrat(
+                          color: Color(0xff0D6EFD), fontSize: 12)
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      side: BorderSide(color: Color(0xff0D6EFD)),
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                 ),
-                TextButton(
-                  child: Text('Filter'),
+                ElevatedButton(
+                  child: Text(
+                    'Filter',
+                      style: GoogleFonts.montserrat(
+                          color: Colors.white, fontSize: 15)
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff0D6EFD),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                     fetchFilteredProducts(
@@ -518,7 +577,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                                 width: 10,
                               ),
                               Text(
-                                _getItemCountText(), // Use the method to get the item count
+                                _getItemCountText(),
                                 style: GoogleFonts.montserrat(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

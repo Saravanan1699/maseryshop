@@ -989,6 +989,42 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                       ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        // onTap: () {
+                                        //   if (slug != null) {
+                                        //     toggleWishlist(
+                                        //         slug, productId, isInWishlist);
+                                        //   } else {
+                                        //     ScaffoldMessenger.of(context)
+                                        //         .showSnackBar(
+                                        //       SnackBar(
+                                        //         content:
+                                        //         Text('Product ID is missing'),
+                                        //       ),
+                                        //     );
+                                        //   }
+                                        // },
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                            BorderRadius.circular(30),
+                                          ),
+                                          child: Icon(
+                                            Icons.favorite,
+                                            color: isInWishlist
+                                                ? Colors.red
+                                                : Colors.grey,
+                                            size: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
                                   ],
                                 ),
                               ),
@@ -1472,6 +1508,42 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                       ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        // onTap: () {
+                                        //   if (slug != null) {
+                                        //     toggleWishlist(
+                                        //         slug, productId, isInWishlist);
+                                        //   } else {
+                                        //     ScaffoldMessenger.of(context)
+                                        //         .showSnackBar(
+                                        //       SnackBar(
+                                        //         content:
+                                        //         Text('Product ID is missing'),
+                                        //       ),
+                                        //     );
+                                        //   }
+                                        // },
+                                        child: Container(
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                            BorderRadius.circular(30),
+                                          ),
+                                          child: Icon(
+                                            Icons.favorite,
+                                            color: isInWishlist
+                                                ? Colors.red
+                                                : Colors.grey,
+                                            size: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
                                   ],
                                 ),
                               ),

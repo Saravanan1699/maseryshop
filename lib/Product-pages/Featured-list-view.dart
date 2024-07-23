@@ -188,9 +188,19 @@ class _FeaturedpageState extends State<Featuredpage> {
               ),
               Expanded(
                 child: filteredProducts.isEmpty
-                    ? Center(
-                    child: Text('No data found',
-                        style: GoogleFonts.montserrat(fontSize: 18)))
+                    ?Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/search-no-data.png',
+                          height: 300,
+                          width: 300,
+                        ),
+                        Text('No Result!',
+                            style: GoogleFonts.montserrat(
+                                fontSize: 15)),
+                      ],
+                    ))
                     : ListView.builder(
                   itemCount: (filteredProducts.length / 2).ceil(),
                   itemBuilder: (context, index) {

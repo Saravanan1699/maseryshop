@@ -52,6 +52,7 @@ class _ProductDetailState extends State<ProductDetail> {
       setState(() {
         about = jsonResponse['data']['about'];
         recentProducts = jsonResponse['data']['recent_products'];
+
       });
     } else {
       throw Exception('Failed to load data');
@@ -64,6 +65,7 @@ class _ProductDetailState extends State<ProductDetail> {
           '${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+
         setState(() {
           totalItems = int.parse(responseData['total_items'] ?? '0');
         });
@@ -77,7 +79,41 @@ class _ProductDetailState extends State<ProductDetail> {
       });
     }
   }
+  bool isInWishlist = false;
 
+  void toggleWishlist(
+      String slug, int? productId, bool currentWishlistStatus) async {
+    bool newWishlistStatus = !currentWishlistStatus;
+    try {
+      final apiUrl = newWishlistStatus
+          ? '${ApiConfig.baseUrl}addToWishlist/$slug'
+          : '${ApiConfig.baseUrl}removefromWishlist/${productId ?? ''}';
+
+      final response = await http.post(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        // Call fetchData to refresh the data
+        await fetchData();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(newWishlistStatus
+                ? 'Added to wishlist'
+                : 'Removed from wishlist'),
+          ),
+        );
+      } else {
+        throw Exception(
+            'Failed to ${newWishlistStatus ? 'add to' : 'remove from'} wishlist');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
@@ -168,13 +204,43 @@ class _ProductDetailState extends State<ProductDetail> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 15.0),
-                    child: Text(
-                      '${(product['sku'])}  In Stock',
-                      style: GoogleFonts.inter(
-                        fontSize: screenWidth * 0.05,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0FBC00),
-                      ),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${(product['sku'])}  In Stock',
+                          style: GoogleFonts.inter(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0FBC00),
+                          ),
+                        ),
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     final slug = widget.product['slug']; // This should be a String
+                        //     if (slug != null) {
+                        //       toggleWishlist(slug, slug, isInWishlist); // Ensure this matches the expected type
+                        //     } else {
+                        //       ScaffoldMessenger.of(context).showSnackBar(
+                        //         SnackBar(
+                        //           content: Text('Product ID is missing'),
+                        //         ),
+                        //       );
+                        //     }
+                        //   },
+                        //   child: Container(
+                        //     padding: EdgeInsets.all(10),
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       borderRadius: BorderRadius.circular(30),
+                        //     ),
+                        //     child: Icon(
+                        //       Icons.favorite,
+                        //       color: isInWishlist ? Colors.red : Colors.grey,
+                        //       size: 15,
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
                     ),
                   ),
                   Stack(
@@ -712,6 +778,8 @@ class _ProductDetailState extends State<ProductDetail> {
                                              ),
                                            ),
                                          ),
+
+
                                      ],
                                    ),
                                  ),

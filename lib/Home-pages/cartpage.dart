@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../Authentication/Sing-in.dart';
+import '../Authentication/Sing-in.dart';  // Make sure this import path is correct
 import '../Base_Url/BaseUrl.dart';
 import '../Multiple_stepform/step_form.dart';
+import '../Responsive/responsive.dart';
 import 'home.dart';
 
 class CartPage extends StatefulWidget {
@@ -52,18 +53,14 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
-  Future<void> updateCartItemQuantity(
-      BuildContext context, int cartId, int itemId, int newQuantity) async {
-    final String url =
-        '${ApiConfig.baseUrl}cart/$cartId/update?item=$itemId&quantity=$newQuantity';
+  Future<void> updateCartItemQuantity(BuildContext context, int cartId, int itemId, int newQuantity) async {
+    final String url = '${ApiConfig.baseUrl}cart/$cartId/update?item=$itemId&quantity=$newQuantity';
 
     try {
       final response = await http.put(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        // Fetch data again to ensure the local state is updated
         await fetchData();
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -99,8 +96,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> removeItemFromCart(int cartId, int itemId) async {
-    final String url =
-        '${ApiConfig.baseUrl}cart/removeItem?cart=$cartId&item=$itemId';
+    final String url = '${ApiConfig.baseUrl}cart/removeItem?cart=$cartId&item=$itemId';
     try {
       final response = await http.delete(Uri.parse(url));
 
@@ -109,8 +105,7 @@ class _CartPageState extends State<CartPage> {
         await fetchData();
         setState(() {
           carts.forEach((cart) {
-            cart['inventories']
-                .removeWhere((inventory) => inventory['id'] == itemId);
+            cart['inventories'].removeWhere((inventory) => inventory['id'] == itemId);
           });
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -154,14 +149,11 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> loginUser() async {
-    // Perform login logic (validate credentials, etc.)
-    // Assuming login is successful, set isLoggedIn to true
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLoggedIn', true);
   }
 
   Future<void> logoutUser() async {
-    // Perform logout logic (clear sessions, etc.)
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('isLoggedIn');
   }
@@ -174,6 +166,7 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -181,7 +174,7 @@ class _CartPageState extends State<CartPage> {
         backgroundColor: Colors.white,
         title: Text(
           'My Cart',
-          style: GoogleFonts.montserrat(),
+          style: GoogleFonts.montserrat(fontSize: responsive.textSize(3.5)),
         ),
         leading: Builder(
           builder: (BuildContext context) {
@@ -197,8 +190,7 @@ class _CartPageState extends State<CartPage> {
                   size: 15,
                 ),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => HomePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
                 },
               ),
             );
@@ -209,340 +201,328 @@ class _CartPageState extends State<CartPage> {
         children: [
           isLoading
               ? Center(
-                  child: Container(
-                    child: LoadingAnimationWidget.halfTriangleDot(
-                      size: 50.0,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                )
+            child: Container(
+              child: LoadingAnimationWidget.halfTriangleDot(
+                size: responsive.widthPercentage(15),
+                color: Colors.redAccent,
+              ),
+            ),
+          )
               : carts.isEmpty
-                  ? Center(
-                      child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Column(
-                          children: [
-                            Image(
-                              image: AssetImage(
-                                'assets/emptycart-masery.png',
-                              ),
-                              height: 250,
-                              width: 250,
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              'Your cart is empty',
-                              style: GoogleFonts.montserrat(
-                                  fontSize: 15, fontWeight: FontWeight.w400),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage()));
-                              },
-                              child: Text('Start shopping',
-                                  style: GoogleFonts.montserrat(
-                                      color: Colors.white, fontSize: 15)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff0D6EFD),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                            )
-                          ],
+              ? Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Image(
+                        image: AssetImage(
+                          'assets/emptycart-masery.png',
                         ),
-                      ],
-                    ))
-                  : ListView.builder(
-                      itemCount: carts.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final cart = carts[index];
-                        final List<dynamic> inventories = cart['inventories'];
-                        return Column(
+                        height: responsive.heightPercentage(30),
+                        width: responsive.widthPercentage(50),
+                      ),
+                      SizedBox(
+                        height: responsive.heightPercentage(2),
+                      ),
+                      Text(
+                        'Your cart is empty',
+                        style: GoogleFonts.montserrat(
+                            fontSize: responsive.textSize(2.2), fontWeight: FontWeight.w400),
+                      ),
+                      SizedBox(
+                        height: responsive.heightPercentage(2),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => HomePage()));
+                        },
+                        child: Text('Start shopping',
+                            style: GoogleFonts.montserrat(
+                                color: Colors.white, fontSize: responsive.textSize(2.2))),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff0D6EFD),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(responsive.widthPercentage(3)),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ))
+              : ListView.builder(
+            itemCount: carts.length,
+            itemBuilder: (BuildContext context, int index) {
+              final cart = carts[index];
+              final List<dynamic> inventories = cart['inventories'];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: inventories.map((inventory) {
+                  String imageUrl = inventory['product']['images'].isNotEmpty
+                      ? 'https://sgitjobs.com/MaseryShoppingNew/public/${inventory['product']['images'][0]['path']}'
+                      : 'assets/products/images/default_image.png';
+                  double minPrice = double.tryParse(inventory['product']['min_price']) ?? 0.0;
+                  double unitPrice = double.tryParse(inventory['pivot']['unit_price']) ?? 0.0;
+                  int quantity = int.tryParse(inventory['pivot']['quantity'].toString()) ?? 0;
+                  int itemId = int.tryParse(inventory['pivot']['inventory_id'].toString()) ?? 0;
+
+                  double totalPrice = unitPrice * quantity.toDouble();
+
+                  return Center(
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(responsive.widthPercentage(3)),
+                      ),
+                      color: Colors.white,
+                      child: Container(
+                        width: responsive.widthPercentage(90),
+                        margin: EdgeInsets.symmetric(
+                            vertical: responsive.heightPercentage(2),
+                            horizontal: responsive.widthPercentage(2)),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: inventories.map((inventory) {
-                            String imageUrl = inventory['product']['images']
-                                    .isNotEmpty
-                                ? 'https://sgitjobs.com/MaseryShoppingNew/public/${inventory['product']['images'][0]['path']}'
-                                : 'assets/products/images/default_image.png';
-                            double minPrice = double.tryParse(
-                                    inventory['product']['min_price']) ??
-                                0.0;
-                            double unitPrice = double.tryParse(
-                                    inventory['pivot']['unit_price']) ??
-                                0.0;
-                            int quantity = int.tryParse(inventory['pivot']
-                                        ['quantity']
-                                    .toString()) ??
-                                0;
-                            int itemId = int.tryParse(inventory['pivot']
-                                        ['inventory_id']
-                                    .toString()) ??
-                                0;
-
-                            double totalPrice = unitPrice * quantity.toDouble();
-
-                            return Center(
-                              child: Card(
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: responsive.widthPercentage(40),
+                                  height: responsive.heightPercentage(20),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        responsive.widthPercentage(3)),
+                                    child: Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
                                 ),
-                                color: Colors.white,
-                                child: Container(
-                                  width: 300,
-                                  margin: EdgeInsets.all(8.0),
+                                SizedBox(width: responsive.widthPercentage(4)),
+                                Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                          height: 150,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.vertical(
-                                                top: Radius.circular(15.0)),
-                                            image: DecorationImage(
-                                              image: NetworkImage(imageUrl),
-                                              fit: BoxFit.contain,
-                                            ),
-                                          ),
-                                        ),
+                                      Text(
+                                        inventory['product']['name'] ?? 'Unknown',
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: responsive.textSize(2.2),
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                      SizedBox(
-                                        height: 20,
+                                      Text(
+                                        'Price: \$${minPrice.toStringAsFixed(2)}',
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: responsive.textSize(2)),
                                       ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              inventory['product']['name'] ??
-                                                  '',
-                                              style: GoogleFonts.montserrat(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 70,
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  IconButton(
-                                                    onPressed: () async {
-                                                      if (quantity > 1) {
-                                                        await updateCartItemQuantity(
-                                                          context,
-                                                          int.parse(inventory[
-                                                                      'pivot']
-                                                                  ['cart_id']
-                                                              .toString()),
-                                                          inventory['id'],
-                                                          quantity - 1,
-                                                        );
-                                                        setState(() {
-                                                          inventory[
-                                                                  'quantity'] =
-                                                              quantity - 1;
-                                                        });
-                                                      }
-                                                    },
-                                                    icon: Icon(Icons.remove,
-                                                        color: Colors
-                                                            .orangeAccent),
-                                                  ),
-                                                  Text(
-                                                      inventory['pivot']
-                                                              ['quantity']
-                                                          .toString(),
-                                                      style: GoogleFonts
-                                                          .montserrat(
-                                                              fontSize: 15,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                  IconButton(
-                                                    onPressed: () async {
-                                                      await updateCartItemQuantity(
-                                                        context,
-                                                        int.parse(inventory[
-                                                                    'pivot']
-                                                                ['cart_id']
-                                                            .toString()),
-                                                        inventory['id'],
-                                                        quantity + 1,
-                                                      );
-                                                      setState(() {
-                                                        inventory[
-                                                                'quantity'] =
-                                                            quantity + 1;
-                                                      });
-                                                    },
-                                                    icon: Icon(
-                                                      Icons.add,
-                                                      color:
-                                                          Colors.orangeAccent,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                      Text(
+                                        'Total Price: \$${totalPrice.toStringAsFixed(2)}',
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: responsive.textSize(2)),
                                       ),
-                                      Row(
-                                        children: [
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            '\$${totalPrice.toStringAsFixed(2)}',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Spacer(),
-                                          IconButton(
-                                            onPressed: () {
-                                              print(
-                                                  'Cart ID: ${inventory['pivot']['cart_id']}');
-                                              print(
-                                                  'Inventory ID: ${inventory['pivot']['inventory_id']}');
-                                              int cartId = int.tryParse(
-                                                      inventory['pivot']
-                                                              ['cart_id']
-                                                          .toString()) ??
-                                                  0;
-                                              int itemId = int.tryParse(
-                                                      inventory['pivot']
-                                                              ['inventory_id']
-                                                          .toString()) ??
-                                                  0;
-                                              if (cartId > 0 && itemId > 0) {
-                                                removeItemFromCart(
-                                                    cartId, itemId);
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      'Invalid cart or item ID',
-                                                      style: GoogleFonts
-                                                          .montserrat(),
-                                                    ),
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            icon: Icon(Icons.delete,
-                                                color: Colors.orangeAccent),
-                                          ),
-                                          SizedBox(
-                                            width: 30,
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      )
                                     ],
                                   ),
                                 ),
+                              ],
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: responsive.heightPercentage(2),
+                                  horizontal: responsive.widthPercentage(2)),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Quantity:',
+                                    style: GoogleFonts.montserrat(
+                                        fontSize: responsive.textSize(2)),
+                                  ),
+                                  SizedBox(width: responsive.widthPercentage(2)),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          if (quantity > 1) {
+                                            setState(() {
+                                              quantity--;
+                                              updateCartItemQuantity(context, cart['id'],
+                                                  itemId, quantity);
+                                            });
+                                          }
+                                        },
+                                        icon: Icon(Icons.remove),
+                                        iconSize: responsive.textSize(2.2),
+                                      ),
+                                      Text(
+                                        quantity.toString(),
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: responsive.textSize(2.2),
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            quantity++;
+                                            updateCartItemQuantity(context, cart['id'],
+                                                itemId, quantity);
+                                          });
+                                        },
+                                        icon: Icon(Icons.add),
+                                        iconSize: responsive.textSize(2.2),
+                                      ),
+                                    ],
+                                  ),
+                                  Spacer(),
+                                  IconButton(
+                                    onPressed: () {
+                                      removeItemFromCart(cart['id'], itemId);
+                                    },
+                                    icon: Icon(Icons.delete_outline),
+                                    color:Colors.orangeAccent,
+                                    iconSize: responsive.textSize(3.2),
+                                  ),
+                                ],
                               ),
-                            );
-                          }).toList(),
-                        );
-                      },
-                    ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              color: Colors.white70,
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Grand Total:',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '\$${calculateGrandTotal().toStringAsFixed(2)}',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: carts.isEmpty
-                        ? null // Disable button if no carts
-                        : () async {
-                            bool isLoggedIn = await _checkLoginStatus();
-                            if (isLoggedIn) {
-                              // If user is logged in, navigate to MultistepForm
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        MultistepForm(product: {})),
-                              );
-                            } else {
-                              // If user is not logged in, navigate to login screen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Signin()),
-                              );
-                            }
-                          },
-                    child: Text(
-                      'Checkout',
-                      style: GoogleFonts.montserrat(
-                          color: Colors.white, fontSize: 15),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          carts.isEmpty ? Colors.grey : Color(0xff0D6EFD),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  )
-                ],
-              ),
-            ),
+                  );
+                }).toList(),
+              );
+            },
           ),
         ],
       ),
+      bottomNavigationBar: carts.isNotEmpty
+          ? Padding(
+        padding: EdgeInsets.all(responsive.widthPercentage(2)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Grand Total:',
+                  style: GoogleFonts.montserrat(
+                    fontSize: responsive.textSize(2.2),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(width: responsive.widthPercentage(2)),
+                Text(
+                  '\$${calculateGrandTotal().toStringAsFixed(2)}',
+                  style: GoogleFonts.montserrat(
+                    fontSize: responsive.textSize(2.2),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+            ElevatedButton(
+              onPressed: carts.isEmpty
+                  ? null
+                  : () async {
+                bool isLoggedIn = await _checkLoginStatus();
+                if (isLoggedIn) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MultistepForm(product: {}),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Signin(),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                'Checkout',
+                style: GoogleFonts.montserrat(
+                    color: Colors.white,
+                    fontSize: responsive.textSize(2.2),
+                    fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: carts.isEmpty ? Colors.grey : Color(0xff0D6EFD),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(responsive.widthPercentage(2)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      )
+          : Padding(
+        padding: EdgeInsets.all(responsive.widthPercentage(2)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Grand Total:',
+                  style: GoogleFonts.montserrat(
+                    fontSize: responsive.textSize(2.2),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(width: responsive.widthPercentage(2)),
+                Text(
+                  '\$${calculateGrandTotal().toStringAsFixed(2)}',
+                  style: GoogleFonts.montserrat(
+                    fontSize: responsive.textSize(2.2),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+            ElevatedButton(
+              onPressed: carts.isEmpty
+                  ? null
+                  : () async {
+                bool isLoggedIn = await _checkLoginStatus();
+                if (isLoggedIn) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MultistepForm(product: {}),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Signin(),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                'Checkout',
+                style: GoogleFonts.montserrat(
+                    color: Colors.white,
+                    fontSize: responsive.textSize(2.2),
+                    fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: carts.isEmpty ? Colors.grey : Color(0xff0D6EFD),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(responsive.widthPercentage(2)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-
   double calculateGrandTotal() {
     double grandTotal = 0.0;
 
@@ -571,4 +551,5 @@ class _CartPageState extends State<CartPage> {
 
     return grandTotal;
   }
+
 }
