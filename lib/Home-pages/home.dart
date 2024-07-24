@@ -7,6 +7,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../Base_Url/BaseUrl.dart';
 import '../Product-pages/Featured-list-view.dart';
+import '../Product-pages/category-filter.dart';
 import '../Product-pages/categorylistview.dart';
 import '../Product-pages/ourbest_product.dart';
 import '../Product-pages/recent_product.dart';
@@ -153,6 +154,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -604,91 +606,104 @@ class _HomePageState extends State<HomePage> {
                         itemCount: categoryBasedProducts.length,
                         itemBuilder: (context, index) {
                           final category = categoryBasedProducts[index];
-                          final products = category['products'];
+                          final products = category['products'] as List<dynamic>?;
 
                           if (products == null || products.isEmpty) {
                             return SizedBox(); // Return an empty SizedBox if products are null or empty
                           }
 
-                          final product = products[
-                              0]; // Assuming you want to access the first product
+                          final product = products.isNotEmpty ? products[0] : null;
 
-                          // Check if product and image path are not null before accessing
+                          if (product == null) {
+                            return SizedBox(); // Return an empty SizedBox if the product is null
+                          }
+
                           final imagePath = product['image'] != null &&
-                                  product['image'].isNotEmpty &&
-                                  product['image'][0]['path'] != null
-                              ? product['image'][0]['path']
+                              (product['image'] as List<dynamic>).isNotEmpty &&
+                              (product['image'] as List<dynamic>)[0]['path'] != null
+                              ? (product['image'] as List<dynamic>)[0]['path'] as String
                               : '';
+                          final title = category['slug'] as String? ?? 'No Title';
 
                           final imageUrl = imagePath.isNotEmpty
                               ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
                               : ''; // Provide a default empty URL if imagePath is empty
 
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        height: 150,
-                                        decoration: imageUrl.isNotEmpty
-                                            ? BoxDecoration(
-                                                borderRadius:
-                                                    const BorderRadius.vertical(
-                                                  top: Radius.circular(15.0),
-                                                ),
-                                                image: DecorationImage(
-                                                  image: NetworkImage(imageUrl),
-                                                  fit: BoxFit.contain,
-                                                ),
-                                              )
-                                            : BoxDecoration(), // Handle empty image URL case
-                                      ),
+                          return GestureDetector(
+                            onTap: () async {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FilterCategory(
+                                      slug: title, // Pass the slug here
                                     ),
-                                    SizedBox(
-                                      height: 80,
-                                      width: 200,
-                                      child: Card(
-                                        color: Color(0xffF2F2F2),
-                                        child: Column(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                category['name'] ??
-                                                    '', // Provide default value
-                                                style: GoogleFonts.montserrat(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
+                                  ),
+                                );
+
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                width: 200,
+                                child: Card(
+                                  color: Colors.white,
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          height: 150,
+                                          decoration: imageUrl.isNotEmpty
+                                              ? BoxDecoration(
+                                            borderRadius: const BorderRadius.vertical(
+                                              top: Radius.circular(15.0),
                                             ),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                              child: Text(
-                                                '${category['products_count'] ?? ''} Products', // Provide default value
-                                                style: GoogleFonts.montserrat(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.normal,
-                                                ),
-                                              ),
+                                            image: DecorationImage(
+                                              image: NetworkImage(imageUrl),
+                                              fit: BoxFit.contain,
                                             ),
-                                          ],
+                                          )
+                                              : BoxDecoration(), // Handle empty image URL case
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(
+                                        height: 80,
+                                        width: 200,
+                                        child: Card(
+                                          color: Color(0xffF2F2F2),
+                                          child: Column(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  category['name'] as String? ?? '', // Provide default value
+                                                  style: GoogleFonts.montserrat(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                child: Text(
+                                                  '${category['products_count'] as String? ?? ''} Products', // Provide default value
+                                                  style: GoogleFonts.montserrat(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

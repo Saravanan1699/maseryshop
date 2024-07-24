@@ -8,7 +8,6 @@ import '../Home-pages/home.dart';
 import '../single-product-view/single-prodect-view.dart';
 import '../bottombar/bottombar.dart';
 
-
 class OurbestproductList extends StatefulWidget {
   const OurbestproductList({Key? key}) : super(key: key);
 
@@ -42,8 +41,8 @@ class _OurbestproductListState extends State<OurbestproductList> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse(
-          '${ApiConfig.baseUrl}homescreen'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -81,9 +80,12 @@ class _OurbestproductListState extends State<OurbestproductList> {
     setState(() {
       filteredProducts = ourbestproducts
           .where((product) =>
-      (product['title'] ?? '').toLowerCase().contains(query.toLowerCase()) ||
-          (product['slug'] ?? '').toLowerCase().contains(query.toLowerCase()) ||
-          (product['description'] ?? '').toLowerCase().contains(query.toLowerCase()))
+              (product['title'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              (product['slug'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
           .toList();
 
       hasResults = filteredProducts.isNotEmpty; // Update hasResults
@@ -135,93 +137,97 @@ class _OurbestproductListState extends State<OurbestproductList> {
       ),
       body: isLoading
           ? Center(
-        child: LoadingAnimationWidget.halfTriangleDot(
-          size: 50.0,
-          color: Colors.redAccent,
-        ),
-      )
+              child: LoadingAnimationWidget.halfTriangleDot(
+                size: 50.0,
+                color: Colors.redAccent,
+              ),
+            )
           : hasError
-          ? Center(child: Text('Failed to load data'))
-          : LayoutBuilder(
-        builder: (context, constraints) {
-          double screenWidth = constraints.maxWidth;
-          double screenHeight = constraints.maxHeight;
+              ? Center(child: Text('Failed to load data'))
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    double screenWidth = constraints.maxWidth;
+                    double screenHeight = constraints.maxHeight;
 
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _searchProducts,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Search any Product...',
-                    hintStyle: GoogleFonts.montserrat(),
-                    prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Color(0xffF2F2F2),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    SizedBox(width: 10),
-                    Text(
-                      _getItemCountText(), // Use the method to get the item count
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: filteredProducts.isEmpty
-                    ? Center(
-                    child: Column(
+                    return Column(
                       children: [
-                        Image.asset(
-                          'assets/search-no-data.png',
-                          height: 300,
-                          width: 300,
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _searchProducts,
+                            focusNode: _focusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Search any Product...',
+                              hintStyle: GoogleFonts.montserrat(),
+                              prefixIcon:
+                                  Icon(Icons.search, color: Color(0xffBBBBBB)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Color(0xffF2F2F2),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
                         ),
-                        Text('No Result!',
-                            style: GoogleFonts.montserrat(
-                                fontSize: 15)),
-                      ],
-                    ))
-                    : ListView.builder(
-                  itemCount: (filteredProducts.length / 2).ceil(),
-                  itemBuilder: (context, index) {
-                    final int firstProductIndex = index * 2;
-                    final int secondProductIndex =
-                        firstProductIndex + 1;
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 10),
+                              Text(
+                                _getItemCountText(), // Use the method to get the item count
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: filteredProducts.isEmpty
+                              ? Center(
+                                  child: Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/search-no-data.png',
+                                      height: 300,
+                                      width: 300,
+                                    ),
+                                    Text('No Result!',
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 15)),
+                                  ],
+                                ))
+                              : ListView.builder(
+                                  itemCount:
+                                      (filteredProducts.length / 2).ceil(),
+                                  itemBuilder: (context, index) {
+                                    final int firstProductIndex = index * 2;
+                                    final int secondProductIndex =
+                                        firstProductIndex + 1;
 
-                    return ResponsiveCardRow(
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                      product1: filteredProducts[firstProductIndex],
-                      product2: secondProductIndex < filteredProducts.length
-                          ? filteredProducts[secondProductIndex]
-                          : null,
+                                    return ResponsiveCardRow(
+                                      screenWidth: screenWidth,
+                                      screenHeight: screenHeight,
+                                      product1:
+                                          filteredProducts[firstProductIndex],
+                                      product2: secondProductIndex <
+                                              filteredProducts.length
+                                          ? filteredProducts[secondProductIndex]
+                                          : null,
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
                     );
                   },
                 ),
-              ),
-            ],
-          );
-        },
-      ),
       bottomNavigationBar: BottomBar(
         onTap: (index) {},
       ),

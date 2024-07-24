@@ -22,7 +22,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   bool hasResults = true;
   List<dynamic> selectedBrands = []; // Correct initialization
 
-
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
@@ -42,7 +41,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   Future<void> fetchData() async {
     try {
       final response =
-          await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
+      await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -112,8 +111,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     }
   }
 
-
-
   Future<void> _showFilterDialog() async {
     List<int> selectedBrands = [];
     double minPrice = 0;
@@ -124,8 +121,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Text('Select Brands',
-              style: GoogleFonts.montserrat()),
+          title: Text('Select Brands', style: GoogleFonts.montserrat()),
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
@@ -319,8 +315,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
             ElevatedButton(
               child: Text('Cancel',
                   style: GoogleFonts.montserrat(
-                      color: Color(0xff0D6EFD), fontSize: 12)
-              ),
+                      color: Color(0xff0D6EFD), fontSize: 12)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -335,8 +330,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
             ElevatedButton(
               child: Text('Filter',
                   style: GoogleFonts.montserrat(
-                      color: Colors.white, fontSize: 15)
-              ),
+                      color: Colors.white, fontSize: 15)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff0D6EFD),
                 shape: RoundedRectangleBorder(
@@ -347,7 +341,6 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                 Navigator.of(context).pop();
                 fetchFilteredProducts(
                   brandIds: selectedBrands,
-
                   minPrice: minPrice,
                   maxPrice: maxPrice,
                 );
@@ -395,8 +388,10 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              title: Text('Select Price Range',
-              style: GoogleFonts.montserrat(),),
+              title: Text(
+                'Select Price Range',
+                style: GoogleFonts.montserrat(),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -416,10 +411,14 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text('Min: \$${minPrice.toStringAsFixed(2)}',
-                      style: GoogleFonts.montserrat(),),
-                      Text('Max: \$${maxPrice.toStringAsFixed(2)}',
-                      style: GoogleFonts.montserrat(),),
+                      Text(
+                        'Min: \$${minPrice.toStringAsFixed(2)}',
+                        style: GoogleFonts.montserrat(),
+                      ),
+                      Text(
+                        'Max: \$${maxPrice.toStringAsFixed(2)}',
+                        style: GoogleFonts.montserrat(),
+                      ),
                     ],
                   ),
                 ],
@@ -428,8 +427,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                 ElevatedButton(
                   child: Text('Cancel',
                       style: GoogleFonts.montserrat(
-                          color: Color(0xff0D6EFD), fontSize: 12)
-                  ),
+                          color: Color(0xff0D6EFD), fontSize: 12)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
@@ -442,11 +440,9 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text(
-                    'Filter',
+                  child: Text('Filter',
                       style: GoogleFonts.montserrat(
-                          color: Colors.white, fontSize: 15)
-                  ),
+                          color: Colors.white, fontSize: 15)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xff0D6EFD),
                     shape: RoundedRectangleBorder(
@@ -474,15 +470,12 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     setState(() {
       filteredProducts = allProducts
           .where((product) =>
-              (product['title'] ?? '')
-                  .toLowerCase()
-                  .contains(query.toLowerCase()) ||
-              (product['slug'] ?? '')
-                  .toLowerCase()
-                  .contains(query.toLowerCase()) ||
-              (product['description'] ?? '')
-                  .toLowerCase()
-                  .contains(query.toLowerCase()))
+      (product['title'] ?? '')
+          .toLowerCase()
+          .contains(query.toLowerCase()) ||
+          (product['slug'] ?? '')
+              .toLowerCase()
+              .contains(query.toLowerCase()))
           .toList();
 
       hasResults = filteredProducts.isNotEmpty;
@@ -534,142 +527,142 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       ),
       body: isLoading
           ? Center(
-              child: LoadingAnimationWidget.halfTriangleDot(
-                size: 50.0,
-                color: Colors.redAccent,
-              ),
-            )
+        child: LoadingAnimationWidget.halfTriangleDot(
+          size: 50.0,
+          color: Colors.redAccent,
+        ),
+      )
           : hasError
-              ? Center(child: Text('Failed to load data'))
-              : LayoutBuilder(
-                  builder: (context, constraints) {
-                    double screenWidth = constraints.maxWidth;
-                    double screenHeight = constraints.maxHeight;
+          ? Center(child: Text('Failed to load data'))
+          : LayoutBuilder(
+        builder: (context, constraints) {
+          double screenWidth = constraints.maxWidth;
+          double screenHeight = constraints.maxHeight;
 
-                    return Column(
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: _searchProducts,
+                  focusNode: _focusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Search any Product...',
+                    hintStyle: GoogleFonts.montserrat(),
+                    prefixIcon:
+                    Icon(Icons.search, color: Color(0xffBBBBBB)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Color(0xffF2F2F2),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      _getItemCountText(),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    GestureDetector(
+                      onTap: _showFilterDialog,
+                      child: SizedBox(
+                        width: 90,
+                        height: 40,
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Center(
+                              child: Text(
+                                'Brands',
+                                style: GoogleFonts.montserrat(),
+                              )),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    GestureDetector(
+                      onTap: _showFilterPrice,
+                      child: SizedBox(
+                        width: 90,
+                        height: 40,
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Center(
+                              child: Text(
+                                'Price',
+                                style: GoogleFonts.montserrat(),
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: filteredProducts.isEmpty
+                    ? Center(
+                    child: Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: _searchProducts,
-                            focusNode: _focusNode,
-                            decoration: InputDecoration(
-                              hintText: 'Search any Product...',
-                              hintStyle: GoogleFonts.montserrat(),
-                              prefixIcon:
-                                  Icon(Icons.search, color: Color(0xffBBBBBB)),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: Color(0xffF2F2F2),
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
+                        Image.asset(
+                          'assets/search-no-data.png',
+                          height: 300,
+                          width: 300,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                _getItemCountText(),
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              GestureDetector(
-                                onTap: _showFilterDialog,
-                                child: SizedBox(
-                                  width: 90,
-                                  height: 40,
-                                  child: Card(
-                                    color: Colors.white,
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Center(
-                                        child: Text(
-                                      'Brands',
-                                      style: GoogleFonts.montserrat(),
-                                    )),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              GestureDetector(
-                                onTap: _showFilterPrice,
-                                child: SizedBox(
-                                  width: 90,
-                                  height: 40,
-                                  child: Card(
-                                    color: Colors.white,
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Center(
-                                        child: Text(
-                                      'Price',
-                                      style: GoogleFonts.montserrat(),
-                                    )),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: filteredProducts.isEmpty
-                              ? Center(
-                                  child: Column(
-                                  children: [
-                                    Image.asset(
-                                      'assets/search-no-data.png',
-                                      height: 300,
-                                      width: 300,
-                                    ),
-                                    Text('No Result!',
-                                        style: GoogleFonts.montserrat(
-                                            fontSize: 15)),
-                                  ],
-                                ))
-                              : ListView.builder(
-                                  itemCount:
-                                      (filteredProducts.length / 2).ceil(),
-                                  itemBuilder: (context, index) {
-                                    final int firstProductIndex = index * 2;
-                                    final int secondProductIndex =
-                                        firstProductIndex + 1;
-
-                                    return ResponsiveCardRow(
-                                      screenWidth: screenWidth,
-                                      screenHeight: screenHeight,
-                                      product1:
-                                          filteredProducts[firstProductIndex],
-                                      product2: secondProductIndex <
-                                              filteredProducts.length
-                                          ? filteredProducts[secondProductIndex]
-                                          : null,
-                                    );
-                                  },
-                                ),
-                        ),
+                        Text('No Result!',
+                            style: GoogleFonts.montserrat(
+                                fontSize: 15)),
                       ],
+                    ))
+                    : ListView.builder(
+                  itemCount:
+                  (filteredProducts.length / 2).ceil(),
+                  itemBuilder: (context, index) {
+                    final int firstProductIndex = index * 2;
+                    final int secondProductIndex =
+                        firstProductIndex + 1;
+
+                    return ResponsiveCardRow(
+                      screenWidth: screenWidth,
+                      screenHeight: screenHeight,
+                      product1:
+                      filteredProducts[firstProductIndex],
+                      product2: secondProductIndex <
+                          filteredProducts.length
+                          ? filteredProducts[secondProductIndex]
+                          : null,
                     );
                   },
                 ),
+              ),
+            ],
+          );
+        },
+      ),
       bottomNavigationBar: BottomBar(
         onTap: (index) {},
       ),
@@ -728,8 +721,8 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePaths = product['product'] != null &&
-            product['product']['image'] != null &&
-            (product['product']['image'] as List).isNotEmpty
+        product['product']['image'] != null &&
+        (product['product']['image'] as List).isNotEmpty
         ? product['product']['image'] as List
         : [];
 

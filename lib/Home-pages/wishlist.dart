@@ -234,7 +234,11 @@ class _WishlistState extends State<Wishlist> {
           final productId = favoriteProducts[index]['id'];
           final productSlug = product['slug'];
 
-          final imageUrl = product['image'] ?? '';
+          // Check if there is an image list and get the first image path
+          final imageList = favoriteProducts[index]['product']['image'];
+          final imageUrl = imageList.isNotEmpty
+              ? 'https://sgitjobs.com/MaseryShoppingNew/public/${imageList[0]['path']}'
+              : '';
 
           return Container(
             padding: responsive.paddingPercentage(2, 2, 2, 2),
@@ -253,7 +257,7 @@ class _WishlistState extends State<Wishlist> {
                             imageUrl,
                             width: responsive.widthPercentage(30),
                             height: responsive.heightPercentage(15),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           )
                               : Image.asset(
                             'assets/no-data.png',
@@ -266,8 +270,7 @@ class _WishlistState extends State<Wishlist> {
                             print('$productId');
                             _removeFromWishlist(productId);
                           },
-                          icon: Icon(Icons.delete,
-                              color: Colors.orangeAccent),
+                          icon: Icon(Icons.delete, color: Colors.orangeAccent),
                         ),
                       ],
                     ),
@@ -310,7 +313,10 @@ class _WishlistState extends State<Wishlist> {
                               },
                               child: Text(
                                 'Add to Cart',
-                                style: GoogleFonts.montserrat(color: Color(0xff0D6EFD), fontSize: responsive.textSize(2.5)),
+                                style: GoogleFonts.montserrat(
+                                  color: Color(0xff0D6EFD),
+                                  fontSize: responsive.textSize(2.5),
+                                ),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
