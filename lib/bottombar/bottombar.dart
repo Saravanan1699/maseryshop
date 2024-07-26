@@ -24,14 +24,14 @@ class _BottomBarState extends State<BottomBar> {
     super.initState();
     fetchTotalItems();
   }
-
   Future<void> fetchTotalItems() async {
     try {
       final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+        print('Response Data: $responseData');
         setState(() {
-          totalItems = int.parse(responseData['total_items'] ?? '0');
+          totalItems = responseData['total_items'] ?? 0;
         });
       } else {
         throw Exception('Failed to load total items');
@@ -43,6 +43,38 @@ class _BottomBarState extends State<BottomBar> {
       });
     }
   }
+
+
+  // Future<void> fetchTotalItems() async {
+  //   try {
+  //     final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
+  //     print('Status Code: ${response.statusCode}'); // Debug print
+  //
+  //     if (response.statusCode == 200) {
+  //       final responseData = json.decode(response.body);
+  //       print('Response Data: $responseData'); // Debug print
+  //
+  //       if (responseData.containsKey('total_items')) {
+  //         setState(() {
+  //           totalItems = responseData['total_items'];
+  //         });
+  //         print('Total Items Updated: $totalItems'); // Debug print
+  //       } else {
+  //         print('total_items key not found in response'); // Debug print
+  //         setState(() {
+  //           totalItems = 0;
+  //         });
+  //       }
+  //     } else {
+  //       throw Exception('Failed to load total items');
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching total items: $e');
+  //     setState(() {
+  //       totalItems = 0;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +130,9 @@ class _BottomBarState extends State<BottomBar> {
           case 1:
             Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist()));
             break;
-          // case 2:
-          //   Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
-          //   break;
+        // case 2:
+        //   Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
+        //   break;
           case 2:
             Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
             break;
