@@ -18,11 +18,13 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   int totalItems = 0;
+  int totalWishItems = 0;
 
   @override
   void initState() {
     super.initState();
     fetchTotalItems();
+    fetchTotalWishlistItems();
   }
   Future<void> fetchTotalItems() async {
     try {
@@ -40,6 +42,26 @@ class _BottomBarState extends State<BottomBar> {
       print('Error fetching total items: $e');
       setState(() {
         totalItems = 0;
+      });
+    }
+  }
+
+  Future<void> fetchTotalWishlistItems() async {
+    try {
+      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalwishlistitems'));
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Response Data: $responseData');
+        setState(() {
+          totalWishItems = responseData['total_items'] ?? 0;
+        });
+      } else {
+        throw Exception('Failed to load total items');
+      }
+    } catch (e) {
+      print('Error fetching total items: $e');
+      setState(() {
+        totalWishItems = 0;
       });
     }
   }
@@ -83,7 +105,35 @@ class _BottomBarState extends State<BottomBar> {
       backgroundColor: Colors.white,
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Wishlist'),
+        BottomNavigationBarItem(icon:  Stack(
+          children: [
+            Icon(Icons.favorite_border),
+            if (totalWishItems > 0)
+              Positioned(
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  constraints: BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Text(
+                    '$totalWishItems',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ), label: 'Wishlist'),
         // BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notification'),
         BottomNavigationBarItem(
           icon: Stack(
