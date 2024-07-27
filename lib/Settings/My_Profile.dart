@@ -153,56 +153,56 @@ class _ProfileState extends State<Profile> {
                     ),
                     isLoggedIn
                         ? FutureBuilder<Map<String, String>>(
-                            future: _getFromLocalStorage(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<Map<String, String>> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                  child: Container(
-                                    child:
-                                        LoadingAnimationWidget.halfTriangleDot(
-                                      size: 50.0,
-                                      color: Colors.redAccent,
-                                    ),
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                return Center(
-                                    child: Text('Error: ${snapshot.error}'));
-                              } else {
-                                var data = snapshot.data!;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${data['name']}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: screenWidth * 0.05,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF2B2B2B),
-                                      ),
-                                    ),
-                                    Text(
-                                      '${data['email']}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: screenWidth * 0.04,
-                                        color: Color(0xFF2B2B2B),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-                            },
-                          )
-                        : Text(
-                            'No Profile',
-                            style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.05,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF2B2B2B),
+                      future: _getFromLocalStorage(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Map<String, String>> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: Container(
+                              child:
+                              LoadingAnimationWidget.halfTriangleDot(
+                                size: 50.0,
+                                color: Colors.redAccent,
+                              ),
                             ),
-                          ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else {
+                          var data = snapshot.data!;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${data['name']}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: screenWidth * 0.05,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF2B2B2B),
+                                ),
+                              ),
+                              Text(
+                                '${data['email']}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: screenWidth * 0.04,
+                                  color: Color(0xFF2B2B2B),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      },
+                    )
+                        : Text(
+                      'No Profile',
+                      style: GoogleFonts.poppins(
+                        fontSize: screenWidth * 0.05,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF2B2B2B),
+                      ),
+                    ),
                     // Add Order History Row
                     SizedBox(height: 10),
                     Divider(
@@ -223,15 +223,17 @@ class _ProfileState extends State<Profile> {
                           icon: Icon(
                             Icons.arrow_forward_ios_rounded,
                             size: screenWidth * 0.06,
-                            color: Color(0xFF2B2B2B),
+                            color: isLoggedIn ? Color(0xFF2B2B2B) : Colors.transparent,
                           ),
-                          onPressed: () {
+                          onPressed: isLoggedIn
+                              ? () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => Orderlist()),
                             );
-                          },
+                          }
+                              : null,
                         ),
                       ],
                     ),

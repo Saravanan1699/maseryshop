@@ -20,18 +20,19 @@ class _SigninState extends State<Signin> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _saveToLocalStorage(String token,String name, String email) async {
+  Future<void> _saveToLocalStorage(String token, String name, String email, String id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print("Token is $token");
     print("name is $name");
     print("email is $email");
+    print("id is $id");
     await prefs.setString('token', token);
     await prefs.setString('name', name);
     await prefs.setString('email', email);
+    await prefs.setString('id', id);
   }
 
-  Future<Map<String, dynamic>> _authenticate(
-      String username, String password) async {
+  Future<Map<String, dynamic>> _authenticate(String username, String password) async {
     late Map<String, dynamic> responseData;
 
     try {
@@ -50,17 +51,19 @@ class _SigninState extends State<Signin> {
         responseData = jsonDecode(response.body);
         print('Response data: $responseData'); // Print the entire response for inspection
         final String token = responseData['data']['token'] ?? '';
-        final String Email = responseData['data']['userDetails']['email'] ?? '';
+        final String email = responseData['data']['userDetails']['email'] ?? '';
         final String name = responseData['data']['userDetails']['name'] ?? '';
-        print('Retrieved username: $Email');
+        final String id = responseData['data']['userDetails']['id'].toString();
+        print('Retrieved email: $email');
 
-        await _saveToLocalStorage(token, Email, name);
+        await _saveToLocalStorage(token, name, email, id);
         return {
           'success': true,
           'message': 'User LoggedIn Successfully!',
           'token': token,
-          'email': Email,
+          'email': email,
           'name': name,
+          'id': id,
         };
       } else if (response.statusCode == 402) {
         responseData = jsonDecode(response.body);
@@ -70,7 +73,12 @@ class _SigninState extends State<Signin> {
           'message': errorMessage,
         };
       } else {
-        throw Exception('Failed to authenticate');
+        responseData = jsonDecode(response.body);
+        final String errorMessage = responseData['message'] ?? 'Failed to authenticate';
+        return {
+          'success': false,
+          'message': errorMessage,
+        };
       }
     } catch (e) {
       return {
@@ -79,7 +87,6 @@ class _SigninState extends State<Signin> {
       };
     }
   }
-
 
   Future<void> _login() async {
     final email = _emailController.text;
@@ -95,7 +102,7 @@ class _SigninState extends State<Signin> {
         await AuthService.login(context, email, password);
       } else {
         // Handle login failure
-        _showError('Login failed');
+        _showError(responseData['message']);
       }
     } catch (e) {
       // Handle server error
