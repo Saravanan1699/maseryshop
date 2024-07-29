@@ -48,6 +48,7 @@ dependencies:
   filter_list: ^1.0.3
   image_gallery_saver: ^2.0.3
   connectivity_plus: ^5.0.2
+  intl: ^0.18.0
 
 
 dev_dependencies:

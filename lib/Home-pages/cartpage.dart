@@ -429,7 +429,7 @@ class _CartPageState extends State<CartPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MultistepForm(product: {}),
+                      builder: (context) => MultistepForm(product: {}, userDetails: {},),
                     ),
                   );
                 } else {
@@ -492,7 +492,8 @@ class _CartPageState extends State<CartPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MultistepForm(product: {}),
+                      builder: (context) => MultistepForm(product: {}, userDetails: {},
+                      ),
                     ),
                   );
                 } else {
