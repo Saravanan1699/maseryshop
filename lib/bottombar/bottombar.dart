@@ -167,7 +167,7 @@ class _BottomBarState extends State<BottomBar> {
           ),
           label: 'Cart',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.category_outlined), label: 'Categories'),
+        BottomNavigationBarItem(icon: Icon(Icons.search_outlined), label: 'Search'),
       ],
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.black,

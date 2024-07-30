@@ -35,7 +35,7 @@ class OrderDetails extends StatelessWidget {
                 ),
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => HomePage()));
+                      MaterialPageRoute(builder: (context) => Orderlist()));
                 },
               ),
             );
@@ -184,28 +184,28 @@ class OrderDetails extends StatelessWidget {
             _buildOrderInfo('Shipping Address:', order.shippingAddress),
             _buildOrderInfo('Payment method:', order.paymentMethodId),
             _buildOrderInfo('Total Amount:', '\$${order.total}'),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigator.push(context,
-                  //     MaterialPageRoute(builder: (context) => Booking()));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // Background color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: Color(0xff0D6EFD)),
-                  ),
-                ),
-                child: Text(
-                  'Feedback',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    color: Color(0xff0D6EFD),
-                  ),
-                ),
-              ),
-            ),
+            // Center(
+            //   child: ElevatedButton(
+            //     onPressed: () {
+            //       // Navigator.push(context,
+            //       //     MaterialPageRoute(builder: (context) => Booking()));
+            //     },
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Colors.white, // Background color
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(8),
+            //         side: BorderSide(color: Color(0xff0D6EFD)),
+            //       ),
+            //     ),
+            //     child: Text(
+            //       'Feedback',
+            //       style: GoogleFonts.montserrat(
+            //         fontSize: 14,
+            //         color: Color(0xff0D6EFD),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 15),
           ],
         ),

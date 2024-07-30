@@ -34,7 +34,54 @@ class _HomePageState extends State<HomePage> {
   double _currentPage = 0.0;
   Timer? _timer;
   final TextEditingController _searchController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
+  List<dynamic> products = [];
+  List<dynamic> filteredProducts = [];
+  bool isLoading = false;
+  bool hasResults = true;
+  Future<void> fetchProductsBySlug(String slug) async {
+    final url = 'https://sgitjobs.com/MaseryShoppingNew/public/api/search?q=$slug';
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          products = data['data'] ?? [];
+          filteredProducts = products;
+          isLoading = false;
+          hasResults = filteredProducts.isNotEmpty;
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Exception: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+  void _searchProducts(String query) {
+    setState(() {
+      filteredProducts = products
+          .where((product) =>
+      (product['title'] ?? '').toLowerCase().contains(query.toLowerCase()) ||
+          (product['slug'] ?? '').toLowerCase().contains(query.toLowerCase()))
+          .toList();
+      hasResults = filteredProducts.isNotEmpty;
+    });
+  }
 
   @override
   void initState() {
@@ -42,8 +89,6 @@ class _HomePageState extends State<HomePage> {
     _pageController = PageController(viewportFraction: 0.8);
     fetchData();
     fetchWishlistIds(); // Fetch wishlist items on widget initialization
-
-    // Start the timer to auto-scroll every 3 seconds
     _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (_pageController.hasClients) {
         int nextPage = (_pageController.page!.round() + 1) % banners.length;
@@ -59,15 +104,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchData() async {
     final url = '${ApiConfig.baseUrl}homescreen';
     print('Fetching data from: $url'); // Debugging statement
-
     try {
       final response = await http.get(Uri.parse(url));
-
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         print(
             'Data fetched successfully: ${jsonResponse}'); // Debugging statement
-
         setState(() {
           banners = jsonResponse['data']['banners'] ?? [];
           featuredProducts = jsonResponse['data']['featured_products'] ?? [];
@@ -92,6 +134,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -103,7 +146,6 @@ class _HomePageState extends State<HomePage> {
     try {
       final apiUrl = '${ApiConfig.baseUrl}getwishlist';
       final response = await http.get(Uri.parse(apiUrl));
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final wishlistData = data['wishlist']['data'] as List<dynamic>;
@@ -120,7 +162,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool isInWishlist = false;
-
   void toggleWishlist(
       String slug, int? productId, bool currentWishlistStatus) async {
     bool newWishlistStatus = !currentWishlistStatus;
@@ -128,13 +169,10 @@ class _HomePageState extends State<HomePage> {
       final apiUrl = newWishlistStatus
           ? '${ApiConfig.baseUrl}addToWishlist/$slug'
           : '${ApiConfig.baseUrl}removefromWishlist/${productId ?? ''}';
-
       final response = await http.post(Uri.parse(apiUrl));
-
       if (response.statusCode == 200) {
         // Call fetchData to refresh the data
         await fetchData();
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(newWishlistStatus
@@ -208,27 +246,26 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.only(left: 8.0,right: 8),
               child: Column(
                   children: [
-                    // Padding(
-                    //   padding: const EdgeInsets.all(8.0),
-                    //   child: TextField(
-                    //     controller: _searchController,
-                    //     focusNode: _focusNode,
-                    //     decoration: InputDecoration(
-                    //       hintText: 'Search any Product...',
-                    //       hintStyle: GoogleFonts.montserrat(
-                    //
-                    //       ),
-                    //       prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
-                    //       border: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(15.0),
-                    //         borderSide: BorderSide.none,
-                    //       ),
-                    //       filled: true,
-                    //       fillColor: Color(0xffF2F2F2),
-                    //       contentPadding: EdgeInsets.zero,
-                    //     ),
-                    //   ),
-                    // ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: _searchProducts,
+                        focusNode: _focusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Search any Product...',
+                          hintStyle: GoogleFonts.montserrat(),
+                          prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Color(0xffF2F2F2),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
                     Container(
                       height: 250,
                       child: PageView.builder(
@@ -329,7 +366,6 @@ class _HomePageState extends State<HomePage> {
                                 color: Colors.white,
                               ),
                             ))
-
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -346,30 +382,24 @@ class _HomePageState extends State<HomePage> {
                               wishlists.isNotEmpty ? wishlists[0]['id'] : null;
                           final imageUrl =
                               'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
-
                           final offerStart =
                               DateTime.parse(product['offer_start']);
                           final offerEnd = DateTime.parse(product['offer_end']);
                           final currentDate = DateTime.now();
-
                           final bool isOfferPeriod =
                               currentDate.isAfter(offerStart) &&
                                   currentDate.isBefore(offerEnd);
                           final salePrice = double.parse(product['sale_price']);
                           final offerPrice = double.parse(product['offer_price']);
-
                           String formattedSalePrice =
                               salePrice.toStringAsFixed(2);
                           String formattedOfferPrice =
                               offerPrice.toStringAsFixed(2);
-
                           final double discountPercentage =
                               ((salePrice - offerPrice) / salePrice) * 100;
                           final int discountPercentageRounded =
                               discountPercentage.ceil();
-
                           bool isInWishlist = wishlists.isNotEmpty;
-
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -554,9 +584,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-
+                   SizedBox(height: 16),
                     Row(
                       children: [
                         Text(
@@ -598,7 +626,7 @@ class _HomePageState extends State<HomePage> {
                             ))
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Container(
                       height: 270,
                       child: ListView.builder(
@@ -607,28 +635,22 @@ class _HomePageState extends State<HomePage> {
                         itemBuilder: (context, index) {
                           final category = categoryBasedProducts[index];
                           final products = category['products'] as List<dynamic>?;
-
                           if (products == null || products.isEmpty) {
                             return SizedBox(); // Return an empty SizedBox if products are null or empty
                           }
-
                           final product = products.isNotEmpty ? products[0] : null;
-
                           if (product == null) {
                             return SizedBox(); // Return an empty SizedBox if the product is null
                           }
-
                           final imagePath = product['image'] != null &&
                               (product['image'] as List<dynamic>).isNotEmpty &&
                               (product['image'] as List<dynamic>)[0]['path'] != null
                               ? (product['image'] as List<dynamic>)[0]['path'] as String
                               : '';
                           final title = category['slug'] as String? ?? 'No Title';
-
                           final imageUrl = imagePath.isNotEmpty
                               ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
                               : ''; // Provide a default empty URL if imagePath is empty
-
                           return GestureDetector(
                             onTap: () async {
                                 Navigator.push(
@@ -639,10 +661,9 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 );
-
                             },
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding:EdgeInsets.all(8.0),
                               child: Container(
                                 width: 200,
                                 child: Card(
@@ -655,12 +676,12 @@ class _HomePageState extends State<HomePage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding:EdgeInsets.all(8.0),
                                         child: Container(
                                           height: 150,
                                           decoration: imageUrl.isNotEmpty
                                               ? BoxDecoration(
-                                            borderRadius: const BorderRadius.vertical(
+                                            borderRadius:BorderRadius.vertical(
                                               top: Radius.circular(15.0),
                                             ),
                                             image: DecorationImage(
@@ -679,7 +700,7 @@ class _HomePageState extends State<HomePage> {
                                           child: Column(
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.all(8.0),
+                                                padding:EdgeInsets.all(8.0),
                                                 child: Text(
                                                   category['name'] as String? ?? '', // Provide default value
                                                   style: GoogleFonts.montserrat(
@@ -689,7 +710,7 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                padding:EdgeInsets.symmetric(horizontal: 8.0),
                                                 child: Text(
                                                   '${category['products_count'] as String? ?? ''} Products', // Provide default value
                                                   style: GoogleFonts.montserrat(
@@ -711,7 +732,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    SizedBox(height: 15),
                     // Container(
                     //   height: 190 ,
                     //   child: ListView.builder(
@@ -790,12 +811,12 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.montserrat(
                               fontSize: 17, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           width: 10,
                         ),
                         Container(
                             height: 35,
-                            decoration: const BoxDecoration(
+                            decoration:BoxDecoration(
                               color: Colors.blue,
                               shape: BoxShape.circle,
                             ),
@@ -815,7 +836,7 @@ class _HomePageState extends State<HomePage> {
                             ))
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Container(
                       height: 260,
                       child: ListView.builder(
@@ -828,12 +849,10 @@ class _HomePageState extends State<HomePage> {
                           final imageUrl = imagePath != null
                               ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
                               : 'https://example.com/placeholder.png'; // Placeholder image URL
-
                           final offerStartStr = product['offer_start'];
                           final offerEndStr = product['offer_end'];
                           final salePriceStr = product['sale_price'];
                           final offerPriceStr = product['offer_price'];
-
                           if (offerStartStr == null ||
                               offerEndStr == null ||
                               salePriceStr == null ||
@@ -841,27 +860,22 @@ class _HomePageState extends State<HomePage> {
                             // Skip this item if critical data is missing
                             return SizedBox.shrink();
                           }
-
                           final offerStart = DateTime.parse(offerStartStr);
                           final offerEnd = DateTime.parse(offerEndStr);
                           final currentDate = DateTime.now();
-
                           final bool isOfferPeriod =
                               currentDate.isAfter(offerStart) &&
                                   currentDate.isBefore(offerEnd);
                           final salePrice = double.parse(salePriceStr);
                           final offerPrice = double.parse(offerPriceStr);
-
                           String formattedSalePrice =
                               salePrice.toStringAsFixed(2);
                           String formattedOfferPrice =
                               offerPrice.toStringAsFixed(2);
-
                           final double discountPercentage =
                               ((salePrice - offerPrice) / salePrice) * 100;
                           final int discountPercentageRounded =
                               discountPercentage.ceil();
-
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -873,7 +887,7 @@ class _HomePageState extends State<HomePage> {
                               );
                             },
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding:EdgeInsets.all(8.0),
                               child: Container(
                                 width: 200,
                                 child: Stack(
@@ -889,12 +903,12 @@ class _HomePageState extends State<HomePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding:EdgeInsets.all(8.0),
                                             child: Container(
                                               height: 150,
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    const BorderRadius.vertical(
+                                                  BorderRadius.vertical(
                                                   top: Radius.circular(15.0),
                                                 ),
                                                 image: DecorationImage(
@@ -917,7 +931,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(
+                                            padding:EdgeInsets.symmetric(
                                                 horizontal: 8.0),
                                             child: Column(
                                               crossAxisAlignment:
@@ -979,7 +993,7 @@ class _HomePageState extends State<HomePage> {
                                             borderRadius:
                                                 BorderRadius.circular(30.0),
                                           ),
-                                          padding: const EdgeInsets.all(4.0),
+                                          padding:EdgeInsets.all(4.0),
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -1315,7 +1329,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Container(
                             height: 35,
-                            decoration: const BoxDecoration(
+                            decoration:BoxDecoration(
                               color: Colors.blue,
                               shape: BoxShape.circle,
                             ),
@@ -1335,7 +1349,7 @@ class _HomePageState extends State<HomePage> {
                             ))
                       ],
                     ),
-                    const SizedBox(height: 16),
+                   SizedBox(height: 16),
                     Container(
                       height: 260,
                       child: ListView.builder(
@@ -1348,12 +1362,10 @@ class _HomePageState extends State<HomePage> {
                           final imageUrl = imagePath != null
                               ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
                               : 'https://example.com/placeholder.png'; // Placeholder image URL
-
                           final offerStartStr = product['offer_start'];
                           final offerEndStr = product['offer_end'];
                           final salePriceStr = product['sale_price'];
                           final offerPriceStr = product['offer_price'];
-
                           if (offerStartStr == null ||
                               offerEndStr == null ||
                               salePriceStr == null ||
@@ -1361,27 +1373,22 @@ class _HomePageState extends State<HomePage> {
                             // Skip this item if critical data is missing
                             return SizedBox.shrink();
                           }
-
                           final offerStart = DateTime.parse(offerStartStr);
                           final offerEnd = DateTime.parse(offerEndStr);
                           final currentDate = DateTime.now();
-
                           final bool isOfferPeriod =
                               currentDate.isAfter(offerStart) &&
                                   currentDate.isBefore(offerEnd);
                           final salePrice = double.parse(salePriceStr);
                           final offerPrice = double.parse(offerPriceStr);
-
                           String formattedSalePrice =
                               salePrice.toStringAsFixed(2);
                           String formattedOfferPrice =
                               offerPrice.toStringAsFixed(2);
-
                           final double discountPercentage =
                               ((salePrice - offerPrice) / salePrice) * 100;
                           final int discountPercentageRounded =
                               discountPercentage.ceil();
-
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -1393,7 +1400,7 @@ class _HomePageState extends State<HomePage> {
                               );
                             },
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding:EdgeInsets.all(8.0),
                               child: Container(
                                 width: 200,
                                 child: Stack(
@@ -1409,12 +1416,12 @@ class _HomePageState extends State<HomePage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding:EdgeInsets.all(8.0),
                                             child: Container(
                                               height: 150,
                                               decoration: BoxDecoration(
                                                 borderRadius:
-                                                    const BorderRadius.vertical(
+                                                BorderRadius.vertical(
                                                   top: Radius.circular(15.0),
                                                 ),
                                                 image: DecorationImage(
@@ -1425,7 +1432,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                           Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding:EdgeInsets.all(8.0),
                                               child: Text(
                                                 product['title'] ?? 'No title',
                                                 style: GoogleFonts.montserrat(
@@ -1436,7 +1443,7 @@ class _HomePageState extends State<HomePage> {
                                                 overflow: TextOverflow.ellipsis,
                                               )),
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(
+                                            padding:EdgeInsets.symmetric(
                                                 horizontal: 8.0),
                                             child: Column(
                                               crossAxisAlignment:
@@ -1498,7 +1505,7 @@ class _HomePageState extends State<HomePage> {
                                             borderRadius:
                                                 BorderRadius.circular(30.0),
                                           ),
-                                          padding: const EdgeInsets.all(4.0),
+                                          padding: EdgeInsets.all(4.0),
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
