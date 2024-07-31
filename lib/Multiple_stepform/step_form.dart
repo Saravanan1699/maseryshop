@@ -296,7 +296,7 @@ class _MultistepFormState extends State<MultistepForm> {
             ),
           ),
           content: Text(
-            'Payment done successfully.',
+            'Your order has been placed successfully',
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.w500,
               fontSize: 17,

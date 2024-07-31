@@ -7,6 +7,7 @@ import 'dart:convert';
 import '../bottombar/bottombar.dart';
 import 'order-details.dart';
 
+// Model class representing an Order
 class Order {
   final String orderId;
   final String orderNumber;
@@ -17,6 +18,8 @@ class Order {
   final String shippingAddress;
   final String paymentMethodId;
   final List<dynamic> inventories;
+  final String createdAt;
+  final String orderStatusId;
 
   Order({
     required this.orderId,
@@ -28,6 +31,8 @@ class Order {
     required this.shippingAddress,
     required this.paymentMethodId,
     required this.inventories,
+    required this.createdAt,
+    required this.orderStatusId,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -41,10 +46,13 @@ class Order {
       shippingAddress: json['shipping_address'] ?? '',
       paymentMethodId: json['payment_method_id'] ?? '',
       inventories: json['inventories'] ?? [],
+      createdAt: json['created_at'].toString(),
+      orderStatusId: json['order_status_id'] ?? '',
     );
   }
 }
 
+// Stateful widget displaying the list of orders
 class Orderlist extends StatefulWidget {
   const Orderlist({super.key});
 
@@ -63,8 +71,7 @@ class _OrderlistState extends State<Orderlist> {
 
   Future<String?> _getIdFromLocalStorage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString('id');
-    return id;
+    return prefs.getString('id');
   }
 
   Future<String?> _getTokenFromLocalStorage() async {
@@ -80,11 +87,8 @@ class _OrderlistState extends State<Orderlist> {
 
     final token = await _getTokenFromLocalStorage();
     final response = await http.get(
-      Uri.parse(
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/orders/customer/$id'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
+      Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/orders/customer/$id'),
+      headers: {'Authorization': 'Bearer $token'},
     );
 
     if (response.statusCode == 200) {
@@ -94,6 +98,48 @@ class _OrderlistState extends State<Orderlist> {
     } else {
       throw Exception('Failed to load orders');
     }
+  }
+
+  String _getPaymentMethod(String paymentMethodId) {
+    switch (paymentMethodId) {
+      case '1':
+        return 'Cash on Delivery';
+      case '2':
+        return 'Google Payment';
+      default:
+        return 'Unknown Payment Method';
+    }
+  }
+
+  String _getOrderStatus(String orderStatusId) {
+    switch (orderStatusId) {
+      case '1':
+        return 'Confirmed';
+      case '2':
+        return 'Processing';
+      case '3':
+        return 'Rejected';
+      default:
+        return 'Unknown Status';
+    }
+  }
+
+  Color _getStatusColor(String orderStatusId) {
+    switch (orderStatusId) {
+      case '1':
+        return Colors.green;
+      case '2':
+        return Colors.yellow;
+      case '3':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatDate(String dateTime) {
+    DateTime date = DateTime.parse(dateTime);
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
   @override
@@ -124,7 +170,7 @@ class _OrderlistState extends State<Orderlist> {
         future: _ordersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return  Center(
+            return Center(
               child: LoadingAnimationWidget.halfTriangleDot(
                 size: 50.0,
                 color: Colors.redAccent,
@@ -140,6 +186,10 @@ class _OrderlistState extends State<Orderlist> {
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 final order = orders[index];
+                final paymentMethod = _getPaymentMethod(order.paymentMethodId);
+                final orderStatus = _getOrderStatus(order.orderStatusId);
+                final statusColor = _getStatusColor(order.orderStatusId);
+
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -163,6 +213,16 @@ class _OrderlistState extends State<Orderlist> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                ' ${_formatDate(order.createdAt)}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ],),
                             Row(
                               children: [
                                 Text(
@@ -171,14 +231,19 @@ class _OrderlistState extends State<Orderlist> {
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                ), Text(
+
+                                ),
+
+                                Text(
                                   ' ${order.orderNumber}',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[400]
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[400],
                                   ),
                                 ),
+
+
                               ],
                             ),
                             SizedBox(height: 10),
@@ -189,13 +254,31 @@ class _OrderlistState extends State<Orderlist> {
                               ),
                             ),
                             Text(
-                              'Total: \$${(double.tryParse(order.total ?? '0.00')?.toStringAsFixed(2) ?? '0.00')}',
+                              'Total: \$${(double.tryParse(order.total)?.toStringAsFixed(2) ?? '0.00')}',
                               style: GoogleFonts.montserrat(
                                 fontSize: 14,
                               ),
                             ),
 
+
                             SizedBox(height: 10),
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 10,
+                                  backgroundColor: statusColor,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Order Status: $orderStatus',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+
                           ],
                         ),
                       ),
