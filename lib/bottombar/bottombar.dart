@@ -26,13 +26,17 @@ class _BottomBarState extends State<BottomBar> {
     fetchTotalItems();
     fetchTotalWishlistItems();
   }
+
   Future<void> fetchTotalItems() async {
     try {
-      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print('Response Data: $responseData');
+        int items = await fetchTotalWishlistItems();
         setState(() {
+          totalWishItems = items;
           totalItems = responseData['total_items'] ?? 0;
         });
       } else {
@@ -46,26 +50,23 @@ class _BottomBarState extends State<BottomBar> {
     }
   }
 
-  Future<void> fetchTotalWishlistItems() async {
+  Future<int> fetchTotalWishlistItems() async {
     try {
       final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalwishlistitems'));
+
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print('Response Data: $responseData');
-        setState(() {
-          totalWishItems = responseData['total_items'] ?? 0;
-        });
+
+        return responseData['total_items'] ?? 0;
       } else {
         throw Exception('Failed to load total items');
       }
     } catch (e) {
       print('Error fetching total items: $e');
-      setState(() {
-        totalWishItems = 0;
-      });
+      return 0;
     }
   }
-
 
   // Future<void> fetchTotalItems() async {
   //   try {
@@ -105,36 +106,38 @@ class _BottomBarState extends State<BottomBar> {
       backgroundColor: Colors.white,
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-        BottomNavigationBarItem(icon:  Stack(
-          children: [
-            Icon(Icons.favorite_border),
-            if (totalWishItems > 0)
-              Positioned(
-                right: 0,
-                child: Container(
-                  padding: EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  constraints: BoxConstraints(
-                    minWidth: 16,
-                    minHeight: 16,
-                  ),
-                  child: Text(
-                    '$totalWishItems',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-          ],
-        ), label: 'Wishlist'),
-        // BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notification'),
+        // BottomNavigationBarItem(
+        //   icon: Stack(
+        //     children: [
+        //       Icon(Icons.favorite_border),
+        //       if (totalWishItems > 0)
+        //         Positioned(
+        //           right: 0,
+        //           child: Container(
+        //             padding: EdgeInsets.all(2),
+        //             decoration: BoxDecoration(
+        //               color: Colors.blue,
+        //               borderRadius: BorderRadius.circular(10),
+        //             ),
+        //             constraints: BoxConstraints(
+        //               minWidth: 16,
+        //               minHeight: 16,
+        //             ),
+        //             child: Text(
+        //               '$totalWishItems',
+        //               style: TextStyle(
+        //                 color: Colors.white,
+        //                 fontSize: 10,
+        //                 fontWeight: FontWeight.bold,
+        //               ),
+        //               textAlign: TextAlign.center,
+        //             ),
+        //           ),
+        //         ),
+        //     ],
+        //   ),
+        //   label: 'Wishlist',
+        // ), // BottomNavigationBarItem(icon: Icon(Icons.notifications_outlined), label: 'Notification'),
         BottomNavigationBarItem(
           icon: Stack(
             children: [
@@ -167,7 +170,8 @@ class _BottomBarState extends State<BottomBar> {
           ),
           label: 'Cart',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.search_outlined), label: 'Search'),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.category_outlined), label: 'Category'),
       ],
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.black,
@@ -175,19 +179,23 @@ class _BottomBarState extends State<BottomBar> {
         widget.onTap(index);
         switch (index) {
           case 0:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => HomePage()));
             break;
+          // case 1:
+          //   Navigator.push(
+          //       context, MaterialPageRoute(builder: (context) => Wishlist()));
+          //   break;
+          // case 2:
+          //   Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
+          //   break;
           case 1:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Wishlist()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => CartPage()));
             break;
-        // case 2:
-        //   Navigator.push(context, MaterialPageRoute(builder: (context) => notification(favoriteProducts: [],)));
-        //   break;
           case 2:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-            break;
-          case 3:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryDescription()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CategoryDescription()));
             break;
           default:
             break;

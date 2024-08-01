@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../Settings/My_Profile.dart';
 import '../bottombar/bottombar.dart';
 import 'order-details.dart';
 
@@ -158,14 +159,27 @@ class _OrderlistState extends State<Orderlist> {
             color: Colors.black,
           ),
         ),
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundImage: AssetImage('assets/logo.png'),
-            backgroundColor: Color(0xffF2F2F2),
-          ),
-        ),
-      ),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              margin: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Color(0xffF2F2F2),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_outlined,
+                  size: 15,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => Profile()));
+                },
+              ),
+            );
+          },
+        ),      ),
       body: FutureBuilder<List<Order>>(
         future: _ordersFuture,
         builder: (context, snapshot) {

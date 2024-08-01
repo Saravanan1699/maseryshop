@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:maseryshop/Home-pages/wishlist.dart';
 import '../Base_Url/BaseUrl.dart';
 import '../Product-pages/Featured-list-view.dart';
 import '../Product-pages/category-filter.dart';
@@ -36,6 +37,8 @@ class _HomePageState extends State<HomePage> {
   Timer? _timer;
   bool hasResults = true;
   bool _hasSearched = false;
+  int totalWishItems = 0;
+  int totalItems = 0;
   final TextEditingController _searchController = TextEditingController();
   FocusNode _focusNode = FocusNode();
 
@@ -45,6 +48,8 @@ class _HomePageState extends State<HomePage> {
     _pageController = PageController(viewportFraction: 0.8);
     fetchData();
     fetchWishlistIds();
+    fetchTotalWishlistItems();
+    fetchTotalItems();
     _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (_pageController.hasClients) {
         int nextPage = (_pageController.page!.round() + 1) % banners.length;
@@ -135,12 +140,18 @@ class _HomePageState extends State<HomePage> {
       final apiUrl = newWishlistStatus
           ? '${ApiConfig.baseUrl}addToWishlist/$slug'
           : '${ApiConfig.baseUrl}removefromWishlist/${productId ?? ''}';
-
       final response = await http.post(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        // Call fetchData to refresh the data
-        await fetchData();
+        await fetchData(); // Ensure fetchData() is defined and implemented correctly
+        int items = await fetchTotalWishlistItems();
+
+        // Ensure that setState is used in a StatefulWidget
+        if (mounted) {
+          setState(() {
+            totalWishItems = items;
+          });
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -162,6 +173,48 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> fetchTotalItems() async {
+    try {
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Response Data: $responseData');
+        int items = await fetchTotalWishlistItems();
+        setState(() {
+          totalWishItems = items;
+          totalItems = responseData['total_items'] ?? 0;
+        });
+      } else {
+        throw Exception('Failed to load total items');
+      }
+    } catch (e) {
+      print('Error fetching total items: $e');
+      setState(() {
+        totalItems = 0;
+      });
+    }
+  }
+
+  Future<int> fetchTotalWishlistItems() async {
+    try {
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}totalwishlistitems'));
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Response Data: $responseData');
+
+        return responseData['total_items'] ?? 0;
+      } else {
+        throw Exception('Failed to load total items');
+      }
+    } catch (e) {
+      print('Error fetching total items: $e');
+      return 0;
+    }
+  }
+
   void _searchProducts(String query) {
     setState(() {
       List<Map<String, dynamic>> combinedProducts = [
@@ -171,12 +224,12 @@ class _HomePageState extends State<HomePage> {
       ];
       filteredProducts = combinedProducts
           .where((product) =>
-      (product['title'] ?? '')
-          .toLowerCase()
-          .contains(query.toLowerCase()) ||
-          (product['slug'] ?? '')
-              .toLowerCase()
-              .contains(query.toLowerCase()))
+              (product['title'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              (product['slug'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
           .toList();
       hasResults = filteredProducts.isNotEmpty;
       _hasSearched = true; // Set flag to true after search
@@ -194,6 +247,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: true,
+        centerTitle: true,
         backgroundColor: Colors.white,
         title: Center(
           child: Text(
@@ -212,19 +266,63 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Profile()),
-                );
-              },
-              child: CircleAvatar(
-                backgroundImage: AssetImage('assets/avatar.png'),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Wishlist()),
+                  );
+                },
+                child: Stack(
+                  children: [
+                    Icon(Icons.favorite_border),
+                    if (totalWishItems > 0)
+                      Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$totalWishItems',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
+              SizedBox(
+                width: 5,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Profile()),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage('assets/avatar.png'),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -243,13 +341,15 @@ class _HomePageState extends State<HomePage> {
                 prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                  icon: Icon(Icons.cancel_outlined, color: Color(0xffBBBBBB)),
-                  onPressed: () {
-                    _searchController.clear();
-                    _searchProducts(''); // Call the search handler with empty string
-                    FocusScope.of(context).unfocus(); // Dismiss keyboard
-                  },
-                )
+                        icon: Icon(Icons.cancel_outlined,
+                            color: Color(0xffBBBBBB)),
+                        onPressed: () {
+                          _searchController.clear();
+                          _searchProducts(
+                              ''); // Call the search handler with empty string
+                          FocusScope.of(context).unfocus(); // Dismiss keyboard
+                        },
+                      )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -260,14 +360,15 @@ class _HomePageState extends State<HomePage> {
                 contentPadding: EdgeInsets.zero,
               ),
             ),
-          ) ,
+          ),
           if (_searchController.text.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 4.0),
                     child: Text(
                       _getItemCountText(),
                       style: GoogleFonts.montserrat(
@@ -278,1416 +379,1656 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-            ),          Expanded(
+            ),
+          Expanded(
             child: _searchController.text.isEmpty
                 ? banners.isEmpty
-                ? Center(
-              child: LoadingAnimationWidget.halfTriangleDot(
-                size: 50.0,
-                color: Colors.redAccent,
-              ),
-            )
-                : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: Column(
-                  children: [
-                    if (banners.isNotEmpty) ...[
-                      Container(
-                        height: 250,
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: banners.length,
-                          onPageChanged: (int page) {
-                            setState(() {
-                              _currentPage = page.toDouble();
-                            });
-                          },
-                          itemBuilder: (context, index) {
-                            final banner = banners[index];
-                            final imageUrl =
-                                'https://sgitjobs.com/MaseryShoppingNew/public/${banner['path']}';
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                      BorderRadius.circular(15.0),
-                                      image: DecorationImage(
-                                        image: NetworkImage(imageUrl),
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      DotsIndicator(
-                        dotsCount: banners.length,
-                        position: _currentPage,
-                        decorator: DotsDecorator(
-                          color: Color(0xff0D6EFD),
-                          activeColor: Color(0xffF87265),
-                          size: Size.square(9.0),
-                          activeSize: Size(18.0, 9.0),
-                          spacing: EdgeInsets.symmetric(horizontal: 5.0),
-                          activeShape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      Row(
-                        children: [
-                          Text(
-                            'Featured Products',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            'See All',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                              height: 35,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            Featuredpage()),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                              ))
-
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        height: 260,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: featuredProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = featuredProducts[index];
-                            final slug = product['slug'];
-                            final wishlists = product['wishlists'] as List? ?? [];
-                            final productId =
-                            wishlists.isNotEmpty ? wishlists[0]['id'] : null;
-                            final imageUrl =
-                                'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
-
-                            final offerStart =
-                            DateTime.parse(product['offer_start']);
-                            final offerEnd = DateTime.parse(product['offer_end']);
-                            final currentDate = DateTime.now();
-
-                            final bool isOfferPeriod =
-                                currentDate.isAfter(offerStart) &&
-                                    currentDate.isBefore(offerEnd);
-                            final salePrice = double.parse(product['sale_price']);
-                            final offerPrice = double.parse(product['offer_price']);
-
-                            String formattedSalePrice =
-                            salePrice.toStringAsFixed(2);
-                            String formattedOfferPrice =
-                            offerPrice.toStringAsFixed(2);
-
-                            final double discountPercentage =
-                                ((salePrice - offerPrice) / salePrice) * 100;
-                            final int discountPercentageRounded =
-                            discountPercentage.ceil();
-
-                            bool isInWishlist = wishlists.isNotEmpty;
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProductDetail(
-                                      product: product,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: 200,
-                                  child: Stack(
-                                    children: [
-                                      Card(
-                                        color: Colors.white,
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15.0),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                  const BorderRadius.vertical(
-                                                    top: Radius.circular(15.0),
-                                                  ),
-                                                  image: DecorationImage(
-                                                    image: NetworkImage(imageUrl),
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                product['title'],
-                                                style: GoogleFonts.montserrat(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.normal,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children: [
-                                                  if (isOfferPeriod) ...[
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '\$$formattedSalePrice',
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                            FontWeight.normal,
-                                                            decoration:
-                                                            TextDecoration
-                                                                .lineThrough,
-                                                          ),
-                                                        ),
-                                                        SizedBox(width: 10),
-                                                        Text(
-                                                          '\$$formattedOfferPrice',
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                            FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ] else ...[
-                                                    Text(
-                                                      '\$$formattedSalePrice',
-                                                      style: GoogleFonts.montserrat(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (isOfferPeriod)
-                                        Positioned(
-                                          top: 0,
-                                          left: 0,
-                                          child: Container(
-                                            height: 40,
-                                            width: 40,
-                                            decoration: BoxDecoration(
-                                              color: Colors.orangeAccent,
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                            ),
-                                            padding: const EdgeInsets.all(4.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '$discountPercentageRounded%',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'OFF',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            if (slug != null) {
-                                              toggleWishlist(
-                                                  slug, productId, isInWishlist);
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                  content:
-                                                  Text('Product ID is missing'),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                              BorderRadius.circular(30),
-                                            ),
-                                            child: Icon(
-                                              Icons.favorite,
-                                              color: isInWishlist
-                                                  ? Colors.red
-                                                  : Colors.grey,
-                                              size: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      Row(
-                        children: [
-                          Text(
-                            'Categories',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            'See All',
-                            style: GoogleFonts.montserrat(
-                                fontSize: 17, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                              height: 35,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            CategoryDescription()),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                              ))
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        height: 270,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: categoryBasedProducts.length,
-                          itemBuilder: (context, index) {
-                            final category = categoryBasedProducts[index];
-                            final products = category['products'] as List<dynamic>?;
-
-                            if (products == null || products.isEmpty) {
-                              return SizedBox(); // Return an empty SizedBox if products are null or empty
-                            }
-
-                            final product = products.isNotEmpty ? products[0] : null;
-
-                            if (product == null) {
-                              return SizedBox(); // Return an empty SizedBox if the product is null
-                            }
-
-                            final imagePath = product['image'] != null &&
-                                (product['image'] as List<dynamic>).isNotEmpty &&
-                                (product['image'] as List<dynamic>)[0]['path'] != null
-                                ? (product['image'] as List<dynamic>)[0]['path'] as String
-                                : '';
-                            final title = category['slug'] as String? ?? 'No Title';
-
-                            final imageUrl = imagePath.isNotEmpty
-                                ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
-                                : ''; // Provide a default empty URL if imagePath is empty
-
-                            return GestureDetector(
-                              onTap: () async {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FilterCategory(
-                                      slug: title, // Pass the slug here
-                                    ),
-                                  ),
-                                );
-
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: 200,
-                                  child: Card(
-                                    color: Colors.white,
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            height: 150,
-                                            decoration: imageUrl.isNotEmpty
-                                                ? BoxDecoration(
-                                              borderRadius: const BorderRadius.vertical(
-                                                top: Radius.circular(15.0),
-                                              ),
-                                              image: DecorationImage(
-                                                image: NetworkImage(imageUrl),
-                                                fit: BoxFit.contain,
-                                              ),
-                                            )
-                                                : BoxDecoration(), // Handle empty image URL case
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: 80,
-                                          width: 200,
-                                          child: Card(
-                                            color: Color(0xffF2F2F2),
-                                            child: Column(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                    category['name'] as String? ?? '', // Provide default value
-                                                    style: GoogleFonts.montserrat(
-                                                      fontSize: 14,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                                  child: Text(
-                                                    '${category['products_count'] as String? ?? ''} Products', // Provide default value
-                                                    style: GoogleFonts.montserrat(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.normal,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      // Container(
-                      //   height: 190 ,
-                      //   child: ListView.builder(
-                      //     scrollDirection: Axis.horizontal,
-                      //     itemCount: about.length,
-                      //     itemBuilder: (context, index) {
-                      //       final category = about[index];
-                      //
-                      //       // Constructing image URL
-                      //       final imageUrl =
-                      //           'https://sgitjobs.com/MaseryShoppingNew/public/${category['path']}';
-                      //
-                      //       return Padding(
-                      //         padding: const EdgeInsets.all(8.0),
-                      //         child: Container(
-                      //           width: 150,
-                      //           child: Column(
-                      //             crossAxisAlignment:
-                      //                 CrossAxisAlignment.start,
-                      //             children: [
-                      //               Container(
-                      //                 height: 50,
-                      //                 decoration: BoxDecoration(
-                      //                   borderRadius: BorderRadius.vertical(
-                      //                     top: Radius.circular(15.0),
-                      //                   ),
-                      //                   image: DecorationImage(
-                      //                     image: NetworkImage(imageUrl),
-                      //                     fit: BoxFit.contain,
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //               Padding(
-                      //                 padding: const EdgeInsets.all(8.0),
-                      //                 child: Text(
-                      //                   category['title'] ??
-                      //                       '', // Display category title
-                      //                   style: const TextStyle(
-                      //                     fontSize: 14,
-                      //                     fontWeight: FontWeight.bold,
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //               Padding(
-                      //                 padding: const EdgeInsets.symmetric(
-                      //                     horizontal: 8.0),
-                      //                 child: Text(
-                      //                   category['description'] ??
-                      //                       '', // Display category description
-                      //                   style: const TextStyle(
-                      //                     fontSize: 12,
-                      //                     fontWeight: FontWeight.normal,
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         ),
-                      //       );
-                      //     },
-                      //   ),
-                      // ),
-
-                      Row(
-                        children: [
-                          Text(
-                            'Our Best Collections',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            'See All',
-                            style: GoogleFonts.montserrat(
-                                fontSize: 17, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                              height: 35,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => OurbestproductList()),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                              ))
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        height: 260,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: allProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = allProducts[index];
-                            final imagePath =
-                            product['product']?['image']?[0]?['path'];
-                            final imageUrl = imagePath != null
-                                ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
-                                : 'https://example.com/placeholder.png'; // Placeholder image URL
-
-                            final offerStartStr = product['offer_start'];
-                            final offerEndStr = product['offer_end'];
-                            final salePriceStr = product['sale_price'];
-                            final offerPriceStr = product['offer_price'];
-
-                            if (offerStartStr == null ||
-                                offerEndStr == null ||
-                                salePriceStr == null ||
-                                offerPriceStr == null) {
-                              // Skip this item if critical data is missing
-                              return SizedBox.shrink();
-                            }
-
-                            final offerStart = DateTime.parse(offerStartStr);
-                            final offerEnd = DateTime.parse(offerEndStr);
-                            final currentDate = DateTime.now();
-
-                            final bool isOfferPeriod =
-                                currentDate.isAfter(offerStart) &&
-                                    currentDate.isBefore(offerEnd);
-                            final salePrice = double.parse(salePriceStr);
-                            final offerPrice = double.parse(offerPriceStr);
-
-                            String formattedSalePrice =
-                            salePrice.toStringAsFixed(2);
-                            String formattedOfferPrice =
-                            offerPrice.toStringAsFixed(2);
-
-                            final double discountPercentage =
-                                ((salePrice - offerPrice) / salePrice) * 100;
-                            final int discountPercentageRounded =
-                            discountPercentage.ceil();
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ProductDetail(product: product),
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: 200,
-                                  child: Stack(
-                                    children: [
-                                      Card(
-                                        color: Colors.white,
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15.0),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                  const BorderRadius.vertical(
-                                                    top: Radius.circular(15.0),
-                                                  ),
-                                                  image: DecorationImage(
-                                                    image: NetworkImage(imageUrl),
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                product['title'] ?? 'No title',
-                                                style: GoogleFonts.montserrat(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.normal,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children: [
-                                                  if (isOfferPeriod) ...[
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '\$$formattedSalePrice',
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                            FontWeight.normal,
-                                                            decoration:
-                                                            TextDecoration
-                                                                .lineThrough,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Text(
-                                                          '\$$formattedOfferPrice',
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                            FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ] else ...[
-                                                    Text(
-                                                      '\$$formattedSalePrice',
-                                                      style: GoogleFonts.montserrat(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (isOfferPeriod)
-                                        Positioned(
-                                          top: 0,
-                                          left: 0,
-                                          child: Container(
-                                            height: 40,
-                                            width: 40,
-                                            decoration: BoxDecoration(
-                                              color: Colors.orangeAccent,
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                            ),
-                                            padding: const EdgeInsets.all(4.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '$discountPercentageRounded%',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'OFF',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: GestureDetector(
-                                          // onTap: () {
-                                          //   if (slug != null) {
-                                          //     toggleWishlist(
-                                          //         slug, productId, isInWishlist);
-                                          //   } else {
-                                          //     ScaffoldMessenger.of(context)
-                                          //         .showSnackBar(
-                                          //       SnackBar(
-                                          //         content:
-                                          //         Text('Product ID is missing'),
-                                          //       ),
-                                          //     );
-                                          //   }
-                                          // },
-                                          child: Container(
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                              BorderRadius.circular(30),
-                                            ),
-                                            child: Icon(
-                                              Icons.favorite,
-                                              color: isInWishlist
-                                                  ? Colors.red
-                                                  : Colors.grey,
-                                              size: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      // Row(
-                      //   children: [
-                      //     Text(
-                      //       'All Products',
-                      //       style: GoogleFonts.montserrat(
-                      //         fontSize: 20,
-                      //         fontWeight: FontWeight.bold,
-                      //       ),
-                      //     ),
-                      //     Spacer(),
-                      //     Text(
-                      //       'See All',
-                      //       style: GoogleFonts.montserrat(
-                      //           fontSize: 17, fontWeight: FontWeight.bold),
-                      //     ),
-                      //     SizedBox(
-                      //       width: 10,
-                      //     ),
-                      //     Container(
-                      //         height: 35,
-                      //         decoration: const BoxDecoration(
-                      //           color: Colors.blue,
-                      //           shape: BoxShape.circle,
-                      //         ),
-                      //         child: IconButton(
-                      //           onPressed: () {
-                      //             Navigator.push(
-                      //               context,
-                      //               MaterialPageRoute(
-                      //                   builder: (context) =>
-                      //                       GraphicsCard1()),
-                      //             );
-                      //           },
-                      //           icon: Icon(
-                      //             Icons.arrow_forward,
-                      //             size: 20,
-                      //             color: Colors.white,
-                      //           ),
-                      //         ))
-                      //   ],
-                      // ),
-                      // const SizedBox(height: 16),
-                      // Container(
-                      //   height: 260,
-                      //   child: ListView.builder(
-                      //     scrollDirection: Axis.horizontal,
-                      //     itemCount: allProducts.length,
-                      //     itemBuilder: (context, index) {
-                      //       final product = allProducts[index];
-                      //       final imagePath =
-                      //       product['product']?['image']?[0]?['path'];
-                      //       final imageUrl = imagePath != null
-                      //           ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
-                      //           : 'https://example.com/placeholder.png'; // Placeholder image URL
-                      //
-                      //       final offerStartStr = product['offer_start'];
-                      //       final offerEndStr = product['offer_end'];
-                      //       final salePriceStr = product['sale_price'];
-                      //       final offerPriceStr = product['offer_price'];
-                      //
-                      //       if (offerStartStr == null ||
-                      //           offerEndStr == null ||
-                      //           salePriceStr == null ||
-                      //           offerPriceStr == null) {
-                      //         // Skip this item if critical data is missing
-                      //         return SizedBox.shrink();
-                      //       }
-                      //
-                      //       final offerStart = DateTime.parse(offerStartStr);
-                      //       final offerEnd = DateTime.parse(offerEndStr);
-                      //       final currentDate = DateTime.now();
-                      //
-                      //       final bool isOfferPeriod =
-                      //           currentDate.isAfter(offerStart) &&
-                      //               currentDate.isBefore(offerEnd);
-                      //       final salePrice = double.parse(salePriceStr);
-                      //       final offerPrice = double.parse(offerPriceStr);
-                      //
-                      //       String formattedSalePrice = salePrice.toStringAsFixed(2);
-                      //       String formattedOfferPrice = offerPrice.toStringAsFixed(2);
-                      //
-                      //
-                      //       final double discountPercentage =
-                      //           ((salePrice - offerPrice) / salePrice) * 100;
-                      //       final int discountPercentageRounded =
-                      //       discountPercentage.ceil();
-                      //
-                      //       return GestureDetector(
-                      //         onTap: () {
-                      //           Navigator.push(
-                      //             context,
-                      //             MaterialPageRoute(
-                      //               builder: (context) =>
-                      //                   ProductDetail(product: product),
-                      //             ),
-                      //           );
-                      //         },
-                      //         child: Padding(
-                      //           padding: const EdgeInsets.all(8.0),
-                      //           child: Container(
-                      //             width: 200,
-                      //             child: Stack(
-                      //               children: [
-                      //                 Card(
-                      //                   color: Colors.white,
-                      //                   elevation: 4,
-                      //                   shape: RoundedRectangleBorder(
-                      //                     borderRadius: BorderRadius.circular(15.0),
-                      //                   ),
-                      //                   child: Column(
-                      //                     crossAxisAlignment:
-                      //                     CrossAxisAlignment.start,
-                      //                     children: [
-                      //                       Padding(
-                      //                         padding: const EdgeInsets.all(8.0),
-                      //                         child: Container(
-                      //                           height: 150,
-                      //                           decoration: BoxDecoration(
-                      //                             borderRadius:
-                      //                             const BorderRadius.vertical(
-                      //                               top: Radius.circular(15.0),
-                      //                             ),
-                      //                             image: DecorationImage(
-                      //                               image: NetworkImage(imageUrl),
-                      //                               fit: BoxFit.contain,
-                      //                             ),
-                      //                           ),
-                      //                         ),
-                      //                       ),
-                      //                       Padding(
-                      //                           padding:
-                      //                           const EdgeInsets.all(8.0),
-                      //                           child: Text(
-                      //                             product['title'] ?? 'No title',
-                      //                             style: GoogleFonts.montserrat(
-                      //                               fontSize: 11,
-                      //                               fontWeight: FontWeight.normal,
-                      //                             ),
-                      //                             maxLines: 1,
-                      //                             overflow: TextOverflow.ellipsis,
-                      //                           )
-                      //
-                      //                       ),
-                      //                       Padding(
-                      //                         padding:
-                      //                         const EdgeInsets.symmetric(
-                      //                             horizontal: 8.0),
-                      //                         child: Column(
-                      //                           crossAxisAlignment:
-                      //                           CrossAxisAlignment.start,
-                      //                           children: [
-                      //                             if (isOfferPeriod) ...[
-                      //                               Row(
-                      //                                 children: [
-                      //                                   Text(
-                      //                                     '\$$formattedSalePrice',
-                      //                                     style:
-                      //                                     GoogleFonts.montserrat(
-                      //                                       fontSize: 15,
-                      //                                       fontWeight:
-                      //                                       FontWeight
-                      //                                           .normal,
-                      //                                       decoration:
-                      //                                       TextDecoration
-                      //                                           .lineThrough,
-                      //                                     ),
-                      //                                   ),
-                      //                                   SizedBox(
-                      //                                     width: 10,
-                      //                                   ),
-                      //                                   Text(
-                      //                                     '\$$formattedOfferPrice',
-                      //                                     style:
-                      //                                     GoogleFonts.montserrat(
-                      //                                       fontSize: 15,
-                      //                                       fontWeight:
-                      //                                       FontWeight.bold,
-                      //                                     ),
-                      //                                   ),
-                      //                                 ],
-                      //                               ),
-                      //                             ] else ...[
-                      //                               Text(
-                      //                                 '\$$formattedSalePrice',
-                      //                                 style:  GoogleFonts.montserrat(
-                      //                                   fontSize: 15,
-                      //                                   fontWeight:
-                      //                                   FontWeight.bold,
-                      //                                 ),
-                      //                               ),
-                      //                             ],
-                      //                           ],
-                      //                         ),
-                      //                       ),
-                      //                     ],
-                      //                   ),
-                      //                 ),
-                      //                 if (isOfferPeriod)
-                      //                   Positioned(
-                      //                     top: 0,
-                      //                     left: 0,
-                      //                     child: Container(
-                      //                       height: 40,
-                      //                       width: 40,
-                      //                       decoration: BoxDecoration(
-                      //                         color: Colors.orangeAccent,
-                      //                         borderRadius:
-                      //                         BorderRadius.circular(30.0),
-                      //                       ),
-                      //                       padding:
-                      //                       const EdgeInsets.all(4.0),
-                      //                       child: Column(
-                      //                         mainAxisAlignment:
-                      //                         MainAxisAlignment.center,
-                      //                         children: [
-                      //                           Text(
-                      //                             '$discountPercentageRounded%',
-                      //                             style:  GoogleFonts.montserrat(
-                      //                               fontSize: 12,
-                      //                               fontWeight:
-                      //                               FontWeight.bold,
-                      //                               color: Colors.white,
-                      //                             ),
-                      //                           ),
-                      //                           Text(
-                      //                             'OFF',
-                      //                             style:  GoogleFonts.montserrat(
-                      //                               fontSize: 9,
-                      //                               fontWeight:
-                      //                               FontWeight.bold,
-                      //                               color: Colors.white,
-                      //                             ),
-                      //                           ),
-                      //                         ],
-                      //                       ),
-                      //                     ),
-                      //                   ),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       );
-                      //     },
-                      //   ),
-                      // ),
-
-                      Row(
-                        children: [
-                          Text(
-                            'Recent Products',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Spacer(),
-                          Text(
-                            'See All',
-                            style: GoogleFonts.montserrat(
-                                fontSize: 17, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                              height: 35,
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => RecentProducts()),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.arrow_forward,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                              ))
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        height: 260,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: recentProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = recentProducts[index];
-                            final imagePath =
-                            product['product']?['image']?[0]?['path'];
-                            final imageUrl = imagePath != null
-                                ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
-                                : 'https://example.com/placeholder.png'; // Placeholder image URL
-
-                            final offerStartStr = product['offer_start'];
-                            final offerEndStr = product['offer_end'];
-                            final salePriceStr = product['sale_price'];
-                            final offerPriceStr = product['offer_price'];
-
-                            if (offerStartStr == null ||
-                                offerEndStr == null ||
-                                salePriceStr == null ||
-                                offerPriceStr == null) {
-                              // Skip this item if critical data is missing
-                              return SizedBox.shrink();
-                            }
-
-                            final offerStart = DateTime.parse(offerStartStr);
-                            final offerEnd = DateTime.parse(offerEndStr);
-                            final currentDate = DateTime.now();
-
-                            final bool isOfferPeriod =
-                                currentDate.isAfter(offerStart) &&
-                                    currentDate.isBefore(offerEnd);
-                            final salePrice = double.parse(salePriceStr);
-                            final offerPrice = double.parse(offerPriceStr);
-
-                            String formattedSalePrice =
-                            salePrice.toStringAsFixed(2);
-                            String formattedOfferPrice =
-                            offerPrice.toStringAsFixed(2);
-
-                            final double discountPercentage =
-                                ((salePrice - offerPrice) / salePrice) * 100;
-                            final int discountPercentageRounded =
-                            discountPercentage.ceil();
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ProductDetail(product: product),
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: 200,
-                                  child: Stack(
-                                    children: [
-                                      Card(
-                                        color: Colors.white,
-                                        elevation: 4,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15.0),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                  const BorderRadius.vertical(
-                                                    top: Radius.circular(15.0),
-                                                  ),
-                                                  image: DecorationImage(
-                                                    image: NetworkImage(imageUrl),
-                                                    fit: BoxFit.contain,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                                padding: const EdgeInsets.all(8.0),
-                                                child: Text(
-                                                  product['title'] ?? 'No title',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.normal,
-                                                  ),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                )),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children: [
-                                                  if (isOfferPeriod) ...[
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          '\$$formattedSalePrice',
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                            FontWeight.normal,
-                                                            decoration:
-                                                            TextDecoration
-                                                                .lineThrough,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Text(
-                                                          '\$$formattedOfferPrice',
-                                                          style: GoogleFonts
-                                                              .montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                            FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ] else ...[
-                                                    Text(
-                                                      '\$$formattedSalePrice',
-                                                      style: GoogleFonts.montserrat(
-                                                        fontSize: 15,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (isOfferPeriod)
-                                        Positioned(
-                                          top: 0,
-                                          left: 0,
-                                          child: Container(
-                                            height: 40,
-                                            width: 40,
-                                            decoration: BoxDecoration(
-                                              color: Colors.orangeAccent,
-                                              borderRadius:
-                                              BorderRadius.circular(30.0),
-                                            ),
-                                            padding: const EdgeInsets.all(4.0),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '$discountPercentageRounded%',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'OFF',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: GestureDetector(
-                                          // onTap: () {
-                                          //   if (slug != null) {
-                                          //     toggleWishlist(
-                                          //         slug, productId, isInWishlist);
-                                          //   } else {
-                                          //     ScaffoldMessenger.of(context)
-                                          //         .showSnackBar(
-                                          //       SnackBar(
-                                          //         content:
-                                          //         Text('Product ID is missing'),
-                                          //       ),
-                                          //     );
-                                          //   }
-                                          // },
-                                          child: Container(
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                              BorderRadius.circular(30),
-                                            ),
-                                            child: Icon(
-                                              Icons.favorite,
-                                              color: isInWishlist
-                                                  ? Colors.red
-                                                  : Colors.grey,
-                                              size: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
+                    ? Center(
+                        child: LoadingAnimationWidget.halfTriangleDot(
+                          size: 50.0,
+                          color: Colors.redAccent,
                         ),
                       )
-                    ],
-                    SizedBox(height: 20),
+                    : SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: Column(
+                            children: [
+                              if (banners.isNotEmpty) ...[
+                                Container(
+                                  height: 250,
+                                  child: PageView.builder(
+                                    controller: _pageController,
+                                    itemCount: banners.length,
+                                    onPageChanged: (int page) {
+                                      setState(() {
+                                        _currentPage = page.toDouble();
+                                      });
+                                    },
+                                    itemBuilder: (context, index) {
+                                      final banner = banners[index];
+                                      final imageUrl =
+                                          'https://sgitjobs.com/MaseryShoppingNew/public/${banner['path']}';
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Card(
+                                          color: Colors.white,
+                                          elevation: 4,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15.0),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15.0),
+                                                image: DecorationImage(
+                                                  image: NetworkImage(imageUrl),
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                DotsIndicator(
+                                  dotsCount: banners.length,
+                                  position: _currentPage,
+                                  decorator: DotsDecorator(
+                                    color: Color(0xff0D6EFD),
+                                    activeColor: Color(0xffF87265),
+                                    size: Size.square(9.0),
+                                    activeSize: Size(18.0, 9.0),
+                                    spacing:
+                                        EdgeInsets.symmetric(horizontal: 5.0),
+                                    activeShape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Featured Products',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Text(
+                                      'See All',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                        height: 35,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      Featuredpage()),
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  height: 260,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: featuredProducts.length,
+                                    itemBuilder: (context, index) {
+                                      final product = featuredProducts[index];
+                                      final slug = product['slug'];
+                                      final wishlists =
+                                          product['wishlists'] as List? ?? [];
+                                      final productId = wishlists.isNotEmpty
+                                          ? wishlists[0]['id']
+                                          : null;
+                                      final imageUrl =
+                                          'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
 
-                    // Column(
-                    //   children: [
-                    //     for (int i = 0; i < featuredProducts.length; i += 2)
-                    //       ResponsiveCardRow(
-                    //         screenWidth: MediaQuery.of(context).size.width,
-                    //         screenHeight: MediaQuery.of(context).size.height,
-                    //         product1: featuredProducts[i],
-                    //         product2: i + 1 < featuredProducts.length
-                    //             ? featuredProducts[i + 1]
-                    //             : null,
-                    //       ),
-                    //   ],
-                    // ),
-                  ],
-                ),
-              ),
-            )
-                : _hasSearched
-                ? hasResults
-                ? SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: Column(
-                  children: [
-                    // Show filtered products only after search
-                    Column(
-                      children: [
-                        for (int i = 0; i < filteredProducts.length; i += 2)
-                          ResponsiveCardRow(
-                            screenWidth: MediaQuery.of(context).size.width,
-                            screenHeight: MediaQuery.of(context).size.height,
-                            product1: filteredProducts[i],
-                            product2: i + 1 < filteredProducts.length
-                                ? filteredProducts[i + 1]
-                                : null,
+                                      final offerStart = DateTime.parse(
+                                          product['offer_start']);
+                                      final offerEnd =
+                                          DateTime.parse(product['offer_end']);
+                                      final currentDate = DateTime.now();
+
+                                      final bool isOfferPeriod =
+                                          currentDate.isAfter(offerStart) &&
+                                              currentDate.isBefore(offerEnd);
+                                      final salePrice =
+                                          double.parse(product['sale_price']);
+                                      final offerPrice =
+                                          double.parse(product['offer_price']);
+
+                                      String formattedSalePrice =
+                                          salePrice.toStringAsFixed(2);
+                                      String formattedOfferPrice =
+                                          offerPrice.toStringAsFixed(2);
+
+                                      final double discountPercentage =
+                                          ((salePrice - offerPrice) /
+                                                  salePrice) *
+                                              100;
+                                      final int discountPercentageRounded =
+                                          discountPercentage.ceil();
+
+                                      bool isInWishlist = wishlists.isNotEmpty;
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductDetail(
+                                                product: product,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            width: 200,
+                                            child: Stack(
+                                              children: [
+                                                Card(
+                                                  color: Colors.white,
+                                                  elevation: 4,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15.0),
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Container(
+                                                          height: 150,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                    .vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      15.0),
+                                                            ),
+                                                            image:
+                                                                DecorationImage(
+                                                              image:
+                                                                  NetworkImage(
+                                                                      imageUrl),
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Text(
+                                                          product['title'],
+                                                          style: GoogleFonts
+                                                              .montserrat(
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal:
+                                                                    8.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            if (isOfferPeriod) ...[
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    '\$$formattedSalePrice',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal,
+                                                                      decoration:
+                                                                          TextDecoration
+                                                                              .lineThrough,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                      width:
+                                                                          10),
+                                                                  Text(
+                                                                    '\$$formattedOfferPrice',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ] else ...[
+                                                              Text(
+                                                                '\$$formattedSalePrice',
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 15,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                if (isOfferPeriod)
+                                                  Positioned(
+                                                    top: 0,
+                                                    left: 0,
+                                                    child: Container(
+                                                      height: 40,
+                                                      width: 40,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.orangeAccent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30.0),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4.0),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            '$discountPercentageRounded%',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            'OFF',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 9,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 0,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      if (slug != null) {
+                                                        toggleWishlist(
+                                                            slug,
+                                                            productId,
+                                                            isInWishlist);
+                                                      } else {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                                'Product ID is missing'),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: isInWishlist
+                                                            ? Colors.red
+                                                            : Colors.grey,
+                                                        size: 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Categories',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Text(
+                                      'See All',
+                                      style: GoogleFonts.montserrat(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                        height: 35,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CategoryDescription()),
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  height: 270,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: categoryBasedProducts.length,
+                                    itemBuilder: (context, index) {
+                                      final category =
+                                          categoryBasedProducts[index];
+                                      final products = category['products']
+                                          as List<dynamic>?;
+
+                                      if (products == null ||
+                                          products.isEmpty) {
+                                        return SizedBox(); // Return an empty SizedBox if products are null or empty
+                                      }
+
+                                      final product = products.isNotEmpty
+                                          ? products[0]
+                                          : null;
+
+                                      if (product == null) {
+                                        return SizedBox(); // Return an empty SizedBox if the product is null
+                                      }
+
+                                      final imagePath = product['image'] !=
+                                                  null &&
+                                              (product['image']
+                                                      as List<dynamic>)
+                                                  .isNotEmpty &&
+                                              (product['image']
+                                                          as List<dynamic>)[0]
+                                                      ['path'] !=
+                                                  null
+                                          ? (product['image']
+                                                  as List<dynamic>)[0]['path']
+                                              as String
+                                          : '';
+                                      final title =
+                                          category['slug'] as String? ??
+                                              'No Title';
+
+                                      final imageUrl = imagePath.isNotEmpty
+                                          ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                          : ''; // Provide a default empty URL if imagePath is empty
+
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  FilterCategory(
+                                                slug:
+                                                    title, // Pass the slug here
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            width: 200,
+                                            child: Card(
+                                              color: Colors.white,
+                                              elevation: 4,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15.0),
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Container(
+                                                      height: 150,
+                                                      decoration: imageUrl
+                                                              .isNotEmpty
+                                                          ? BoxDecoration(
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                      .vertical(
+                                                                top: Radius
+                                                                    .circular(
+                                                                        15.0),
+                                                              ),
+                                                              image:
+                                                                  DecorationImage(
+                                                                image:
+                                                                    NetworkImage(
+                                                                        imageUrl),
+                                                                fit: BoxFit
+                                                                    .contain,
+                                                              ),
+                                                            )
+                                                          : BoxDecoration(), // Handle empty image URL case
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 80,
+                                                    width: 200,
+                                                    child: Card(
+                                                      color: Color(0xffF2F2F2),
+                                                      child: Column(
+                                                        children: [
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Text(
+                                                              category['name']
+                                                                      as String? ??
+                                                                  '', // Provide default value
+                                                              style: GoogleFonts
+                                                                  .montserrat(
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        8.0),
+                                                            child: Text(
+                                                              '${category['products_count'] as String? ?? ''} Products', // Provide default value
+                                                              style: GoogleFonts
+                                                                  .montserrat(
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .normal,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                // Container(
+                                //   height: 190 ,
+                                //   child: ListView.builder(
+                                //     scrollDirection: Axis.horizontal,
+                                //     itemCount: about.length,
+                                //     itemBuilder: (context, index) {
+                                //       final category = about[index];
+                                //
+                                //       // Constructing image URL
+                                //       final imageUrl =
+                                //           'https://sgitjobs.com/MaseryShoppingNew/public/${category['path']}';
+                                //
+                                //       return Padding(
+                                //         padding: const EdgeInsets.all(8.0),
+                                //         child: Container(
+                                //           width: 150,
+                                //           child: Column(
+                                //             crossAxisAlignment:
+                                //                 CrossAxisAlignment.start,
+                                //             children: [
+                                //               Container(
+                                //                 height: 50,
+                                //                 decoration: BoxDecoration(
+                                //                   borderRadius: BorderRadius.vertical(
+                                //                     top: Radius.circular(15.0),
+                                //                   ),
+                                //                   image: DecorationImage(
+                                //                     image: NetworkImage(imageUrl),
+                                //                     fit: BoxFit.contain,
+                                //                   ),
+                                //                 ),
+                                //               ),
+                                //               Padding(
+                                //                 padding: const EdgeInsets.all(8.0),
+                                //                 child: Text(
+                                //                   category['title'] ??
+                                //                       '', // Display category title
+                                //                   style: const TextStyle(
+                                //                     fontSize: 14,
+                                //                     fontWeight: FontWeight.bold,
+                                //                   ),
+                                //                 ),
+                                //               ),
+                                //               Padding(
+                                //                 padding: const EdgeInsets.symmetric(
+                                //                     horizontal: 8.0),
+                                //                 child: Text(
+                                //                   category['description'] ??
+                                //                       '', // Display category description
+                                //                   style: const TextStyle(
+                                //                     fontSize: 12,
+                                //                     fontWeight: FontWeight.normal,
+                                //                   ),
+                                //                 ),
+                                //               ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //       );
+                                //     },
+                                //   ),
+                                // ),
+
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Our Best Collections',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Text(
+                                      'See All',
+                                      style: GoogleFonts.montserrat(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                        height: 35,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      OurbestproductList()),
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  height: 260,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: allProducts.length,
+                                    itemBuilder: (context, index) {
+                                      final product = allProducts[index];
+                                      final imagePath = product['product']
+                                          ?['image']?[0]?['path'];
+                                      final imageUrl = imagePath != null
+                                          ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                          : 'https://example.com/placeholder.png'; // Placeholder image URL
+
+                                      final offerStartStr =
+                                          product['offer_start'];
+                                      final offerEndStr = product['offer_end'];
+                                      final salePriceStr =
+                                          product['sale_price'];
+                                      final offerPriceStr =
+                                          product['offer_price'];
+
+                                      if (offerStartStr == null ||
+                                          offerEndStr == null ||
+                                          salePriceStr == null ||
+                                          offerPriceStr == null) {
+                                        // Skip this item if critical data is missing
+                                        return SizedBox.shrink();
+                                      }
+                                      final slug = product['slug'];
+                                      final wishlists =
+                                          product['wishlists'] as List? ?? [];
+                                      final productId = wishlists.isNotEmpty
+                                          ? wishlists[0]['id']
+                                          : null;
+                                      final offerStart =
+                                          DateTime.parse(offerStartStr);
+                                      final offerEnd =
+                                          DateTime.parse(offerEndStr);
+                                      final currentDate = DateTime.now();
+
+                                      final bool isOfferPeriod =
+                                          currentDate.isAfter(offerStart) &&
+                                              currentDate.isBefore(offerEnd);
+                                      final salePrice =
+                                          double.parse(salePriceStr);
+                                      final offerPrice =
+                                          double.parse(offerPriceStr);
+
+                                      String formattedSalePrice =
+                                          salePrice.toStringAsFixed(2);
+                                      String formattedOfferPrice =
+                                          offerPrice.toStringAsFixed(2);
+
+                                      final double discountPercentage =
+                                          ((salePrice - offerPrice) /
+                                                  salePrice) *
+                                              100;
+                                      final int discountPercentageRounded =
+                                          discountPercentage.ceil();
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductDetail(
+                                                      product: product),
+                                            ),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            width: 200,
+                                            child: Stack(
+                                              children: [
+                                                Card(
+                                                  color: Colors.white,
+                                                  elevation: 4,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15.0),
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Container(
+                                                          height: 150,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                    .vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      15.0),
+                                                            ),
+                                                            image:
+                                                                DecorationImage(
+                                                              image:
+                                                                  NetworkImage(
+                                                                      imageUrl),
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.all(8.0),
+                                                        child: Text(
+                                                          product['title'] ??
+                                                              'No title',
+                                                          style: GoogleFonts
+                                                              .montserrat(
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal,
+                                                          ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal:
+                                                                    8.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            if (isOfferPeriod) ...[
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    '\$$formattedSalePrice',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal,
+                                                                      decoration:
+                                                                          TextDecoration
+                                                                              .lineThrough,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 10,
+                                                                  ),
+                                                                  Text(
+                                                                    '\$$formattedOfferPrice',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ] else ...[
+                                                              Text(
+                                                                '\$$formattedSalePrice',
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 15,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                if (isOfferPeriod)
+                                                  Positioned(
+                                                    top: 0,
+                                                    left: 0,
+                                                    child: Container(
+                                                      height: 40,
+                                                      width: 40,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.orangeAccent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30.0),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4.0),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            '$discountPercentageRounded%',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            'OFF',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 9,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 0,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      if (slug != null) {
+                                                        toggleWishlist(
+                                                            slug,
+                                                            productId,
+                                                            isInWishlist);
+                                                      } else {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                                'Product ID is missing'),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: isInWishlist
+                                                            ? Colors.red
+                                                            : Colors.grey,
+                                                        size: 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                                // Row(
+                                //   children: [
+                                //     Text(
+                                //       'All Products',
+                                //       style: GoogleFonts.montserrat(
+                                //         fontSize: 20,
+                                //         fontWeight: FontWeight.bold,
+                                //       ),
+                                //     ),
+                                //     Spacer(),
+                                //     Text(
+                                //       'See All',
+                                //       style: GoogleFonts.montserrat(
+                                //           fontSize: 17, fontWeight: FontWeight.bold),
+                                //     ),
+                                //     SizedBox(
+                                //       width: 10,
+                                //     ),
+                                //     Container(
+                                //         height: 35,
+                                //         decoration: const BoxDecoration(
+                                //           color: Colors.blue,
+                                //           shape: BoxShape.circle,
+                                //         ),
+                                //         child: IconButton(
+                                //           onPressed: () {
+                                //             Navigator.push(
+                                //               context,
+                                //               MaterialPageRoute(
+                                //                   builder: (context) =>
+                                //                       GraphicsCard1()),
+                                //             );
+                                //           },
+                                //           icon: Icon(
+                                //             Icons.arrow_forward,
+                                //             size: 20,
+                                //             color: Colors.white,
+                                //           ),
+                                //         ))
+                                //   ],
+                                // ),
+                                // const SizedBox(height: 16),
+                                // Container(
+                                //   height: 260,
+                                //   child: ListView.builder(
+                                //     scrollDirection: Axis.horizontal,
+                                //     itemCount: allProducts.length,
+                                //     itemBuilder: (context, index) {
+                                //       final product = allProducts[index];
+                                //       final imagePath =
+                                //       product['product']?['image']?[0]?['path'];
+                                //       final imageUrl = imagePath != null
+                                //           ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                //           : 'https://example.com/placeholder.png'; // Placeholder image URL
+                                //
+                                //       final offerStartStr = product['offer_start'];
+                                //       final offerEndStr = product['offer_end'];
+                                //       final salePriceStr = product['sale_price'];
+                                //       final offerPriceStr = product['offer_price'];
+                                //
+                                //       if (offerStartStr == null ||
+                                //           offerEndStr == null ||
+                                //           salePriceStr == null ||
+                                //           offerPriceStr == null) {
+                                //         // Skip this item if critical data is missing
+                                //         return SizedBox.shrink();
+                                //       }
+                                //
+                                //       final offerStart = DateTime.parse(offerStartStr);
+                                //       final offerEnd = DateTime.parse(offerEndStr);
+                                //       final currentDate = DateTime.now();
+                                //
+                                //       final bool isOfferPeriod =
+                                //           currentDate.isAfter(offerStart) &&
+                                //               currentDate.isBefore(offerEnd);
+                                //       final salePrice = double.parse(salePriceStr);
+                                //       final offerPrice = double.parse(offerPriceStr);
+                                //
+                                //       String formattedSalePrice = salePrice.toStringAsFixed(2);
+                                //       String formattedOfferPrice = offerPrice.toStringAsFixed(2);
+                                //
+                                //
+                                //       final double discountPercentage =
+                                //           ((salePrice - offerPrice) / salePrice) * 100;
+                                //       final int discountPercentageRounded =
+                                //       discountPercentage.ceil();
+                                //
+                                //       return GestureDetector(
+                                //         onTap: () {
+                                //           Navigator.push(
+                                //             context,
+                                //             MaterialPageRoute(
+                                //               builder: (context) =>
+                                //                   ProductDetail(product: product),
+                                //             ),
+                                //           );
+                                //         },
+                                //         child: Padding(
+                                //           padding: const EdgeInsets.all(8.0),
+                                //           child: Container(
+                                //             width: 200,
+                                //             child: Stack(
+                                //               children: [
+                                //                 Card(
+                                //                   color: Colors.white,
+                                //                   elevation: 4,
+                                //                   shape: RoundedRectangleBorder(
+                                //                     borderRadius: BorderRadius.circular(15.0),
+                                //                   ),
+                                //                   child: Column(
+                                //                     crossAxisAlignment:
+                                //                     CrossAxisAlignment.start,
+                                //                     children: [
+                                //                       Padding(
+                                //                         padding: const EdgeInsets.all(8.0),
+                                //                         child: Container(
+                                //                           height: 150,
+                                //                           decoration: BoxDecoration(
+                                //                             borderRadius:
+                                //                             const BorderRadius.vertical(
+                                //                               top: Radius.circular(15.0),
+                                //                             ),
+                                //                             image: DecorationImage(
+                                //                               image: NetworkImage(imageUrl),
+                                //                               fit: BoxFit.contain,
+                                //                             ),
+                                //                           ),
+                                //                         ),
+                                //                       ),
+                                //                       Padding(
+                                //                           padding:
+                                //                           const EdgeInsets.all(8.0),
+                                //                           child: Text(
+                                //                             product['title'] ?? 'No title',
+                                //                             style: GoogleFonts.montserrat(
+                                //                               fontSize: 11,
+                                //                               fontWeight: FontWeight.normal,
+                                //                             ),
+                                //                             maxLines: 1,
+                                //                             overflow: TextOverflow.ellipsis,
+                                //                           )
+                                //
+                                //                       ),
+                                //                       Padding(
+                                //                         padding:
+                                //                         const EdgeInsets.symmetric(
+                                //                             horizontal: 8.0),
+                                //                         child: Column(
+                                //                           crossAxisAlignment:
+                                //                           CrossAxisAlignment.start,
+                                //                           children: [
+                                //                             if (isOfferPeriod) ...[
+                                //                               Row(
+                                //                                 children: [
+                                //                                   Text(
+                                //                                     '\$$formattedSalePrice',
+                                //                                     style:
+                                //                                     GoogleFonts.montserrat(
+                                //                                       fontSize: 15,
+                                //                                       fontWeight:
+                                //                                       FontWeight
+                                //                                           .normal,
+                                //                                       decoration:
+                                //                                       TextDecoration
+                                //                                           .lineThrough,
+                                //                                     ),
+                                //                                   ),
+                                //                                   SizedBox(
+                                //                                     width: 10,
+                                //                                   ),
+                                //                                   Text(
+                                //                                     '\$$formattedOfferPrice',
+                                //                                     style:
+                                //                                     GoogleFonts.montserrat(
+                                //                                       fontSize: 15,
+                                //                                       fontWeight:
+                                //                                       FontWeight.bold,
+                                //                                     ),
+                                //                                   ),
+                                //                                 ],
+                                //                               ),
+                                //                             ] else ...[
+                                //                               Text(
+                                //                                 '\$$formattedSalePrice',
+                                //                                 style:  GoogleFonts.montserrat(
+                                //                                   fontSize: 15,
+                                //                                   fontWeight:
+                                //                                   FontWeight.bold,
+                                //                                 ),
+                                //                               ),
+                                //                             ],
+                                //                           ],
+                                //                         ),
+                                //                       ),
+                                //                     ],
+                                //                   ),
+                                //                 ),
+                                //                 if (isOfferPeriod)
+                                //                   Positioned(
+                                //                     top: 0,
+                                //                     left: 0,
+                                //                     child: Container(
+                                //                       height: 40,
+                                //                       width: 40,
+                                //                       decoration: BoxDecoration(
+                                //                         color: Colors.orangeAccent,
+                                //                         borderRadius:
+                                //                         BorderRadius.circular(30.0),
+                                //                       ),
+                                //                       padding:
+                                //                       const EdgeInsets.all(4.0),
+                                //                       child: Column(
+                                //                         mainAxisAlignment:
+                                //                         MainAxisAlignment.center,
+                                //                         children: [
+                                //                           Text(
+                                //                             '$discountPercentageRounded%',
+                                //                             style:  GoogleFonts.montserrat(
+                                //                               fontSize: 12,
+                                //                               fontWeight:
+                                //                               FontWeight.bold,
+                                //                               color: Colors.white,
+                                //                             ),
+                                //                           ),
+                                //                           Text(
+                                //                             'OFF',
+                                //                             style:  GoogleFonts.montserrat(
+                                //                               fontSize: 9,
+                                //                               fontWeight:
+                                //                               FontWeight.bold,
+                                //                               color: Colors.white,
+                                //                             ),
+                                //                           ),
+                                //                         ],
+                                //                       ),
+                                //                     ),
+                                //                   ),
+                                //               ],
+                                //             ),
+                                //           ),
+                                //         ),
+                                //       );
+                                //     },
+                                //   ),
+                                // ),
+
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Recent Products',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Text(
+                                      'See All',
+                                      style: GoogleFonts.montserrat(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                        height: 35,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      RecentProducts()),
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Container(
+                                  height: 260,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: recentProducts.length,
+                                    itemBuilder: (context, index) {
+                                      final product = recentProducts[index];
+                                      final imagePath = product['product']
+                                          ?['image']?[0]?['path'];
+                                      final imageUrl = imagePath != null
+                                          ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                          : 'https://example.com/placeholder.png'; // Placeholder image URL
+
+                                      final offerStartStr =
+                                          product['offer_start'];
+                                      final offerEndStr = product['offer_end'];
+                                      final salePriceStr =
+                                          product['sale_price'];
+                                      final offerPriceStr =
+                                          product['offer_price'];
+
+                                      if (offerStartStr == null ||
+                                          offerEndStr == null ||
+                                          salePriceStr == null ||
+                                          offerPriceStr == null) {
+                                        // Skip this item if critical data is missing
+                                        return SizedBox.shrink();
+                                      }
+                                      final slug = product['slug'];
+                                      final wishlists =
+                                          product['wishlists'] as List? ?? [];
+                                      final productId = wishlists.isNotEmpty
+                                          ? wishlists[0]['id']
+                                          : null;
+                                      final offerStart =
+                                          DateTime.parse(offerStartStr);
+                                      final offerEnd =
+                                          DateTime.parse(offerEndStr);
+                                      final currentDate = DateTime.now();
+
+                                      final bool isOfferPeriod =
+                                          currentDate.isAfter(offerStart) &&
+                                              currentDate.isBefore(offerEnd);
+                                      final salePrice =
+                                          double.parse(salePriceStr);
+                                      final offerPrice =
+                                          double.parse(offerPriceStr);
+
+                                      String formattedSalePrice =
+                                          salePrice.toStringAsFixed(2);
+                                      String formattedOfferPrice =
+                                          offerPrice.toStringAsFixed(2);
+
+                                      final double discountPercentage =
+                                          ((salePrice - offerPrice) /
+                                                  salePrice) *
+                                              100;
+                                      final int discountPercentageRounded =
+                                          discountPercentage.ceil();
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductDetail(
+                                                      product: product),
+                                            ),
+                                          );
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            width: 200,
+                                            child: Stack(
+                                              children: [
+                                                Card(
+                                                  color: Colors.white,
+                                                  elevation: 4,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15.0),
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Container(
+                                                          height: 150,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                    .vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      15.0),
+                                                            ),
+                                                            image:
+                                                                DecorationImage(
+                                                              image:
+                                                                  NetworkImage(
+                                                                      imageUrl),
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            product['title'] ??
+                                                                'No title',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 11,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                            ),
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          )),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal:
+                                                                    8.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            if (isOfferPeriod) ...[
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    '\$$formattedSalePrice',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal,
+                                                                      decoration:
+                                                                          TextDecoration
+                                                                              .lineThrough,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 10,
+                                                                  ),
+                                                                  Text(
+                                                                    '\$$formattedOfferPrice',
+                                                                    style: GoogleFonts
+                                                                        .montserrat(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ] else ...[
+                                                              Text(
+                                                                '\$$formattedSalePrice',
+                                                                style: GoogleFonts
+                                                                    .montserrat(
+                                                                  fontSize: 15,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                if (isOfferPeriod)
+                                                  Positioned(
+                                                    top: 0,
+                                                    left: 0,
+                                                    child: Container(
+                                                      height: 40,
+                                                      width: 40,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.orangeAccent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30.0),
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4.0),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            '$discountPercentageRounded%',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            'OFF',
+                                                            style: GoogleFonts
+                                                                .montserrat(
+                                                              fontSize: 9,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 0,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      if (slug != null) {
+                                                        toggleWishlist(
+                                                            slug,
+                                                            productId,
+                                                            isInWishlist);
+                                                      } else {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(
+                                                                'Product ID is missing'),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.favorite,
+                                                        color: isInWishlist
+                                                            ? Colors.red
+                                                            : Colors.grey,
+                                                        size: 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                )
+                              ],
+                              SizedBox(height: 20),
+
+                              // Column(
+                              //   children: [
+                              //     for (int i = 0; i < featuredProducts.length; i += 2)
+                              //       ResponsiveCardRow(
+                              //         screenWidth: MediaQuery.of(context).size.width,
+                              //         screenHeight: MediaQuery.of(context).size.height,
+                              //         product1: featuredProducts[i],
+                              //         product2: i + 1 < featuredProducts.length
+                              //             ? featuredProducts[i + 1]
+                              //             : null,
+                              //       ),
+                              //   ],
+                              // ),
+                            ],
                           ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            )
-                : Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      'assets/search-no-data.'
-                          'png',
-                      height: 300,
-                      width: 300,
-                    ),
-                    Text('No Result!',
-                        style: GoogleFonts.montserrat(
-                            fontSize: 15)),
-                  ],
-                ))
-                : Center(
-              child: Text('Start typing to search...'),
-            ),
+                        ),
+                      )
+                : _hasSearched
+                    ? hasResults
+                        ? SingleChildScrollView(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8),
+                              child: Column(
+                                children: [
+                                  // Show filtered products only after search
+                                  Column(
+                                    children: [
+                                      for (int i = 0;
+                                          i < filteredProducts.length;
+                                          i += 2)
+                                        ResponsiveCardRow(
+                                          screenWidth:
+                                              MediaQuery.of(context).size.width,
+                                          screenHeight: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          product1: filteredProducts[i],
+                                          product2:
+                                              i + 1 < filteredProducts.length
+                                                  ? filteredProducts[i + 1]
+                                                  : null,
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Column(
+                            children: [
+                              Image.asset(
+                                'assets/search-no-data.'
+                                'png',
+                                height: 300,
+                                width: 300,
+                              ),
+                              Text('No Result!',
+                                  style: GoogleFonts.montserrat(fontSize: 15)),
+                            ],
+                          ))
+                    : Center(
+                        child: Text('Start typing to search...'),
+                      ),
           ),
         ],
       ),
@@ -1751,8 +2092,8 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePaths = product['product'] != null &&
-        product['product']['image'] != null &&
-        (product['product']['image'] as List).isNotEmpty
+            product['product']['image'] != null &&
+            (product['product']['image'] as List).isNotEmpty
         ? product['product']['image'] as List
         : [];
 
@@ -1795,7 +2136,8 @@ class ProductCard extends StatelessWidget {
               Placeholder(fallbackHeight: screenHeight * 0.25),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(product['title'] ?? '',
+              child: Text(
+                product['title'] ?? '',
                 style: GoogleFonts.montserrat(
                     fontSize: 17, fontWeight: FontWeight.bold),
                 maxLines: 1,
