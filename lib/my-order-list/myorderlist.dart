@@ -88,7 +88,8 @@ class _OrderlistState extends State<Orderlist> {
 
     final token = await _getTokenFromLocalStorage();
     final response = await http.get(
-      Uri.parse('https://sgitjobs.com/MaseryShoppingNew/public/api/orders/customer/$id'),
+      Uri.parse(
+          'https://sgitjobs.com/MaseryShoppingNew/public/api/orders/customer/$id'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -173,13 +174,14 @@ class _OrderlistState extends State<Orderlist> {
                   size: 15,
                 ),
                 onPressed: () {
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => Profile()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Profile()));
                 },
               ),
             );
           },
-        ),      ),
+        ),
+      ),
       body: FutureBuilder<List<Order>>(
         future: _ordersFuture,
         builder: (context, snapshot) {
@@ -213,22 +215,40 @@ class _OrderlistState extends State<Orderlist> {
                       ),
                     );
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      margin: const EdgeInsets.all(8.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(mainAxisAlignment: MainAxisAlignment.end,
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    margin: const EdgeInsets.all(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Order Id -',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' ${order.orderNumber}',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ),
+                                ],
+                              ),
                               Text(
                                 ' ${_formatDate(order.createdAt)}',
                                 style: GoogleFonts.montserrat(
@@ -236,65 +256,64 @@ class _OrderlistState extends State<Orderlist> {
                                 ),
                                 textAlign: TextAlign.end,
                               ),
-                            ],),
-                            Row(
-                              children: [
-                                Text(
-                                  'Order Id -',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Quantity: ${order.itemcount}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
                                 ),
-
-                                Text(
-                                  ' ${order.orderNumber}',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[400],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Total:',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[400],
+                                    ),
                                   ),
+                                  Text(
+                                    ' \$${(double.tryParse(order.total)?.toStringAsFixed(2) ?? '0.00')}',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Text(
+                                'Order Status: ',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
                                 ),
-
-
-                              ],
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Quantity: ${order.itemcount}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 14,
                               ),
-                            ),
-                            Text(
-                              'Total: \$${(double.tryParse(order.total)?.toStringAsFixed(2) ?? '0.00')}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 14,
-                              ),
-                            ),
-
-
-                            SizedBox(height: 10),
-                            Row(
-                              children: [
-                                CircleAvatar(
+                              SizedBox(
+                                height: 15,
+                                child: CircleAvatar(
                                   radius: 10,
                                   backgroundColor: statusColor,
                                 ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Order Status: $orderStatus',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 14,
-                                  ),
+                              ),
+                              Text(
+                                ' $orderStatus',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
                                 ),
-                              ],
-                            ),
-                            SizedBox(height: 10),
-
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
