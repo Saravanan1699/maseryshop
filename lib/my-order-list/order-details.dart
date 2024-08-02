@@ -19,6 +19,10 @@ class OrderDetails extends StatelessWidget {
         return 'Unknown Payment Method';
     }
   }
+  String _formatDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    return '${parsedDate.day}/${parsedDate.month}/${parsedDate.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +196,7 @@ class OrderDetails extends StatelessWidget {
             SizedBox(height: 15),
             _buildOrderInfo('Billing Address:', order.billingAddress),
             _buildOrderInfo('Shipping Address:', order.shippingAddress),
+            _buildOrderInfo('Date:', _formatDate(order.createdAt)),
             _buildOrderInfo(
                 'Payment Method:', _getPaymentMethod(order.paymentMethodId)),
             _buildOrderInfo('Total Amount:', '\$${(double.tryParse(order.total) ?? 0.0).toStringAsFixed(2)}'),

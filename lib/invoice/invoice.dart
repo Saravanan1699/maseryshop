@@ -14,14 +14,33 @@ class Invoice extends StatelessWidget {
 
   Future<void> _downloadPdf(BuildContext context) async {
     try {
+      // Get the path to the Documents directory
+      final directory = await getApplicationDocumentsDirectory();
+      final pdfPath = '${directory.path}/invoice_${order.orderNumber}.pdf';
+
+      // Print path for debugging
+      print('Saving PDF to: $pdfPath');
+
+      // Generate the PDF
       final pdfFile = await generatePdf(order);
+
+      // Save the PDF to the specified path
+      final file = File(pdfPath);
+      await file.writeAsBytes(await pdfFile.readAsBytes());
+
+      // Notify user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF saved to ${pdfFile.path}')),
+        SnackBar(content: Text('PDF saved to $pdfPath')),
       );
+
+      // Optionally, open the PDF file after saving
+      // OpenFile.open(pdfPath);  // Uncomment if you want to open the file automatically
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error generating PDF: $e')),
       );
+      print('Error generating PDF: $e');  // Print error details
     }
   }
 
@@ -36,8 +55,28 @@ class Invoice extends StatelessWidget {
     }
   }
 
+  String _formatDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    return '${parsedDate.day}/${parsedDate.month}/${parsedDate.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final taxRate = 0.0;  // 0% tax rate
+    final discount = 0.0;  // 0 discount
+
+    final subtotal = order.inventories.fold<double>(
+      0.0,
+          (total, item) =>
+      total +
+          (double.tryParse(item['pivot']['unit_price'] ?? '0.0') ?? 0.0) *
+              (int.tryParse(item['pivot']['quantity'] ?? '0') ?? 0),
+    );
+
+    final tax = subtotal * taxRate;
+    final totalAfterDiscount = subtotal - discount;
+    final total = totalAfterDiscount + tax;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -73,137 +112,192 @@ class Invoice extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/logo.png',
-                  height: 60,
-                  width: 60,),
-                  Text('Masery Shop',
-                      style: GoogleFonts.montserrat(fontSize: 16,
-                      fontWeight: FontWeight.bold))
-
+                  Image.asset(
+                    'assets/logo.png',
+                    height: 80,
+                    width: 80,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Masery Shop',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
                 ],
               ),
-              Text('Order No: ${order.orderNumber}', style: GoogleFonts.montserrat(fontSize: 18)),
-              SizedBox(height: 10),
-              Text('Items: ${order.itemcount}', style: GoogleFonts.montserrat(fontSize: 16)),
-              SizedBox(height: 10),
-              Text('Payment Method: ${_getPaymentMethod(order.paymentMethodId)}', style: GoogleFonts.montserrat(fontSize: 16)),
-              SizedBox(height: 10),
-              Text('Total Amount: \$${(double.tryParse(order.total) ?? 0.0).toStringAsFixed(2)}', style: GoogleFonts.montserrat(fontSize: 16)),
               SizedBox(height: 20),
-              Text('Billing Address:', style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Order No: ${order.orderNumber}',
+                style: GoogleFonts.montserrat(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Items: ${order.itemcount}',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Payment Method: ${_getPaymentMethod(order.paymentMethodId)}',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              SizedBox(height: 10),
+              _buildAddressSection('Billing Address:', order.billingAddress),
+              SizedBox(height: 20),
+              _buildAddressSection('Shipping Address:', order.shippingAddress),
+              SizedBox(height: 10),
+              Text(
+                'Order Date:',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               SizedBox(height: 5),
-              Text(order.billingAddress, style: GoogleFonts.montserrat(fontSize: 14)),
+              Text(
+                _formatDate(order.createdAt),
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
               SizedBox(height: 20),
-              Text('Shipping Address:', style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.bold)),
-              SizedBox(height: 5),
-              Text(order.shippingAddress, style: GoogleFonts.montserrat(fontSize: 14)),
-              SizedBox(height: 20),
-              Text('Items Purchased:', style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Items Purchased:',
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               SizedBox(height: 10),
               if (order.inventories.isNotEmpty) ...[
                 Table(
                   border: TableBorder.all(color: Colors.grey),
                   columnWidths: {
                     0: FlexColumnWidth(2),
-                    1: FlexColumnWidth(1),
-                    2: FlexColumnWidth(1),
+                    1: FlexColumnWidth(3),
+                    2: FlexColumnWidth(2),
+                    3: FlexColumnWidth(2),
+                    4: FlexColumnWidth(2),
+                    5: FlexColumnWidth(3),
                   },
                   children: [
                     TableRow(
                       decoration: BoxDecoration(
-                        color: Colors.blueGrey[100],
+                        color: Colors.blueAccent,
                       ),
                       children: [
-                        TableCell(child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Title', style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.bold)),
-                        )),
-                        TableCell(child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Quantity', style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.bold)),
-                        )),
-                        TableCell(child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Price', style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.bold)),
-                        )),
+                        _buildTableCell('S.No', isHeader: true),
+                        _buildTableCell('Title', isHeader: true),
+                        _buildTableCell('Discount', isHeader: true),
+                        _buildTableCell('Tax', isHeader: true),
+                        _buildTableCell('Quantity', isHeader: true),
+                        _buildTableCell('Price', isHeader: true),
                       ],
                     ),
-                    for (var inventory in order.inventories)
+                    for (int i = 0; i < order.inventories.length; i++)
                       TableRow(
                         children: [
-                          TableCell(child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              inventory['title'] ?? 'No Title',
-                              style: GoogleFonts.montserrat(fontSize: 14),
-                            ),
-                          )),
-                          TableCell(child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              '${inventory['pivot']['quantity'] ?? '0'}',
-                              style: GoogleFonts.montserrat(fontSize: 14),
-                            ),
-                          )),
-                          TableCell(child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              '\$${(double.tryParse(inventory['pivot']['unit_price'] ?? '')?.toStringAsFixed(2)) ?? '0.00'}',
-                              style: GoogleFonts.montserrat(fontSize: 14),
-                            ),
-                          )),
+                          _buildTableCell('${i + 1}'),
+                          _buildTableCell(order.inventories[i]['title'] ?? 'No Title'),
+                          _buildTableCell('\$${discount.toStringAsFixed(2)}'),
+                          _buildTableCell('\$${tax.toStringAsFixed(2)}'),
+                          _buildTableCell('${order.inventories[i]['pivot']['quantity'] ?? '0'}'),
+                          _buildTableCell('\$${(double.tryParse(order.inventories[i]['pivot']['unit_price'] ?? '')?.toStringAsFixed(2)) ?? '0.00'}'),
                         ],
                       ),
                     TableRow(
                       decoration: BoxDecoration(
-                        color: Colors.blueGrey[200],
+                        color: Colors.blue[200],
                       ),
                       children: [
-                        TableCell(child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Total',
-                            style: GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.right,
-                          ),
-                        )),
-                        TableCell(child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(''),
-                        )),
-                        TableCell(child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            '\$${(double.tryParse(order.total) ?? 0.0).toStringAsFixed(2)}',
-                            style: GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        )),
+                        _buildTableCell('Total', isHeader: true),
+                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
+                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
+                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
+                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
+                        _buildTableCell('\$${total.toStringAsFixed(2)}', isHeader: true),
                       ],
                     ),
                   ],
                 ),
               ],
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               Center(
                 child: ElevatedButton(
                   onPressed: () => _downloadPdf(context),
                   child: Text('Download PDF', style: GoogleFonts.montserrat(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blueAccent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   ),
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddressSection(String title, String address) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.montserrat(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        SizedBox(height: 5),
+        Text(
+          address,
+          style: GoogleFonts.montserrat(
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableCell _buildTableCell(String text, {bool isHeader = false}) {
+    return TableCell(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: GoogleFonts.montserrat(
+            fontSize: 10,
+            fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+            color: isHeader ? Colors.white : Colors.black,
           ),
         ),
       ),
