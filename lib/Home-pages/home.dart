@@ -269,45 +269,45 @@ class _HomePageState extends State<HomePage> {
           Row(
             children: [
               // Notification Icon
-              GestureDetector(
-                onTap: () {
-                  // Navigate to Notifications page or perform desired action
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => NotificationsPage()),
-                  // );
-                },
-                child: Stack(
-                  children: [
-                    Icon(Icons.circle_notifications_sharp,color: Colors.blue,),
-                    // if (totalNotifications > 0)
-                    Positioned(
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: 10,
-                          minHeight: 10,
-                        ),
-                        // child: Text(
-                        //   '$totalNotifications',
-                        //   style: TextStyle(
-                        //     color: Colors.white,
-                        //     fontSize: 10,
-                        //     fontWeight: FontWeight.bold,
-                        //   ),
-                        //   textAlign: TextAlign.center,
-                        // ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 10),
+              // GestureDetector(
+              //   onTap: () {
+              //     // Navigate to Notifications page or perform desired action
+              //     // Navigator.push(
+              //     //   context,
+              //     //   MaterialPageRoute(builder: (context) => NotificationsPage()),
+              //     // );
+              //   },
+              //   child: Stack(
+              //     children: [
+              //       Icon(Icons.circle_notifications_sharp,color: Colors.blue,),
+              //       // if (totalNotifications > 0)
+              //       Positioned(
+              //         right: 0,
+              //         child: Container(
+              //           padding: EdgeInsets.all(2),
+              //           decoration: BoxDecoration(
+              //             color: Colors.red,
+              //             borderRadius: BorderRadius.circular(10),
+              //           ),
+              //           constraints: BoxConstraints(
+              //             minWidth: 10,
+              //             minHeight: 10,
+              //           ),
+              //           // child: Text(
+              //           //   '$totalNotifications',
+              //           //   style: TextStyle(
+              //           //     color: Colors.white,
+              //           //     fontSize: 10,
+              //           //     fontWeight: FontWeight.bold,
+              //           //   ),
+              //           //   textAlign: TextAlign.center,
+              //           // ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              // SizedBox(width: 10),
 
               // Wishlist Icon
               GestureDetector(
@@ -337,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                             '$totalWishItems',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 8,
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
@@ -997,7 +997,7 @@ class _HomePageState extends State<HomePage> {
                                                               '${category['products_count'] as String? ?? ''} Products', // Provide default value
                                                               style: GoogleFonts
                                                                   .montserrat(
-                                                                fontSize: 12,
+                                                                fontSize: 11,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .normal,

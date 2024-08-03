@@ -271,15 +271,15 @@ Future<File> generatePdf(Order order) async {
             ],
           ),
           pw.SizedBox(height: 20),
-          pw.Align(
-            alignment: pw.Alignment.bottomLeft,
-            child: pw.BarcodeWidget(
-              barcode: pw.Barcode.qrCode(),
-              data: 'https://example.com',
-              width: 50,
-              height: 50,
-            ),
-          ),
+          // pw.Align(
+          //   alignment: pw.Alignment.bottomLeft,
+          //   child: pw.BarcodeWidget(
+          //     barcode: pw.Barcode.qrCode(),
+          //     data: 'https://example.com',
+          //     width: 50,
+          //     height: 50,
+          //   ),
+          // ),
         ],
       ),
     ),

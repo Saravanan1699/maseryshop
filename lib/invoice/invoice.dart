@@ -14,27 +14,26 @@ class Invoice extends StatelessWidget {
 
   Future<void> _downloadPdf(BuildContext context) async {
     try {
-      // Get the path to the Documents directory
-      final directory = await getApplicationDocumentsDirectory();
-      final pdfPath = '${directory.path}/invoice_${order.orderNumber}.pdf';
+      // Set the custom download path
+      final downloadPath = '/storage/emulated/0/Download/Masery_${order.orderNumber}.pdf';
 
       // Print path for debugging
-      print('Saving PDF to: $pdfPath');
+      print('Saving PDF to: $downloadPath');
 
       // Generate the PDF
       final pdfFile = await generatePdf(order);
 
       // Save the PDF to the specified path
-      final file = File(pdfPath);
+      final file = File(downloadPath);
       await file.writeAsBytes(await pdfFile.readAsBytes());
 
       // Notify user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF saved to $pdfPath')),
+        SnackBar(content: Text('PDF saved to $downloadPath')),
       );
 
       // Optionally, open the PDF file after saving
-      // OpenFile.open(pdfPath);  // Uncomment if you want to open the file automatically
+      // OpenFile.open(downloadPath);  // Uncomment if you want to open the file automatically
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,6 +42,7 @@ class Invoice extends StatelessWidget {
       print('Error generating PDF: $e');  // Print error details
     }
   }
+
 
   String _getPaymentMethod(String paymentMethodId) {
     switch (paymentMethodId) {
