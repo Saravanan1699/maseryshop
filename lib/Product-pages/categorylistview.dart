@@ -20,7 +20,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   bool isLoading = true;
   bool hasError = false;
   bool hasResults = true;
-  List<dynamic> selectedBrands = []; // Correct initialization
+  List<int> selectedBrands = []; // Correct initialization
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -41,7 +41,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
   Future<void> fetchData() async {
     try {
       final response =
-      await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
+          await http.get(Uri.parse('${ApiConfig.baseUrl}homescreen'));
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -78,10 +78,9 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     });
 
     try {
-      // Construct the brand query parameters if there are any brand IDs
-      final brandQueries = brandIds.isNotEmpty
-          ? brandIds.map((id) => 'brand=$id').join('&')
-          : '';
+      // Construct the brand query parameter
+      final brandQueries =
+          brandIds.isNotEmpty ? 'brand=${brandIds.join(',')}' : '';
 
       // Construct the price query parameters
       final priceQuery = 'min_price=$minPrice&max_price=$maxPrice';
@@ -91,8 +90,11 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
           '${brandQueries.isNotEmpty ? '?$brandQueries' : ''}'
           '${brandQueries.isNotEmpty && priceQuery.isNotEmpty ? '&' : (brandQueries.isEmpty ? '?' : '')}$priceQuery';
 
+      print('Constructed URL: $url'); // Print URL for debugging
+
       // Make the HTTP GET request
       final response = await http.get(Uri.parse(url));
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'] as List;
         setState(() {
@@ -108,6 +110,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
         isLoading = false;
         hasError = true;
       });
+      print('Error: $e');
     }
   }
 
@@ -125,186 +128,149 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
           content: SingleChildScrollView(
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
-                return Column(
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _buildBrandFilterItem(
-                          brandId: 5,
-                          brandName: 'Acer',
-                          isSelected: selectedBrands.contains(5),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(5)) {
-                                selectedBrands.remove(5);
-                              } else {
-                                selectedBrands.add(5);
-                              }
-                            });
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        _buildBrandFilterItem(
-                          brandId: 7,
-                          brandName: 'Samsung',
-                          isSelected: selectedBrands.contains(7),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(7)) {
-                                selectedBrands.remove(7);
-                              } else {
-                                selectedBrands.add(7);
-                              }
-                            });
-                          },
-                        ),
-                        // Repeat for other brands in the first row
-                      ],
+                    _buildBrandFilterItem(
+                      brandId: 5,
+                      brandName: 'Acer',
+                      isSelected: selectedBrands.contains(5),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(5)) {
+                            selectedBrands.remove(5);
+                          } else {
+                            selectedBrands.add(5);
+                          }
+                        });
+                      },
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _buildBrandFilterItem(
-                          brandId: 12,
-                          brandName: 'Asus Vivobook',
-                          isSelected: selectedBrands.contains(12),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(12)) {
-                                selectedBrands.remove(12);
-                              } else {
-                                selectedBrands.add(12);
-                              }
-                            });
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        _buildBrandFilterItem(
-                          brandId: 6,
-                          brandName: 'Hp',
-                          isSelected: selectedBrands.contains(6),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(6)) {
-                                selectedBrands.remove(6);
-                              } else {
-                                selectedBrands.add(6);
-                              }
-                            });
-                          },
-                        ),
-                        // Repeat for other brands in the second row
-                      ],
+                    _buildBrandFilterItem(
+                      brandId: 7,
+                      brandName: 'Samsung',
+                      isSelected: selectedBrands.contains(7),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(7)) {
+                            selectedBrands.remove(7);
+                          } else {
+                            selectedBrands.add(7);
+                          }
+                        });
+                      },
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _buildBrandFilterItem(
-                          brandId: 11,
-                          brandName: 'Xiaomi',
-                          isSelected: selectedBrands.contains(11),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(11)) {
-                                selectedBrands.remove(11);
-                              } else {
-                                selectedBrands.add(11);
-                              }
-                            });
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        _buildBrandFilterItem(
-                          brandId: 17,
-                          brandName: 'Samsung Galaxy',
-                          isSelected: selectedBrands.contains(17),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(17)) {
-                                selectedBrands.remove(17);
-                              } else {
-                                selectedBrands.add(17);
-                              }
-                            });
-                          },
-                        ),
-                        // Repeat for other brands in the third row
-                      ],
+                    _buildBrandFilterItem(
+                      brandId: 12,
+                      brandName: 'Asus Vivobook',
+                      isSelected: selectedBrands.contains(12),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(12)) {
+                            selectedBrands.remove(12);
+                          } else {
+                            selectedBrands.add(12);
+                          }
+                        });
+                      },
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _buildBrandFilterItem(
-                          brandId: 15,
-                          brandName: 'Samsung Galaxy A11',
-                          isSelected: selectedBrands.contains(15),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(15)) {
-                                selectedBrands.remove(15);
-                              } else {
-                                selectedBrands.add(15);
-                              }
-                            });
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        _buildBrandFilterItem(
-                          brandId: 18,
-                          brandName: 'IQOO',
-                          isSelected: selectedBrands.contains(18),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(18)) {
-                                selectedBrands.remove(18);
-                              } else {
-                                selectedBrands.add(18);
-                              }
-                            });
-                          },
-                        ),
-                        // Repeat for other brands in the fourth row
-                      ],
+                    _buildBrandFilterItem(
+                      brandId: 6,
+                      brandName: 'Hp',
+                      isSelected: selectedBrands.contains(6),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(6)) {
+                            selectedBrands.remove(6);
+                          } else {
+                            selectedBrands.add(6);
+                          }
+                        });
+                      },
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        _buildBrandFilterItem(
-                          brandId: 21,
-                          brandName: 'OnePlus',
-                          isSelected: selectedBrands.contains(21),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(21)) {
-                                selectedBrands.remove(21);
-                              } else {
-                                selectedBrands.add(21);
-                              }
-                            });
-                          },
-                        ),
-                        SizedBox(width: 10),
-                        _buildBrandFilterItem(
-                          brandId: 2,
-                          brandName: 'Asus',
-                          isSelected: selectedBrands.contains(2),
-                          onTap: () {
-                            setState(() {
-                              if (selectedBrands.contains(2)) {
-                                selectedBrands.remove(2);
-                              } else {
-                                selectedBrands.add(2);
-                              }
-                            });
-                          },
-                        ),
-                        // Repeat for other brands in the fifth row
-                      ],
+                    _buildBrandFilterItem(
+                      brandId: 11,
+                      brandName: 'Xiaomi',
+                      isSelected: selectedBrands.contains(11),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(11)) {
+                            selectedBrands.remove(11);
+                          } else {
+                            selectedBrands.add(11);
+                          }
+                        });
+                      },
+                    ),
+                    _buildBrandFilterItem(
+                      brandId: 17,
+                      brandName: 'Samsung Galaxy',
+                      isSelected: selectedBrands.contains(17),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(17)) {
+                            selectedBrands.remove(17);
+                          } else {
+                            selectedBrands.add(17);
+                          }
+                        });
+                      },
+                    ),
+                    _buildBrandFilterItem(
+                      brandId: 15,
+                      brandName: 'Samsung Galaxy A11',
+                      isSelected: selectedBrands.contains(15),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(15)) {
+                            selectedBrands.remove(15);
+                          } else {
+                            selectedBrands.add(15);
+                          }
+                        });
+                      },
+                    ),
+                    _buildBrandFilterItem(
+                      brandId: 18,
+                      brandName: 'IQOO',
+                      isSelected: selectedBrands.contains(18),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(18)) {
+                            selectedBrands.remove(18);
+                          } else {
+                            selectedBrands.add(18);
+                          }
+                        });
+                      },
+                    ),
+                    _buildBrandFilterItem(
+                      brandId: 21,
+                      brandName: 'OnePlus',
+                      isSelected: selectedBrands.contains(21),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(21)) {
+                            selectedBrands.remove(21);
+                          } else {
+                            selectedBrands.add(21);
+                          }
+                        });
+                      },
+                    ),
+                    _buildBrandFilterItem(
+                      brandId: 2,
+                      brandName: 'Asus',
+                      isSelected: selectedBrands.contains(2),
+                      onTap: () {
+                        setState(() {
+                          if (selectedBrands.contains(2)) {
+                            selectedBrands.remove(2);
+                          } else {
+                            selectedBrands.add(2);
+                          }
+                        });
+                      },
                     ),
                   ],
                 );
@@ -313,9 +279,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
           ),
           actions: <Widget>[
             ElevatedButton(
-              child: Text('Cancel',
-                  style: GoogleFonts.montserrat(
-                      color: Color(0xff0D6EFD), fontSize: 12)),
+              child: Text('Cancel', style: GoogleFonts.montserrat(color: Color(0xff0D6EFD), fontSize: 12)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -328,9 +292,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
               },
             ),
             ElevatedButton(
-              child: Text('Filter',
-                  style: GoogleFonts.montserrat(
-                      color: Colors.white, fontSize: 15)),
+              child: Text('Filter', style: GoogleFonts.montserrat(color: Colors.white, fontSize: 15)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xff0D6EFD),
                 shape: RoundedRectangleBorder(
@@ -375,6 +337,7 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       ),
     );
   }
+
 
   Future<void> _showFilterPrice() async {
     List<int> selectedBrands = [];
@@ -470,12 +433,12 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
     setState(() {
       filteredProducts = allProducts
           .where((product) =>
-      (product['title'] ?? '')
-          .toLowerCase()
-          .contains(query.toLowerCase()) ||
-          (product['slug'] ?? '')
-              .toLowerCase()
-              .contains(query.toLowerCase()))
+              (product['title'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              (product['slug'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
           .toList();
 
       hasResults = filteredProducts.isNotEmpty;
@@ -527,142 +490,142 @@ class _CategoryDescriptionState extends State<CategoryDescription> {
       ),
       body: isLoading
           ? Center(
-        child: LoadingAnimationWidget.halfTriangleDot(
-          size: 50.0,
-          color: Colors.redAccent,
-        ),
-      )
+              child: LoadingAnimationWidget.halfTriangleDot(
+                size: 50.0,
+                color: Colors.redAccent,
+              ),
+            )
           : hasError
-          ? Center(child: Text('Failed to load data'))
-          : LayoutBuilder(
-        builder: (context, constraints) {
-          double screenWidth = constraints.maxWidth;
-          double screenHeight = constraints.maxHeight;
+              ? Center(child: Text('Failed to load data'))
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    double screenWidth = constraints.maxWidth;
+                    double screenHeight = constraints.maxHeight;
 
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _searchProducts,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Search any Product...',
-                    hintStyle: GoogleFonts.montserrat(),
-                    prefixIcon:
-                    Icon(Icons.search, color: Color(0xffBBBBBB)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Color(0xffF2F2F2),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      _getItemCountText(),
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    GestureDetector(
-                      onTap: _showFilterDialog,
-                      child: SizedBox(
-                        width: 90,
-                        height: 40,
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Center(
-                              child: Text(
-                                'Brands',
-                                style: GoogleFonts.montserrat(),
-                              )),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    GestureDetector(
-                      onTap: _showFilterPrice,
-                      child: SizedBox(
-                        width: 90,
-                        height: 40,
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Center(
-                              child: Text(
-                                'Price',
-                                style: GoogleFonts.montserrat(),
-                              )),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: filteredProducts.isEmpty
-                    ? Center(
-                    child: Column(
+                    return Column(
                       children: [
-                        Image.asset(
-                          'assets/search-no-data.png',
-                          height: 300,
-                          width: 300,
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: _searchProducts,
+                            focusNode: _focusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Search any Product...',
+                              hintStyle: GoogleFonts.montserrat(),
+                              prefixIcon:
+                                  Icon(Icons.search, color: Color(0xffBBBBBB)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Color(0xffF2F2F2),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
                         ),
-                        Text('No Result!',
-                            style: GoogleFonts.montserrat(
-                                fontSize: 15)),
-                      ],
-                    ))
-                    : ListView.builder(
-                  itemCount:
-                  (filteredProducts.length / 2).ceil(),
-                  itemBuilder: (context, index) {
-                    final int firstProductIndex = index * 2;
-                    final int secondProductIndex =
-                        firstProductIndex + 1;
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                _getItemCountText(),
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              GestureDetector(
+                                onTap: _showFilterDialog,
+                                child: SizedBox(
+                                  width: 90,
+                                  height: 40,
+                                  child: Card(
+                                    color: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      'Brands',
+                                      style: GoogleFonts.montserrat(),
+                                    )),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              GestureDetector(
+                                onTap: _showFilterPrice,
+                                child: SizedBox(
+                                  width: 90,
+                                  height: 40,
+                                  child: Card(
+                                    color: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Center(
+                                        child: Text(
+                                      'Price',
+                                      style: GoogleFonts.montserrat(),
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: filteredProducts.isEmpty
+                              ? Center(
+                                  child: Column(
+                                  children: [
+                                    Image.asset(
+                                      'assets/search-no-data.png',
+                                      height: 300,
+                                      width: 300,
+                                    ),
+                                    Text('No Result!',
+                                        style: GoogleFonts.montserrat(
+                                            fontSize: 15)),
+                                  ],
+                                ))
+                              : ListView.builder(
+                                  itemCount:
+                                      (filteredProducts.length / 2).ceil(),
+                                  itemBuilder: (context, index) {
+                                    final int firstProductIndex = index * 2;
+                                    final int secondProductIndex =
+                                        firstProductIndex + 1;
 
-                    return ResponsiveCardRow(
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                      product1:
-                      filteredProducts[firstProductIndex],
-                      product2: secondProductIndex <
-                          filteredProducts.length
-                          ? filteredProducts[secondProductIndex]
-                          : null,
+                                    return ResponsiveCardRow(
+                                      screenWidth: screenWidth,
+                                      screenHeight: screenHeight,
+                                      product1:
+                                          filteredProducts[firstProductIndex],
+                                      product2: secondProductIndex <
+                                              filteredProducts.length
+                                          ? filteredProducts[secondProductIndex]
+                                          : null,
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
                     );
                   },
                 ),
-              ),
-            ],
-          );
-        },
-      ),
       bottomNavigationBar: BottomBar(
         onTap: (index) {},
       ),
@@ -721,8 +684,8 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePaths = product['product'] != null &&
-        product['product']['image'] != null &&
-        (product['product']['image'] as List).isNotEmpty
+            product['product']['image'] != null &&
+            (product['product']['image'] as List).isNotEmpty
         ? product['product']['image'] as List
         : [];
 
