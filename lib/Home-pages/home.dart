@@ -450,7 +450,7 @@ class _HomePageState extends State<HomePage> {
                                     itemBuilder: (context, index) {
                                       final banner = banners[index];
                                       final imageUrl =
-                                          'https://sgitjobs.com/MaseryShoppingNew/public/${banner['path']}';
+                                          '${imageurl.baseUrl}${banner['path']}';
                                       return Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Card(
@@ -551,7 +551,7 @@ class _HomePageState extends State<HomePage> {
                                           ? wishlists[0]['id']
                                           : null;
                                       final imageUrl =
-                                          'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][0]['path']}';
+                                          '${imageurl.baseUrl}${product['product']['image'][0]['path']}';
 
                                       final offerStart = DateTime.parse(
                                           product['offer_start']);
@@ -904,7 +904,7 @@ class _HomePageState extends State<HomePage> {
                                               'No Title';
 
                                       final imageUrl = imagePath.isNotEmpty
-                                          ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                          ? '${imageurl.baseUrl}$imagePath'
                                           : ''; // Provide a default empty URL if imagePath is empty
 
                                       return GestureDetector(
@@ -1028,7 +1028,7 @@ class _HomePageState extends State<HomePage> {
                                 //
                                 //       // Constructing image URL
                                 //       final imageUrl =
-                                //           'https://sgitjobs.com/MaseryShoppingNew/public/${category['path']}';
+                                //           '${imageurl.baseUrl}/${category['path']}';
                                 //
                                 //       return Padding(
                                 //         padding: const EdgeInsets.all(8.0),
@@ -1134,7 +1134,7 @@ class _HomePageState extends State<HomePage> {
                                       final imagePath = product['product']
                                           ?['image']?[0]?['path'];
                                       final imageUrl = imagePath != null
-                                          ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                          ? '${imageurl.baseUrl}$imagePath'
                                           : 'https://example.com/placeholder.png'; // Placeholder image URL
 
                                       final offerStartStr =
@@ -1471,7 +1471,7 @@ class _HomePageState extends State<HomePage> {
                                 //       final imagePath =
                                 //       product['product']?['image']?[0]?['path'];
                                 //       final imageUrl = imagePath != null
-                                //           ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                //           ? '${imageurl.baseUrl}$imagePath'
                                 //           : 'https://example.com/placeholder.png'; // Placeholder image URL
                                 //
                                 //       final offerStartStr = product['offer_start'];
@@ -1718,7 +1718,7 @@ class _HomePageState extends State<HomePage> {
                                       final imagePath = product['product']
                                           ?['image']?[0]?['path'];
                                       final imageUrl = imagePath != null
-                                          ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                          ? '${imageurl.baseUrl}$imagePath'
                                           : 'https://example.com/placeholder.png'; // Placeholder image URL
 
                                       final offerStartStr =
@@ -2140,7 +2140,7 @@ class ProductCard extends StatelessWidget {
         : [];
 
     final imageUrl = imagePaths.isNotEmpty
-        ? 'https://sgitjobs.com/MaseryShoppingNew/public/${imagePaths[0]['path']}'
+        ? '${imageurl.baseUrl}${imagePaths[0]['path']}'
         : '';
 
     return GestureDetector(

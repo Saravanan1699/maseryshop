@@ -261,7 +261,7 @@ class _CartPageState extends State<CartPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: inventories.map((inventory) {
                   String imageUrl = inventory['product']['images'].isNotEmpty
-                      ? 'https://sgitjobs.com/MaseryShoppingNew/public/${inventory['product']['images'][0]['path']}'
+                      ? '${imageurl.baseUrl}${inventory['product']['images'][0]['path']}'
                       : 'assets/products/images/default_image.png';
                   double minPrice = double.tryParse(inventory['product']['min_price']) ?? 0.0;
                   double unitPrice = double.tryParse(inventory['pivot']['unit_price']) ?? 0.0;

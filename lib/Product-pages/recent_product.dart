@@ -287,7 +287,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final imagePaths = product['product']?['image'] ?? [];
     final imageUrl = imagePaths.isNotEmpty
-        ? 'https://sgitjobs.com/MaseryShoppingNew/public/${imagePaths[0]['path']}'
+        ? '${imageurl.baseUrl}${imagePaths[0]['path']}'
         : '';
 
     return GestureDetector(

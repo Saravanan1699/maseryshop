@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../Base_Url/BaseUrl.dart';
 import '../Settings/My_Profile.dart';
 import '../bottombar/bottombar.dart';
 import 'order-details.dart';
@@ -89,7 +90,7 @@ class _OrderlistState extends State<Orderlist> {
     final token = await _getTokenFromLocalStorage();
     final response = await http.get(
       Uri.parse(
-          'https://sgitjobs.com/MaseryShoppingNew/public/api/orders/customer/$id'),
+          '${ApiConfig.baseUrl}orders/customer/$id'),
       headers: {'Authorization': 'Bearer $token'},
     );
 

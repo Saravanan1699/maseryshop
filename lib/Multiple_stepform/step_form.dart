@@ -674,7 +674,7 @@ class _MultistepFormState extends State<MultistepForm> {
                                     product['product'] != null &&
                                             product['product']['images'] != null
                                         ? Image.network(
-                                            'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['images'][0]['path']}',
+                                            '${imageurl.baseUrl}/${product['product']['images'][0]['path']}',
                                             height: 120,
                                             width: 140,
                                             fit: BoxFit.contain,

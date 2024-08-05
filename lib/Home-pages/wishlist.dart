@@ -237,7 +237,7 @@ class _WishlistState extends State<Wishlist> {
           // Check if there is an image list and get the first image path
           final imageList = favoriteProducts[index]['product']['image'];
           final imageUrl = imageList.isNotEmpty
-              ? 'https://sgitjobs.com/MaseryShoppingNew/public/${imageList[0]['path']}'
+              ? '${imageurl.baseUrl}${imageList[0]['path']}'
               : '';
 
           return Container(

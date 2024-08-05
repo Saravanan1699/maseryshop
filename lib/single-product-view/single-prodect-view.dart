@@ -274,7 +274,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                         borderRadius: BorderRadius.circular(15.0),
                                         image: DecorationImage(
                                           image: NetworkImage(
-                                              'https://sgitjobs.com/MaseryShoppingNew/public/${product['product']['image'][index]['path']}'),
+                                              '${imageurl.baseUrl}${product['product']['image'][index]['path']}'),
                                           fit: BoxFit.contain,
                                         ),
                                       ),
@@ -479,7 +479,7 @@ class _ProductDetailState extends State<ProductDetail> {
                       itemBuilder: (context, index) {
                         final category = about[index];
                         final imageUrl =
-                            'https://sgitjobs.com/MaseryShoppingNew/public/${category['path']}';
+                            '${imageurl.baseUrl}${category['path']}';
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
@@ -593,7 +593,7 @@ class _ProductDetailState extends State<ProductDetail> {
                              final imagePath =
                              product['product']?['image']?[0]?['path'];
                              final imageUrl = imagePath != null
-                                 ? 'https://sgitjobs.com/MaseryShoppingNew/public/$imagePath'
+                                 ? '${imageurl.baseUrl}$imagePath'
                                  : 'https://example.com/placeholder.png'; // Placeholder image URL
 
                              final offerStartStr = product['offer_start'];

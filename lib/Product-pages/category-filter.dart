@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../Base_Url/BaseUrl.dart';
 import '../Home-pages/home.dart';
 import '../single-product-view/single-prodect-view.dart';
 
@@ -35,7 +36,7 @@ class _FilterCategoryState extends State<FilterCategory> {
 
   Future<void> fetchProductsBySlug(String slug) async {
     final url =
-        'https://sgitjobs.com/MaseryShoppingNew/public/api/search?q=$slug';
+        '${ApiConfig.baseUrl}search?q=$slug';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -228,7 +229,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final images = product['product']['image'] ?? [];
     final imageUrl = images.isNotEmpty
-        ? 'https://sgitjobs.com/MaseryShoppingNew/public/${images[0]['path']}'
+        ? '${imageurl.baseUrl}${images[0]['path']}'
         : '';
 
     return GestureDetector(
