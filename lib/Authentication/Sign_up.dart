@@ -133,21 +133,6 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.01),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Fill your details or continue with\nsocial media',
-                    style: GoogleFonts.poppins(
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF707B81),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
               SizedBox(height: screenHeight * 0.1),
               Row(
                 children: [
@@ -373,38 +358,6 @@ class _SignUpState extends State<SignUp> {
                     color: Color(0xFFFFFFFF),
                   ),
                   textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.04),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFF7F7F9),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: screenWidth * 0.15,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/Google.png',
-                      height: screenHeight * 0.03,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      'Sign up with Google',
-                      style: GoogleFonts.raleway(
-                        fontSize: screenWidth * 0.04,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2B2B2B),
-                      ),
-                    ),
-                  ],
                 ),
               ),
               SizedBox(height: screenHeight * 0.04),
