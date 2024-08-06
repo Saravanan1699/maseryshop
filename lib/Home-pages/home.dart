@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:maseryshop/Home-pages/wishlist.dart';
+import 'package:maseryshop/Responsive/responsive.dart';
 import '../Base_Url/BaseUrl.dart';
 import '../Product-pages/Featured-list-view.dart';
 import '../Product-pages/category-filter.dart';
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchData() async {
     final url = '${ApiConfig.baseUrl}homescreen';
-    print('Fetching data from: $url'); // Debugging statement
+    print('Fetching data from: $url');
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -243,6 +244,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -251,7 +253,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         title: Center(
           child: Text(
-            'Masery Shop',
+            'Masergy Shop',
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.bold,

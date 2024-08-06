@@ -73,7 +73,7 @@ class YourSplashContentWidget extends StatelessWidget {
             ),
             SizedBox(height: screenHeight * 0.02),
             Text(
-              'Masery',
+              'Masergy',
               style: GoogleFonts.montserrat(
                 fontSize: screenWidth * 0.1, // Responsive font size
                 fontWeight: FontWeight.w700,

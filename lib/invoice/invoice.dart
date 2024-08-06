@@ -3,46 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import '../my-order-list/myorderlist.dart';
 import '../my-order-list/order-details.dart';
-import 'pdf_generator.dart';
+import 'pdf_generator.dart'; // Ensure this file is properly defined
 
 class Invoice extends StatelessWidget {
   final Order order;
 
   const Invoice({super.key, required this.order});
-
-  Future<void> _downloadPdf(BuildContext context) async {
-    try {
-      // Set the custom download path
-      final downloadPath = '/storage/emulated/0/Download/Masery_${order.orderNumber}.pdf';
-
-      // Print path for debugging
-      print('Saving PDF to: $downloadPath');
-
-      // Generate the PDF
-      final pdfFile = await generatePdf(order);
-
-      // Save the PDF to the specified path
-      final file = File(downloadPath);
-      await file.writeAsBytes(await pdfFile.readAsBytes());
-
-      // Notify user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF saved to $downloadPath')),
-      );
-
-      // Optionally, open the PDF file after saving
-      // OpenFile.open(downloadPath);  // Uncomment if you want to open the file automatically
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error generating PDF: $e')),
-      );
-      print('Error generating PDF: $e');  // Print error details
-    }
-  }
-
 
   String _getPaymentMethod(String paymentMethodId) {
     switch (paymentMethodId) {
@@ -60,15 +31,77 @@ class Invoice extends StatelessWidget {
     return '${parsedDate.day}/${parsedDate.month}/${parsedDate.year}';
   }
 
+  Future<void> _downloadPdf(BuildContext context) async {
+    try {
+      final pdf = pw.Document();
+      final pdfGenerator = PdfGenerator(); // Ensure PdfGenerator is defined
+
+      // Generate the PDF content asynchronously
+      final pdfContent = await pdfGenerator.buildInvoicePdf(order);
+
+      // Add the generated PDF content to the document
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) => pdfContent,
+        ),
+      );
+
+      // Get the file path for saving the PDF
+      final outputFile = await _getFilePath();
+      if (outputFile != null) {
+        final file = File(outputFile);
+        await file.writeAsBytes(await pdf.save());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('PDF saved to $outputFile')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving PDF: $e')),
+      );
+    }
+  }
+
+  Future<String?> _getFilePath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/invoice_${order.orderNumber}.pdf';
+    return filePath;
+  }
+
+  Future<void> _printPdf() async {
+    try {
+      final pdf = pw.Document();
+      final pdfGenerator = PdfGenerator(); // Ensure PdfGenerator is defined
+
+      // Generate the PDF content asynchronously
+      final pdfContent = await pdfGenerator.buildInvoicePdf(order);
+
+      // Add the generated PDF content to the document
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) => pdfContent,
+        ),
+      );
+
+      // Print the PDF
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save(),
+      );
+    } catch (e) {
+      // Handle print error
+      print('Error printing PDF: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final taxRate = 0.0;  // 0% tax rate
-    final discount = 0.0;  // 0 discount
+    final taxRate = 0.0; // 0% tax rate
+    final discount = 0.0; // 0 discount
 
     final subtotal = order.inventories.fold<double>(
       0.0,
-          (total, item) =>
-      total +
+      (total, item) =>
+          total +
           (double.tryParse(item['pivot']['unit_price'] ?? '0.0') ?? 0.0) *
               (int.tryParse(item['pivot']['quantity'] ?? '0') ?? 0),
     );
@@ -126,7 +159,7 @@ class Invoice extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    'Masery Shop',
+                    'Masergy Shop',
                     style: GoogleFonts.montserrat(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -220,11 +253,14 @@ class Invoice extends StatelessWidget {
                       TableRow(
                         children: [
                           _buildTableCell('${i + 1}'),
-                          _buildTableCell(order.inventories[i]['title'] ?? 'No Title'),
+                          _buildTableCell(
+                              order.inventories[i]['title'] ?? 'No Title'),
                           _buildTableCell('\$${discount.toStringAsFixed(2)}'),
                           _buildTableCell('\$${tax.toStringAsFixed(2)}'),
-                          _buildTableCell('${order.inventories[i]['pivot']['quantity'] ?? '0'}'),
-                          _buildTableCell('\$${(double.tryParse(order.inventories[i]['pivot']['unit_price'] ?? '')?.toStringAsFixed(2)) ?? '0.00'}'),
+                          _buildTableCell(
+                              '${order.inventories[i]['pivot']['quantity'] ?? '0'}'),
+                          _buildTableCell(
+                              '\$${(double.tryParse(order.inventories[i]['pivot']['unit_price'] ?? '')?.toStringAsFixed(2)) ?? '0.00'}'),
                         ],
                       ),
                     TableRow(
@@ -233,11 +269,16 @@ class Invoice extends StatelessWidget {
                       ),
                       children: [
                         _buildTableCell('Total', isHeader: true),
-                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
-                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
-                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
-                        TableCell(child: Padding(padding: const EdgeInsets.all(8.0))),
-                        _buildTableCell('\$${total.toStringAsFixed(2)}', isHeader: true),
+                        TableCell(
+                            child: Padding(padding: const EdgeInsets.all(8.0))),
+                        TableCell(
+                            child: Padding(padding: const EdgeInsets.all(8.0))),
+                        TableCell(
+                            child: Padding(padding: const EdgeInsets.all(8.0))),
+                        TableCell(
+                            child: Padding(padding: const EdgeInsets.all(8.0))),
+                        _buildTableCell('\$${total.toStringAsFixed(2)}',
+                            isHeader: true),
                       ],
                     ),
                   ],
@@ -246,8 +287,12 @@ class Invoice extends StatelessWidget {
               SizedBox(height: 30),
               Center(
                 child: ElevatedButton(
-                  onPressed: () => _downloadPdf(context),
-                  child: Text('Download PDF', style: GoogleFonts.montserrat(color: Colors.white)),
+                  onPressed: () async {
+                    await _printPdf();
+                    await _downloadPdf(context);
+                  },
+                  child: Text('Print and Download PDF',
+                      style: GoogleFonts.montserrat(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     shape: RoundedRectangleBorder(
