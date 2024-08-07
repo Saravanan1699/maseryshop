@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:maseryshop/Responsive/responsive.dart';
 import 'dart:convert';
 import '../Base_Url/BaseUrl.dart';
 import '../Home-pages/home.dart';
@@ -52,7 +53,8 @@ class _BottomBarState extends State<BottomBar> {
 
   Future<int> fetchTotalWishlistItems() async {
     try {
-      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}totalwishlistitems'));
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}totalwishlistitems'));
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -101,6 +103,7 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
@@ -152,14 +155,14 @@ class _BottomBarState extends State<BottomBar> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     constraints: BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
+                      minWidth: responsive.widthPercentage(5),
+                      minHeight: responsive.heightPercentage(1),
                     ),
                     child: Text(
                       '$totalItems',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 10,
+                        fontSize: responsive.textSize(1.5),
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,

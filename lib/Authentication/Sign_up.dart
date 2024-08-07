@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:maseryshop/Responsive/responsive.dart';
 import 'dart:convert';
 import '../Base_Url/BaseUrl.dart';
 import 'Sing-in.dart';
@@ -24,8 +25,7 @@ class _SignUpState extends State<SignUp> {
 
   Future<void> registerUser(String name, String email, String password,
       String password_confirmation) async {
-    final url =
-        Uri.parse('${ApiConfig.baseUrl}register');
+    final url = Uri.parse('${ApiConfig.baseUrl}register');
     try {
       final response = await http.post(
         url,
@@ -89,6 +89,7 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final responsive = Responsive(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
@@ -103,7 +104,8 @@ class _SignUpState extends State<SignUp> {
                 borderRadius: BorderRadius.circular(30.0),
               ),
               child: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_outlined, size: 15),
+                icon: Icon(Icons.arrow_back_ios_new_outlined,
+                    size: responsive.textSize(3)),
                 onPressed: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => Signin()));
@@ -126,20 +128,20 @@ class _SignUpState extends State<SignUp> {
                   Text(
                     'Register Account',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.07,
+                      fontSize: responsive.textSize(4),
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF2B2B2B),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.1),
+              SizedBox(height: responsive.heightPercentage(7)),
               Row(
                 children: [
                   Text(
                     'Name',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.04,
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2B2B2B),
                     ),
@@ -147,7 +149,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: responsive.heightPercentage(1)),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
@@ -175,13 +177,13 @@ class _SignUpState extends State<SignUp> {
                   return null;
                 },
               ),
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: responsive.heightPercentage(1)),
               Row(
                 children: [
                   Text(
                     'Email Address',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.04,
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2B2B2B),
                     ),
@@ -189,7 +191,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: responsive.heightPercentage(1)),
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -218,13 +220,13 @@ class _SignUpState extends State<SignUp> {
                   return null;
                 },
               ),
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: responsive.heightPercentage(1)),
               Row(
                 children: [
                   Text(
                     'Password',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.04,
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2B2B2B),
                     ),
@@ -273,13 +275,13 @@ class _SignUpState extends State<SignUp> {
                   return null;
                 },
               ),
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: responsive.heightPercentage(1)),
               Row(
                 children: [
                   Text(
                     'Confirm Password',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.04,
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2B2B2B),
                     ),
@@ -360,14 +362,14 @@ class _SignUpState extends State<SignUp> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: screenHeight * 0.04),
+              SizedBox(height: responsive.heightPercentage(3.5)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Already Have Account? ',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.04,
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF707B81),
                     ),
@@ -380,7 +382,7 @@ class _SignUpState extends State<SignUp> {
                     child: Text(
                       'Sign In',
                       style: GoogleFonts.raleway(
-                        fontSize: screenWidth * 0.04,
+                        fontSize: responsive.textSize(2.5),
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF2B2B2B),
                       ),
@@ -388,7 +390,6 @@ class _SignUpState extends State<SignUp> {
                   )
                 ],
               ),
-              SizedBox(height: screenHeight * 0.02),
             ],
           ),
         ),

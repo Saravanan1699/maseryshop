@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:maseryshop/Responsive/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Authentication/Sing-in.dart';
 import '../Base_Url/BaseUrl.dart';
@@ -86,6 +87,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -96,7 +98,7 @@ class _ProfileState extends State<Profile> {
         title: Text(
           'My Profile',
           style: GoogleFonts.raleway(
-            fontSize: screenWidth * 0.07,
+            fontSize: responsive.textSize(3.5),
             fontWeight: FontWeight.w700,
             color: Color(0xFF2B2B2B),
           ),
@@ -112,7 +114,7 @@ class _ProfileState extends State<Profile> {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: 15,
+                  size: responsive.textSize(3),
                 ),
                 onPressed: () {
                   setState(() {
@@ -148,61 +150,61 @@ class _ProfileState extends State<Profile> {
                           radius: 30,
                           backgroundImage: AssetImage('assets/avatar.png'),
                         ),
-                        SizedBox(width: 16),
+                        SizedBox(width: responsive.widthPercentage(5)),
                       ],
                     ),
                     isLoggedIn
                         ? FutureBuilder<Map<String, String>>(
-                      future: _getFromLocalStorage(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<Map<String, String>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: Container(
-                              child:
-                              LoadingAnimationWidget.halfTriangleDot(
-                                size: 50.0,
-                                color: Colors.redAccent,
-                              ),
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                              child: Text('Error: ${snapshot.error}'));
-                        } else {
-                          var data = snapshot.data!;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${data['name']}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: screenWidth * 0.05,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2B2B2B),
-                                ),
-                              ),
-                              Text(
-                                '${data['email']}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: screenWidth * 0.04,
-                                  color: Color(0xFF2B2B2B),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      },
-                    )
+                            future: _getFromLocalStorage(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, String>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: Container(
+                                    child:
+                                        LoadingAnimationWidget.halfTriangleDot(
+                                      size: 50.0,
+                                      color: Colors.redAccent,
+                                    ),
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else {
+                                var data = snapshot.data!;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '${data['name']}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: responsive.textSize(3),
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF2B2B2B),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${data['email']}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: responsive.textSize(3),
+                                        color: Color(0xFF2B2B2B),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          )
                         : Text(
-                      'No Profile',
-                      style: GoogleFonts.poppins(
-                        fontSize: screenWidth * 0.05,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF2B2B2B),
-                      ),
-                    ),
+                            'No Profile',
+                            style: GoogleFonts.poppins(
+                              fontSize: responsive.textSize(3),
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF2B2B2B),
+                            ),
+                          ),
                     // Add Order History Row
                     SizedBox(height: 10),
                     Divider(
@@ -214,7 +216,7 @@ class _ProfileState extends State<Profile> {
                         Text(
                           'Order History',
                           style: GoogleFonts.poppins(
-                            fontSize: screenWidth * 0.038,
+                            fontSize: responsive.textSize(2.5),
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF2B2B2B),
                           ),
@@ -222,17 +224,19 @@ class _ProfileState extends State<Profile> {
                         IconButton(
                           icon: Icon(
                             Icons.arrow_forward_ios_rounded,
-                            size: screenWidth * 0.06,
-                            color: isLoggedIn ? Color(0xFF2B2B2B) : Colors.transparent,
+                            size: responsive.textSize(4),
+                            color: isLoggedIn
+                                ? Color(0xFF2B2B2B)
+                                : Colors.transparent,
                           ),
                           onPressed: isLoggedIn
                               ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Orderlist()),
-                            );
-                          }
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Orderlist()),
+                                  );
+                                }
                               : null,
                         ),
                       ],
@@ -248,7 +252,7 @@ class _ProfileState extends State<Profile> {
                         Text(
                           isLoggedIn ? 'Logout' : 'Login',
                           style: GoogleFonts.poppins(
-                            fontSize: screenWidth * 0.038,
+                            fontSize: responsive.textSize(2.5),
                             fontWeight: FontWeight.w700,
                             color: isLoggedIn ? Color(0xFFEA1712) : Colors.blue,
                           ),
@@ -268,7 +272,7 @@ class _ProfileState extends State<Profile> {
                           },
                           child: Icon(
                             isLoggedIn ? Icons.logout : Icons.login,
-                            size: screenWidth * 0.06,
+                            size: responsive.textSize(4),
                             color: isLoggedIn ? Color(0xFFEA1712) : Colors.blue,
                           ),
                         ),

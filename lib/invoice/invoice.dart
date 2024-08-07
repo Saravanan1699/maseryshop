@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:maseryshop/Responsive/responsive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:printing/printing.dart';
@@ -109,7 +110,7 @@ class Invoice extends StatelessWidget {
     final tax = subtotal * taxRate;
     final totalAfterDiscount = subtotal - discount;
     final total = totalAfterDiscount + tax;
-
+    final responsive = Responsive(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -118,14 +119,14 @@ class Invoice extends StatelessWidget {
         title: Text(
           'Invoice',
           style: GoogleFonts.montserrat(
-            fontSize: 20,
+            fontSize: responsive.textSize(3.5),
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: EdgeInsets.all(8.0),
+              margin: responsive.marginPercentage(2 ,0.5, 1, 1),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),
@@ -133,7 +134,7 @@ class Invoice extends StatelessWidget {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: 15,
+                  size: responsive.textSize(3),
                 ),
                 onPressed: () {
                   Navigator.pop(context);
@@ -145,7 +146,7 @@ class Invoice extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: responsive.paddingPercentage(5, 2, 5, 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -154,14 +155,14 @@ class Invoice extends StatelessWidget {
                 children: [
                   Image.asset(
                     'assets/logo.png',
-                    height: 80,
-                    width: 80,
+                    height: responsive.heightPercentage(10),
+                    width: responsive.widthPercentage(20),
                   ),
                   SizedBox(width: 10),
                   Text(
                     'Masergy Shop',
                     style: GoogleFonts.montserrat(
-                      fontSize: 24,
+                      fontSize: responsive.textSize(3.5),
                       fontWeight: FontWeight.bold,
                       color: Colors.blueAccent,
                     ),
@@ -172,7 +173,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Order No: ${order.orderNumber}',
                 style: GoogleFonts.montserrat(
-                  fontSize: 18,
+                  fontSize: responsive.textSize(3),
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -181,7 +182,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Items: ${order.itemcount}',
                 style: GoogleFonts.montserrat(
-                  fontSize: 16,
+                  fontSize: responsive.textSize(3),
                   color: Colors.black54,
                 ),
               ),
@@ -189,19 +190,19 @@ class Invoice extends StatelessWidget {
               Text(
                 'Payment Method: ${_getPaymentMethod(order.paymentMethodId)}',
                 style: GoogleFonts.montserrat(
-                  fontSize: 16,
+                  fontSize: responsive.textSize(3),
                   color: Colors.black54,
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: responsive.heightPercentage(3)),
               _buildAddressSection('Billing Address:', order.billingAddress),
-              SizedBox(height: 20),
+              SizedBox(height: responsive.heightPercentage(3)),
               _buildAddressSection('Shipping Address:', order.shippingAddress),
-              SizedBox(height: 10),
+              SizedBox(height: responsive.heightPercentage(3)),
               Text(
                 'Order Date:',
                 style: GoogleFonts.montserrat(
-                  fontSize: 16,
+                  fontSize: responsive.textSize(3),
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -210,15 +211,15 @@ class Invoice extends StatelessWidget {
               Text(
                 _formatDate(order.createdAt),
                 style: GoogleFonts.montserrat(
-                  fontSize: 14,
+                  fontSize: responsive.textSize(2.7),
                   color: Colors.black54,
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: responsive.heightPercentage(3)),
               Text(
                 'Items Purchased:',
                 style: GoogleFonts.montserrat(
-                  fontSize: 16,
+                  fontSize: responsive.textSize(3),
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -298,7 +299,7 @@ class Invoice extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    padding: responsive.symmetricPaddingPercentage(10, 2)
                   ),
                 ),
               ),
@@ -310,6 +311,7 @@ class Invoice extends StatelessWidget {
   }
 
   Widget _buildAddressSection(String title, String address) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

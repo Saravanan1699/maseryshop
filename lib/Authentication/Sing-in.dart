@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:maseryshop/Responsive/responsive.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Base_Url/BaseUrl.dart';
@@ -20,7 +21,8 @@ class _SigninState extends State<Signin> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _saveToLocalStorage(String token, String name, String email, String id) async {
+  Future<void> _saveToLocalStorage(
+      String token, String name, String email, String id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print("Token is $token");
     print("name is $name");
@@ -32,7 +34,8 @@ class _SigninState extends State<Signin> {
     await prefs.setString('id', id);
   }
 
-  Future<Map<String, dynamic>> _authenticate(String username, String password) async {
+  Future<Map<String, dynamic>> _authenticate(
+      String username, String password) async {
     late Map<String, dynamic> responseData;
 
     try {
@@ -49,7 +52,8 @@ class _SigninState extends State<Signin> {
 
       if (response.statusCode == 200) {
         responseData = jsonDecode(response.body);
-        print('Response data: $responseData'); // Print the entire response for inspection
+        print(
+            'Response data: $responseData'); // Print the entire response for inspection
         final String token = responseData['data']['token'] ?? '';
         final String email = responseData['data']['userDetails']['email'] ?? '';
         final String name = responseData['data']['userDetails']['name'] ?? '';
@@ -67,14 +71,16 @@ class _SigninState extends State<Signin> {
         };
       } else if (response.statusCode == 402) {
         responseData = jsonDecode(response.body);
-        final String errorMessage = responseData['data']['error'] ?? 'Unauthorized';
+        final String errorMessage =
+            responseData['data']['error'] ?? 'Unauthorized';
         return {
           'success': false,
           'message': errorMessage,
         };
       } else {
         responseData = jsonDecode(response.body);
-        final String errorMessage = responseData['message'] ?? 'Failed to authenticate';
+        final String errorMessage =
+            responseData['message'] ?? 'Failed to authenticate';
         return {
           'success': false,
           'message': errorMessage,
@@ -145,7 +151,7 @@ class _SigninState extends State<Signin> {
     // Getting the screen width and height for responsive design
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
+    final responsive = Responsive(context);
     return Scaffold(
       resizeToAvoidBottomInset: true, // Allow bottom inset to avoid keyboard
       backgroundColor: Colors.white,
@@ -168,21 +174,24 @@ class _SigninState extends State<Signin> {
                     'Hello Again!',
                     style: GoogleFonts.raleway(
                       // Using Google Fonts
-                      fontSize: screenWidth * 0.07, // Responsive font size
+                      fontSize:
+                          responsive.textSize(3.5), // Responsive font size
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF2B2B2B),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.1), // Responsive height
+              SizedBox(
+                  height: responsive.heightPercentage(6)), // Responsive height
               Row(
                 children: [
                   Text(
                     'Email Address',
                     style: GoogleFonts.raleway(
                       // Using Google Fonts
-                      fontSize: screenWidth * 0.04, // Responsive font size
+                      fontSize:
+                          responsive.textSize(2.5), // Responsive font size
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2B2B2B),
                     ),
@@ -201,7 +210,7 @@ class _SigninState extends State<Signin> {
                     borderSide: BorderSide.none, // No border
                   ),
                   labelStyle: TextStyle(
-                    fontSize: screenWidth * 0.045,
+                    fontSize: responsive.textSize(2.5),
                     color: Color(0xFF6A6A6A),
                   ),
                   contentPadding: EdgeInsets.symmetric(
@@ -226,17 +235,16 @@ class _SigninState extends State<Signin> {
                     'Password',
                     style: GoogleFonts.raleway(
                       // Using Google Fonts
-                      fontSize: screenWidth * 0.04, // Responsive font size
+                      fontSize:
+                          responsive.textSize(2.5), // Responsive font size
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF2B2B2B),
                     ),
                     textAlign: TextAlign.center, // Align the text to the center
                   ),
                 ],
-
-
               ),
-              SizedBox(height: screenHeight * 0.02),
+              SizedBox(height: responsive.heightPercentage(2.5)),
               TextFormField(
                 controller: _passwordController,
                 decoration: InputDecoration(
@@ -276,8 +284,8 @@ class _SigninState extends State<Signin> {
                   return null;
                 },
               ),
-              SizedBox(height: screenHeight * 0.01),
-              SizedBox(height: screenHeight * 0.02),
+
+              SizedBox(height: responsive.heightPercentage(10)),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -286,10 +294,7 @@ class _SigninState extends State<Signin> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff0D6EFD),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: screenWidth * 0.35,
-                  ),
+                  padding: responsive.symmetricPaddingPercentage(20, 1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                         12.0), // Curved border with 12.0 radius
@@ -299,21 +304,21 @@ class _SigninState extends State<Signin> {
                   'Sign In',
                   style: GoogleFonts.raleway(
                     // Using Google Fonts
-                    fontSize: screenWidth * 0.04, // Responsive font size
+                    fontSize: responsive.textSize(3), // Responsive font size
                     fontWeight: FontWeight.w600,
                     color: Color(0xFFFFFFFF),
                   ),
                   textAlign: TextAlign.center, // Align the text to the center
                 ),
               ),
-              SizedBox(height: screenHeight * 0.04),
+              SizedBox(height: responsive.heightPercentage(5)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'New User ? ',
                     style: GoogleFonts.raleway(
-                      fontSize: screenWidth * 0.04, // Responsive font size
+                      fontSize: responsive.textSize(3),
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF707B81),
                     ),
@@ -326,7 +331,7 @@ class _SigninState extends State<Signin> {
                     child: Text(
                       'Create Account',
                       style: GoogleFonts.raleway(
-                        fontSize: screenWidth * 0.04, // Responsive font size
+                        fontSize: responsive.textSize(3),
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF2B2B2B),
                       ),

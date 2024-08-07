@@ -864,7 +864,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Container(
-                                  height: responsive.heightPercentage(37),
+                                  height: responsive.heightPercentage(35.5),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: categoryBasedProducts.length,
@@ -924,7 +924,8 @@ class _HomePageState extends State<HomePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                            width: responsive.widthPercentage(50),
+                                            width:
+                                                responsive.widthPercentage(50),
                                             child: Card(
                                               color: Colors.white,
                                               elevation: 4,
@@ -941,7 +942,8 @@ class _HomePageState extends State<HomePage> {
                                                         const EdgeInsets.all(
                                                             8.0),
                                                     child: Container(
-                                                      height: responsive.heightPercentage(20),
+                                                      height: responsive
+                                                          .heightPercentage(20),
                                                       decoration: imageUrl
                                                               .isNotEmpty
                                                           ? BoxDecoration(
@@ -965,8 +967,10 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                   ),
                                                   SizedBox(
-                                                    height: responsive.heightPercentage(10),
-                                                    width: responsive.widthPercentage(50),
+                                                    height: responsive
+                                                        .heightPercentage(10),
+                                                    width: responsive
+                                                        .widthPercentage(50),
                                                     child: Card(
                                                       color: Color(0xffF2F2F2),
                                                       child: Column(
@@ -1199,7 +1203,8 @@ class _HomePageState extends State<HomePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                            width: responsive.widthPercentage(50),
+                                            width:
+                                                responsive.widthPercentage(50),
                                             child: Stack(
                                               children: [
                                                 Card(
@@ -1220,7 +1225,9 @@ class _HomePageState extends State<HomePage> {
                                                             const EdgeInsets
                                                                 .all(8.0),
                                                         child: Container(
-                                                          height: responsive.heightPercentage(20),
+                                                          height: responsive
+                                                              .heightPercentage(
+                                                                  20),
                                                           decoration:
                                                               BoxDecoration(
                                                             borderRadius:
@@ -1249,7 +1256,8 @@ class _HomePageState extends State<HomePage> {
                                                               'No title',
                                                           style: GoogleFonts
                                                               .montserrat(
-                                                            fontSize: responsive.textSize(2.5),
+                                                            fontSize: responsive
+                                                                .textSize(2.5),
                                                             fontWeight:
                                                                 FontWeight
                                                                     .normal,
