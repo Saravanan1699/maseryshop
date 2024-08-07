@@ -537,9 +537,9 @@ class _HomePageState extends State<HomePage> {
                                         ))
                                   ],
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 15),
                                 Container(
-                                  height: responsive.heightPercentage(35),
+                                  height: responsive.heightPercentage(32),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: featuredProducts.length,
@@ -818,7 +818,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
 
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
 
                                 Row(
                                   children: [
@@ -862,7 +862,7 @@ class _HomePageState extends State<HomePage> {
                                         ))
                                   ],
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 Container(
                                   height: responsive.heightPercentage(35.5),
                                   child: ListView.builder(
@@ -922,7 +922,7 @@ class _HomePageState extends State<HomePage> {
                                           );
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(6.0),
                                           child: Container(
                                             width:
                                                 responsive.widthPercentage(50),
@@ -1128,9 +1128,9 @@ class _HomePageState extends State<HomePage> {
                                         ))
                                   ],
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 Container(
-                                  height: responsive.heightPercentage(35),
+                                  height: responsive.heightPercentage(33),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: allProducts.length,
@@ -1718,7 +1718,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Container(
-                                  height: responsive.heightPercentage(35),
+                                  height: responsive.heightPercentage(33),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: recentProducts.length,

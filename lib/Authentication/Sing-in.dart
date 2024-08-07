@@ -294,7 +294,10 @@ class _SigninState extends State<Signin> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xff0D6EFD),
-                  padding: responsive.symmetricPaddingPercentage(20, 1),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: screenWidth * 0.35,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                         12.0), // Curved border with 12.0 radius
