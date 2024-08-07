@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../Base_Url/BaseUrl.dart';
 import '../Home-pages/home.dart';
+import '../Responsive/responsive.dart';
 import '../single-product-view/single-prodect-view.dart';
 import '../bottombar/bottombar.dart';
 
@@ -21,7 +22,7 @@ class _RecentProductsState extends State<RecentProducts> {
   dynamic about;
   bool isLoading = true;
   bool hasError = false;
-  bool hasResults = true; // New variable to track search results
+  bool hasResults = true;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -46,11 +47,11 @@ class _RecentProductsState extends State<RecentProducts> {
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-        print('JSON Response: $jsonResponse'); // Debugging line
+        print('JSON Response: $jsonResponse');
         if (mounted) {
           setState(() {
             recentProducts = jsonResponse['data']['recent_products'] ?? [];
-            filteredProducts = recentProducts; // Initialize filteredProducts
+            filteredProducts = recentProducts;
             about = jsonResponse['data']['about'];
             isLoading = false;
             hasError = false;
@@ -66,7 +67,7 @@ class _RecentProductsState extends State<RecentProducts> {
         }
       }
     } catch (e) {
-      print('Error: $e'); // Debugging line
+      print('Error: $e');
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -99,7 +100,9 @@ class _RecentProductsState extends State<RecentProducts> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -109,12 +112,13 @@ class _RecentProductsState extends State<RecentProducts> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             color: Color(0xFF2B2B2B),
+            fontSize: responsive.textSize(3),
           ),
         ),
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: EdgeInsets.all(8.0),
+              margin: responsive.marginPercentage(0.6, 0.6, 0.6, 0.6),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),
@@ -122,7 +126,7 @@ class _RecentProductsState extends State<RecentProducts> {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: 15,
+                  size: responsive.textSize(2.5),
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -159,7 +163,9 @@ class _RecentProductsState extends State<RecentProducts> {
                             focusNode: _focusNode,
                             decoration: InputDecoration(
                               hintText: 'Search any Product...',
-                              hintStyle: GoogleFonts.montserrat(),
+                              hintStyle: GoogleFonts.montserrat(
+                                fontSize: responsive.textSize(2.5),
+                              ),
                               prefixIcon:
                                   Icon(Icons.search, color: Color(0xffBBBBBB)),
                               border: OutlineInputBorder(
@@ -180,7 +186,7 @@ class _RecentProductsState extends State<RecentProducts> {
                               Text(
                                 _getItemCountText(), // Use the method to get the item count
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 16,
+                                  fontSize: responsive.textSize(2.5),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -191,18 +197,20 @@ class _RecentProductsState extends State<RecentProducts> {
                         Expanded(
                           child: filteredProducts.isEmpty
                               ? Center(
-                                  child: Column(
-                                  children: [
-                                    Image.asset(
-                                      'assets/search-no-data.png',
-                                      height: 300,
-                                      width: 300,
-                                    ),
-                                    Text('No Result!',
-                                        style: GoogleFonts.montserrat(
-                                            fontSize: 15)),
-                                  ],
-                                ))
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/search-no-data.png',
+                                    height: responsive.textSize(50),
+                                    width: responsive.textSize(50),
+                                  ),
+                                  Text('No Result!',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: responsive.textSize(2.5),
+                                      )),
+                                ],
+                              ))
                               : ListView.builder(
                                   itemCount:
                                       (filteredProducts.length / 2).ceil(),
@@ -250,20 +258,19 @@ class ResponsiveCardRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return Row(
       children: [
         Expanded(
           child: ProductCard(
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
+            responsive: responsive,
             product: product1,
           ),
         ),
         if (product2 != null)
           Expanded(
             child: ProductCard(
-              screenWidth: screenWidth,
-              screenHeight: screenHeight,
+              responsive: responsive,
               product: product2!,
             ),
           ),
@@ -273,13 +280,11 @@ class ResponsiveCardRow extends StatelessWidget {
 }
 
 class ProductCard extends StatelessWidget {
-  final double screenWidth;
-  final double screenHeight;
+  final Responsive responsive;
   final dynamic product;
 
   ProductCard({
-    required this.screenWidth,
-    required this.screenHeight,
+    required this.responsive,
     required this.product,
   });
 
@@ -303,49 +308,57 @@ class ProductCard extends StatelessWidget {
         color: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: responsive.borderRadiusPercentage(4),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (imageUrl.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: responsive.paddingPercentage(2, 2, 2, 0),
                 child: Image.network(
                   imageUrl,
-                  height: screenHeight * 0.25,
+                  height: responsive.heightPercentage(25),
                   width: double.infinity,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return Placeholder(fallbackHeight: screenHeight * 0.25);
+                    return Placeholder(
+                        fallbackHeight: responsive.heightPercentage(25));
                   },
                 ),
               )
             else
-              Placeholder(fallbackHeight: screenHeight * 0.25),
+              Placeholder(fallbackHeight: responsive.heightPercentage(25)),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(product['title'] ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.montserrat(
-                      fontSize: 17, fontWeight: FontWeight.bold)),
+              padding: responsive.paddingPercentage(2, 2, 2, 0),
+              child: Text(
+                product['title'] ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.montserrat(
+                  fontSize: responsive.textSize(2.5),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: responsive.paddingPercentage(2, 0, 2, 0),
               child: Text(
                 product['description'] ?? '',
-                style: GoogleFonts.montserrat(fontSize: 15),
+                style:
+                GoogleFonts.montserrat(fontSize: responsive.textSize(2.3)),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: responsive.paddingPercentage(2, 0, 2, 2),
               child: Text(
                 '\$${(product['sale_price'] != null && product['offer_price'] != null) ? double.tryParse(product['offer_price'].toString())?.toStringAsFixed(2) ?? 'N/A' : 'N/A'}',
                 style: GoogleFonts.montserrat(
-                    fontSize: screenWidth * 0.035, fontWeight: FontWeight.bold),
+                  fontSize: responsive.textSize(2.5),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             )
           ],

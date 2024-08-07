@@ -6,6 +6,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../Base_Url/BaseUrl.dart';
 import '../Home-pages/home.dart';
+import '../Responsive/responsive.dart';
 import '../single-product-view/single-prodect-view.dart';
 
 class FilterCategory extends StatefulWidget {
@@ -35,8 +36,7 @@ class _FilterCategoryState extends State<FilterCategory> {
   }
 
   Future<void> fetchProductsBySlug(String slug) async {
-    final url =
-        '${ApiConfig.baseUrl}search?q=$slug';
+    final url = '${ApiConfig.baseUrl}search?q=$slug';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -69,12 +69,12 @@ class _FilterCategoryState extends State<FilterCategory> {
     setState(() {
       filteredProducts = products
           .where((product) =>
-      (product['title'] ?? '')
-          .toLowerCase()
-          .contains(query.toLowerCase()) ||
-          (product['slug'] ?? '')
-              .toLowerCase()
-              .contains(query.toLowerCase()))
+              (product['title'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              (product['slug'] ?? '')
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
           .toList();
 
       hasResults = filteredProducts.isNotEmpty; // Update hasResults
@@ -88,7 +88,9 @@ class _FilterCategoryState extends State<FilterCategory> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -98,20 +100,22 @@ class _FilterCategoryState extends State<FilterCategory> {
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w700,
             color: Color(0xFF2B2B2B),
+            fontSize: responsive.textSize(3),
           ),
         ),
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: EdgeInsets.all(8.0),
+              margin: responsive.marginPercentage(0.6, 0.6, 0.6, 0.6),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
-                borderRadius: BorderRadius.circular(30.0),
+                borderRadius: responsive.borderRadiusPercentage(5),
               ),
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: 15,
+                    size: responsive.textSize(2.5),
+
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -126,90 +130,95 @@ class _FilterCategoryState extends State<FilterCategory> {
       ),
       body: isLoading
           ? Center(
-        child: LoadingAnimationWidget.halfTriangleDot(
-          size: 50.0,
-          color: Colors.redAccent,
-        ),
-      )
+              child: LoadingAnimationWidget.halfTriangleDot(
+                size: 50.0,
+                color: Colors.redAccent,
+              ),
+            )
           : Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
               children: [
-                TextField(
-                  controller: _searchController,
-                  onChanged: _searchProducts,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Search any Product...',
-                    hintStyle: GoogleFonts.montserrat(),
-                    prefixIcon: Icon(Icons.search, color: Color(0xffBBBBBB)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Color(0xffF2F2F2),
-                    contentPadding: EdgeInsets.zero,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _searchController,
+                        onChanged: _searchProducts,
+                        focusNode: _focusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Search any Product...',
+                          hintStyle: GoogleFonts.montserrat(
+                            fontSize: responsive.textSize(2.5),
+                          ),
+                          prefixIcon:
+                              Icon(Icons.search, color: Color(0xffBBBBBB)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Color(0xffF2F2F2),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                SizedBox(width: 10),
-                Text(
-                  _getItemCountText(),
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 10),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: filteredProducts.isEmpty
-                ?  Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      'assets/search-no-data.png',
-                      height: 300,
-                      width: 300,
-                    ),
-                    Text('No Result!',
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 10),
+                      Text(
+                        _getItemCountText(),
                         style: GoogleFonts.montserrat(
-                            fontSize: 15)),
-                  ],
-                ))
-                : ListView.builder(
-              itemCount: (filteredProducts.length + 1) ~/ 2, // Adjust count for pairs
-              itemBuilder: (context, index) {
-                final int firstIndex = index * 2;
-                final product1 = filteredProducts[firstIndex];
-                final product2 = (firstIndex + 1 < filteredProducts.length)
-                    ? filteredProducts[firstIndex + 1]
-                    : null;
+                          fontSize: responsive.textSize(2.5),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: filteredProducts.isEmpty
+                      ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/search-no-data.png',
+                            height: responsive.textSize(50),
+                            width: responsive.textSize(50),
+                          ),
+                          Text('No Result!',
+                              style: GoogleFonts.montserrat(
+                                fontSize: responsive.textSize(2.5),
+                              )),
+                        ],
+                      ))
+                      : ListView.builder(
+                          itemCount: (filteredProducts.length + 1) ~/
+                              2, // Adjust count for pairs
+                          itemBuilder: (context, index) {
+                            final int firstIndex = index * 2;
+                            final product1 = filteredProducts[firstIndex];
+                            final product2 =
+                                (firstIndex + 1 < filteredProducts.length)
+                                    ? filteredProducts[firstIndex + 1]
+                                    : null;
 
-                return ResponsiveCardRow(
-                  screenWidth: MediaQuery.of(context).size.width,
-                  screenHeight: MediaQuery.of(context).size.height,
-                  product1: product1,
-                  product2: product2,
-                );
-              },
+                            return ResponsiveCardRow(
+                              screenWidth: MediaQuery.of(context).size.width,
+                              screenHeight: MediaQuery.of(context).size.height,
+                              product1: product1,
+                              product2: product2,
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -227,10 +236,10 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     final images = product['product']['image'] ?? [];
-    final imageUrl = images.isNotEmpty
-        ? '${imageurl.baseUrl}${images[0]['path']}'
-        : '';
+    final imageUrl =
+        images.isNotEmpty ? '${imageurl.baseUrl}${images[0]['path']}' : '';
 
     return GestureDetector(
       onTap: () {
@@ -252,44 +261,48 @@ class ProductCard extends StatelessWidget {
           children: [
             if (imageUrl.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: responsive.paddingPercentage(2, 2, 2, 0),
                 child: Image.network(
                   imageUrl,
-                  height: screenHeight * 0.25,
+                  height: responsive.heightPercentage(25),
                   width: double.infinity,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return Placeholder(fallbackHeight: screenHeight * 0.25);
+                    return Placeholder(
+                        fallbackHeight: responsive.heightPercentage(25));
                   },
                 ),
               )
             else
               Placeholder(fallbackHeight: screenHeight * 0.25),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: responsive.paddingPercentage(2, 2, 2, 0),
               child: Text(
                 product['title'] ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.montserrat(
-                    fontSize: 17, fontWeight: FontWeight.bold),
+                    fontSize: responsive.textSize(2.5),
+                    fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: responsive.paddingPercentage(2, 0, 2, 0),
               child: Text(
                 product['description'] ?? '',
-                style: GoogleFonts.montserrat(fontSize: 15),
+                style:
+                    GoogleFonts.montserrat(fontSize: responsive.textSize(2.3)),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: responsive.paddingPercentage(2, 0, 2, 2),
               child: Text(
                 '\$${product['sale_price'] != null ? double.tryParse(product['sale_price'].toString())?.toStringAsFixed(2) ?? 'N/A' : 'N/A'}',
                 style: GoogleFonts.montserrat(
-                    fontSize: screenWidth * 0.035, fontWeight: FontWeight.bold),
+                    fontSize: responsive.textSize(2.5),
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ],
