@@ -118,7 +118,7 @@ class _FeaturedpageState extends State<Featuredpage> {
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: responsive.marginPercentage(0.6, 0.6, 0.6, 0.6),
+              margin: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),

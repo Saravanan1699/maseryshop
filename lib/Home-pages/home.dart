@@ -1285,8 +1285,8 @@ class _HomePageState extends State<HomePage> {
                                                                     '\$$formattedSalePrice',
                                                                     style: GoogleFonts
                                                                         .montserrat(
-                                                                      fontSize:
-                                                                          15,
+                                                                      fontSize: responsive
+                                                                          .textSize(2.5),
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .normal,
@@ -1842,7 +1842,8 @@ class _HomePageState extends State<HomePage> {
                                                                 'No title',
                                                             style: GoogleFonts
                                                                 .montserrat(
-                                                              fontSize: 11,
+                                                              fontSize: responsive
+                                                                  .textSize(2.5),
                                                               fontWeight:
                                                                   FontWeight
                                                                       .normal,
@@ -1870,8 +1871,8 @@ class _HomePageState extends State<HomePage> {
                                                                     '\$$formattedSalePrice',
                                                                     style: GoogleFonts
                                                                         .montserrat(
-                                                                      fontSize:
-                                                                          15,
+                                                                      fontSize: responsive
+                                                                          .textSize(2.5),
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .normal,
@@ -1887,8 +1888,8 @@ class _HomePageState extends State<HomePage> {
                                                                     '\$$formattedOfferPrice',
                                                                     style: GoogleFonts
                                                                         .montserrat(
-                                                                      fontSize:
-                                                                          15,
+                                                                      fontSize: responsive
+                                                                          .textSize(2.5),
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
@@ -1901,7 +1902,8 @@ class _HomePageState extends State<HomePage> {
                                                                 '\$$formattedSalePrice',
                                                                 style: GoogleFonts
                                                                     .montserrat(
-                                                                  fontSize: 15,
+                                                                  fontSize: responsive
+                                                                      .textSize(2.5),
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
