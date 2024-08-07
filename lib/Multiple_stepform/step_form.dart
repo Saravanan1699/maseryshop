@@ -105,7 +105,8 @@ class _MultistepFormState extends State<MultistepForm> {
     _shippingFirstNameController.text = userDetails['shippingFirstName'] ?? '';
     _shippingLastNameController.text = userDetails['shippingLastName'] ?? '';
     _shippingEmailController.text = userDetails['shippingEmail'] ?? '';
-    _shippingPhoneNumberController.text = userDetails['shippingPhoneNumber'] ?? '';
+    _shippingPhoneNumberController.text =
+        userDetails['shippingPhoneNumber'] ?? '';
     _shippingCountryController.text = userDetails['shippingCountry'] ?? '';
     _shippingAddressController.text = userDetails['shippingAddress'] ?? '';
     _shippingCityController.text = userDetails['shippingCity'] ?? '';
@@ -115,7 +116,8 @@ class _MultistepFormState extends State<MultistepForm> {
     _billingFirstNameController.text = userDetails['billingFirstName'] ?? '';
     _billingLastNameController.text = userDetails['billingLastName'] ?? '';
     _billingEmailController.text = userDetails['billingEmail'] ?? '';
-    _billingPhoneNumberController.text = userDetails['billingPhoneNumber'] ?? '';
+    _billingPhoneNumberController.text =
+        userDetails['billingPhoneNumber'] ?? '';
     _billingCountryController.text = userDetails['billingCountry'] ?? '';
     _billingAddressController.text = userDetails['billingAddress'] ?? '';
     _billingCityController.text = userDetails['billingCity'] ?? '';
@@ -228,8 +230,10 @@ class _MultistepFormState extends State<MultistepForm> {
     final billingZip = _billingZipController.text;
 
     // Format the user details string
-    final shippingDetails = '$shippingFirstName,$shippingLastName,$shippingEmail,$shippingPhoneNumber,$shippingCountry,$shippingAddress,$shippingCity,$shippingZip';
-    final billingDetails = '$billingFirstName,$billingLastName,$billingEmail,$billingPhoneNumber,$billingCountry,$billingAddress,$billingCity,$billingZip';
+    final shippingDetails =
+        '$shippingFirstName,$shippingLastName,$shippingEmail,$shippingPhoneNumber,$shippingCountry,$shippingAddress,$shippingCity,$shippingZip';
+    final billingDetails =
+        '$billingFirstName,$billingLastName,$billingEmail,$billingPhoneNumber,$billingCountry,$billingAddress,$billingCity,$billingZip';
 
     try {
       final cartId = await fetchCartId();
@@ -336,11 +340,15 @@ class _MultistepFormState extends State<MultistepForm> {
 
   List<Step> stepList() => [
         Step(
-          state: _activeStepIndex <= 0 ? StepState.editing : StepState.complete,
+          state: _activeStepIndex <= 0 ? StepState.indexed : StepState.complete,
           isActive: _activeStepIndex >= 0,
-          title: Text(
-            'Address',
-            style: GoogleFonts.montserrat(),
+          title: Row(
+            children: [
+              Text(
+                'Address',
+                style: GoogleFonts.montserrat(),
+              ),
+            ],
           ),
           content: Column(
             children: [
@@ -638,7 +646,7 @@ class _MultistepFormState extends State<MultistepForm> {
           ),
         ),
         Step(
-          state: _activeStepIndex <= 1 ? StepState.editing : StepState.complete,
+          state: _activeStepIndex <= 1 ? StepState.indexed : StepState.complete,
           isActive: _activeStepIndex >= 1,
           title: Text(
             'Order',
@@ -759,7 +767,7 @@ class _MultistepFormState extends State<MultistepForm> {
                 ),
         ),
         Step(
-          state: StepState.complete,
+          state: StepState.indexed,
           isActive: _activeStepIndex >= 2,
           title: Text(
             'Payment',

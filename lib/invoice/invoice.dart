@@ -65,7 +65,7 @@ class Invoice extends StatelessWidget {
 
   Future<String?> _getFilePath() async {
     final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/invoice_${order.orderNumber}.pdf';
+    final filePath = '${directory.path}/Masergy_Shop_Invoice_${order.orderNumber}.pdf';
     return filePath;
   }
 
@@ -87,6 +87,7 @@ class Invoice extends StatelessWidget {
       // Print the PDF
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdf.save(),
+        name: 'Masergy_Shop_Invoice_${order.orderNumber}.pdf',
       );
     } catch (e) {
       // Handle print error
@@ -126,7 +127,7 @@ class Invoice extends StatelessWidget {
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: responsive.marginPercentage(2 ,0.5, 1, 1),
+              margin: responsive.marginPercentage(2, 0.5, 1, 1),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),
@@ -292,15 +293,14 @@ class Invoice extends StatelessWidget {
                     await _printPdf();
                     await _downloadPdf(context);
                   },
-                  child: Text('Print and Download PDF',
+                  child: Text('Download',
                       style: GoogleFonts.montserrat(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: responsive.symmetricPaddingPercentage(10, 2)
-                  ),
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: responsive.symmetricPaddingPercentage(10, 2)),
                 ),
               ),
             ],
@@ -311,7 +311,6 @@ class Invoice extends StatelessWidget {
   }
 
   Widget _buildAddressSection(String title, String address) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

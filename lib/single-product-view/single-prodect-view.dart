@@ -477,7 +477,7 @@ class _ProductDetailState extends State<ProductDetail> {
                     thickness: 1.0,
                   ),
                   Container(
-                    height: responsive.heightPercentage(25),
+                    height: responsive.heightPercentage(28),
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: about.length,
@@ -486,9 +486,9 @@ class _ProductDetailState extends State<ProductDetail> {
                         final imageUrl =
                             '${imageurl.baseUrl}${category['path']}';
                         return Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: responsive.paddingPercentage(2, 2, 2, 2),
                           child: Container(
-                            width: 150,
+                            width: responsive.widthPercentage(50),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -539,7 +539,7 @@ class _ProductDetailState extends State<ProductDetail> {
                     ),
                   ),
                   Divider(
-                    height: 2.0,
+                    height: responsive.heightPercentage(1),
                     thickness: 1.0,
                   ),
                   SizedBox(height: responsive.heightPercentage(1)),
