@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:maseryshop/Responsive/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../Base_Url/BaseUrl.dart';
@@ -89,8 +90,7 @@ class _OrderlistState extends State<Orderlist> {
 
     final token = await _getTokenFromLocalStorage();
     final response = await http.get(
-      Uri.parse(
-          '${ApiConfig.baseUrl}orders/customer/$id'),
+      Uri.parse('${ApiConfig.baseUrl}orders/customer/$id'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -147,6 +147,7 @@ class _OrderlistState extends State<Orderlist> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = Responsive(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -156,7 +157,7 @@ class _OrderlistState extends State<Orderlist> {
         title: Text(
           'Order History',
           style: GoogleFonts.montserrat(
-            fontSize: 20,
+            fontSize: responsive.textSize(3),
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -164,7 +165,7 @@ class _OrderlistState extends State<Orderlist> {
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: EdgeInsets.all(8.0),
+              margin: responsive.marginPercentage(2, 0.5, 1, 1),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),
@@ -172,7 +173,7 @@ class _OrderlistState extends State<Orderlist> {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: 15,
+                  size: responsive.textSize(3),
                 ),
                 onPressed: () {
                   Navigator.push(context,
@@ -222,7 +223,7 @@ class _OrderlistState extends State<Orderlist> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    margin: const EdgeInsets.all(8.0),
+                    margin: responsive.marginPercentage(2, 2, 2, 1),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -236,14 +237,14 @@ class _OrderlistState extends State<Orderlist> {
                                   Text(
                                     'Order Id -',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: 16,
+                                      fontSize: responsive.textSize(3),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     ' ${order.orderNumber}',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: 16,
+                                      fontSize: responsive.textSize(3),
                                       fontWeight: FontWeight.bold,
                                       color: Colors.grey[400],
                                     ),
@@ -253,7 +254,7 @@ class _OrderlistState extends State<Orderlist> {
                               Text(
                                 ' ${_formatDate(order.createdAt)}',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 14,
+                                  fontSize: responsive.textSize(2.5),
                                 ),
                                 textAlign: TextAlign.end,
                               ),
@@ -266,7 +267,7 @@ class _OrderlistState extends State<Orderlist> {
                               Text(
                                 'Quantity: ${order.itemcount}',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 14,
+                                  fontSize: responsive.textSize(2.5),
                                 ),
                               ),
                               Row(
@@ -274,7 +275,7 @@ class _OrderlistState extends State<Orderlist> {
                                   Text(
                                     'Total:',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: 14,
+                                      fontSize: responsive.textSize(2.5),
                                       fontWeight: FontWeight.w500,
                                       color: Colors.grey[400],
                                     ),
@@ -282,7 +283,7 @@ class _OrderlistState extends State<Orderlist> {
                                   Text(
                                     ' \$${(double.tryParse(order.total)?.toStringAsFixed(2) ?? '0.00')}',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: 14,
+                                      fontSize: responsive.textSize(2.5),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -296,11 +297,11 @@ class _OrderlistState extends State<Orderlist> {
                               Text(
                                 'Order Status: ',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 14,
+                                  fontSize: responsive.textSize(2.5),
                                 ),
                               ),
                               SizedBox(
-                                height: 15,
+                                height: responsive.textSize(2.5),
                                 child: CircleAvatar(
                                   radius: 10,
                                   backgroundColor: statusColor,
@@ -309,7 +310,7 @@ class _OrderlistState extends State<Orderlist> {
                               Text(
                                 ' $orderStatus',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 14,
+                                  fontSize: responsive.textSize(2.5),
                                 ),
                               ),
                             ],

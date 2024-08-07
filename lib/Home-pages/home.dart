@@ -255,13 +255,13 @@ class _HomePageState extends State<HomePage> {
           child: Text(
             'Masergy Shop',
             style: GoogleFonts.montserrat(
-              fontSize: 20,
+              fontSize: responsive.textSize(3.5),
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: responsive.paddingPercentage(1, 1, 1, 1),
           child: CircleAvatar(
             backgroundImage: AssetImage('assets/logo.png'),
             backgroundColor: Color(0xffF2F2F2),
@@ -339,7 +339,7 @@ class _HomePageState extends State<HomePage> {
                             '$totalWishItems',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 8,
+                              fontSize: responsive.textSize(1.0),
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
@@ -349,11 +349,11 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              SizedBox(width: 5),
+              SizedBox(width: responsive.widthPercentage(2)),
 
               // Profile Icon
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: responsive.paddingPercentage(0.1, 0.7, 0.5, 0.5),
                 child: GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -374,7 +374,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           // Always show search field
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: responsive.paddingPercentage(1, 1, 1, 1),
             child: TextField(
               controller: _searchController,
               onChanged: _searchProducts,
@@ -411,12 +411,11 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0, vertical: 4.0),
+                    padding: responsive.symmetricPaddingPercentage(2, 1),
                     child: Text(
                       _getItemCountText(),
                       style: GoogleFonts.montserrat(
-                        fontSize: 16,
+                        fontSize: responsive.textSize(3),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -440,7 +439,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               if (banners.isNotEmpty) ...[
                                 Container(
-                                  height: 250,
+                                  height: responsive.heightPercentage(35),
                                   child: PageView.builder(
                                     controller: _pageController,
                                     itemCount: banners.length,
@@ -502,7 +501,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Featured Products',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: 20,
+                                        fontSize: responsive.textSize(3.5),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -510,13 +509,13 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'See All',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: 17,
+                                        fontSize: responsive.textSize(2.5),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Container(
-                                        height: 35,
+                                        height: responsive.heightPercentage(5),
                                         decoration: const BoxDecoration(
                                           color: Colors.blue,
                                           shape: BoxShape.circle,
@@ -532,7 +531,7 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           icon: Icon(
                                             Icons.arrow_forward,
-                                            size: 20,
+                                            size: responsive.textSize(3),
                                             color: Colors.white,
                                           ),
                                         ))
@@ -540,7 +539,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Container(
-                                  height: 260,
+                                  height: responsive.heightPercentage(35),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: featuredProducts.length,
@@ -598,7 +597,8 @@ class _HomePageState extends State<HomePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                            width: 200,
+                                            width:
+                                                responsive.widthPercentage(50),
                                             child: Stack(
                                               children: [
                                                 Card(
@@ -641,14 +641,15 @@ class _HomePageState extends State<HomePage> {
                                                         ),
                                                       ),
                                                       Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
+                                                        padding: responsive
+                                                            .paddingPercentage(
+                                                                1, 1, 1, 1),
                                                         child: Text(
                                                           product['title'],
                                                           style: GoogleFonts
                                                               .montserrat(
-                                                            fontSize: 11,
+                                                            fontSize: responsive
+                                                                .textSize(2),
                                                             fontWeight:
                                                                 FontWeight
                                                                     .normal,
@@ -659,11 +660,9 @@ class _HomePageState extends State<HomePage> {
                                                         ),
                                                       ),
                                                       Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal:
-                                                                    8.0),
+                                                        padding: responsive
+                                                            .symmetricPaddingPercentage(
+                                                                3, 0),
                                                         child: Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
@@ -826,7 +825,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Categories',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: 20,
+                                        fontSize: responsive.textSize(3.5),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -834,14 +833,14 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'See All',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 17,
+                                          fontSize: responsive.textSize(2.5),
                                           fontWeight: FontWeight.bold),
                                     ),
                                     const SizedBox(
                                       width: 10,
                                     ),
                                     Container(
-                                        height: 35,
+                                        height: responsive.heightPercentage(5),
                                         decoration: const BoxDecoration(
                                           color: Colors.blue,
                                           shape: BoxShape.circle,
@@ -857,7 +856,7 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           icon: Icon(
                                             Icons.arrow_forward,
-                                            size: 20,
+                                            size: responsive.textSize(3),
                                             color: Colors.white,
                                           ),
                                         ))
@@ -865,7 +864,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Container(
-                                  height: 270,
+                                  height: responsive.heightPercentage(37),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: categoryBasedProducts.length,
@@ -925,7 +924,7 @@ class _HomePageState extends State<HomePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                            width: 200,
+                                            width: responsive.widthPercentage(50),
                                             child: Card(
                                               color: Colors.white,
                                               elevation: 4,
@@ -942,7 +941,7 @@ class _HomePageState extends State<HomePage> {
                                                         const EdgeInsets.all(
                                                             8.0),
                                                     child: Container(
-                                                      height: 150,
+                                                      height: responsive.heightPercentage(20),
                                                       decoration: imageUrl
                                                               .isNotEmpty
                                                           ? BoxDecoration(
@@ -966,8 +965,8 @@ class _HomePageState extends State<HomePage> {
                                                     ),
                                                   ),
                                                   SizedBox(
-                                                    height: 80,
-                                                    width: 200,
+                                                    height: responsive.heightPercentage(10),
+                                                    width: responsive.widthPercentage(50),
                                                     child: Card(
                                                       color: Color(0xffF2F2F2),
                                                       child: Column(
@@ -1088,7 +1087,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Our Best Collections',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: 20,
+                                        fontSize: responsive.textSize(3.5),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -1096,14 +1095,14 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'See All',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 17,
+                                          fontSize: responsive.textSize(2.5),
                                           fontWeight: FontWeight.bold),
                                     ),
                                     const SizedBox(
                                       width: 10,
                                     ),
                                     Container(
-                                        height: 35,
+                                        height: responsive.heightPercentage(5),
                                         decoration: const BoxDecoration(
                                           color: Colors.blue,
                                           shape: BoxShape.circle,
@@ -1119,7 +1118,7 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           icon: Icon(
                                             Icons.arrow_forward,
-                                            size: 20,
+                                            size: responsive.textSize(3),
                                             color: Colors.white,
                                           ),
                                         ))
@@ -1127,7 +1126,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Container(
-                                  height: 260,
+                                  height: responsive.heightPercentage(35),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: allProducts.length,
@@ -1200,7 +1199,7 @@ class _HomePageState extends State<HomePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                            width: 200,
+                                            width: responsive.widthPercentage(50),
                                             child: Stack(
                                               children: [
                                                 Card(
@@ -1221,7 +1220,7 @@ class _HomePageState extends State<HomePage> {
                                                             const EdgeInsets
                                                                 .all(8.0),
                                                         child: Container(
-                                                          height: 150,
+                                                          height: responsive.heightPercentage(20),
                                                           decoration:
                                                               BoxDecoration(
                                                             borderRadius:
@@ -1250,7 +1249,7 @@ class _HomePageState extends State<HomePage> {
                                                               'No title',
                                                           style: GoogleFonts
                                                               .montserrat(
-                                                            fontSize: 11,
+                                                            fontSize: responsive.textSize(2.5),
                                                             fontWeight:
                                                                 FontWeight
                                                                     .normal,
@@ -1672,7 +1671,7 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'Recent Products',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: 20,
+                                        fontSize: responsive.textSize(3.5),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -1680,14 +1679,14 @@ class _HomePageState extends State<HomePage> {
                                     Text(
                                       'See All',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 17,
+                                          fontSize: responsive.textSize(2.5),
                                           fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(
                                       width: 10,
                                     ),
                                     Container(
-                                        height: 35,
+                                        height: responsive.heightPercentage(5),
                                         decoration: const BoxDecoration(
                                           color: Colors.blue,
                                           shape: BoxShape.circle,
@@ -1703,7 +1702,7 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           icon: Icon(
                                             Icons.arrow_forward,
-                                            size: 20,
+                                            size: responsive.textSize(3),
                                             color: Colors.white,
                                           ),
                                         ))
@@ -1711,7 +1710,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Container(
-                                  height: 260,
+                                  height: responsive.heightPercentage(35),
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
                                     itemCount: recentProducts.length,
@@ -2063,8 +2062,8 @@ class _HomePageState extends State<HomePage> {
                               Image.asset(
                                 'assets/search-no-data.'
                                 'png',
-                                height: 300,
-                                width: 300,
+                                height: responsive.heightPercentage(30),
+                                width: responsive.widthPercentage(60),
                               ),
                               Text('No Result!',
                                   style: GoogleFonts.montserrat(fontSize: 15)),
