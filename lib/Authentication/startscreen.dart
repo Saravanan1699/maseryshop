@@ -17,7 +17,7 @@ class _WelcomeSplashScreenState extends State<WelcomeSplashScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 7),
+      duration: Duration(seconds: 5),
     );
     _animation = CurvedAnimation(
       parent: _animationController,

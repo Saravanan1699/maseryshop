@@ -17,7 +17,6 @@ import '../Product-pages/recent_product.dart';
 import '../Settings/My_Profile.dart';
 import '../bottombar/bottombar.dart';
 import '../single-product-view/single-prodect-view.dart';
-import 'fav.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -249,7 +248,7 @@ class _HomePageState extends State<HomePage> {
           context: context,
           builder: (context) => AlertDialog(
             title: Text('Are you sure you want to exit?'),
-            content: Text('Do you want to exit the CRM app?'),
+            content: Text('Do you want to exit the Masergy App?'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
@@ -560,7 +559,7 @@ class _HomePageState extends State<HomePage> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        Fav()),
+                                                        Featuredpage()),
                                               );
                                             },
                                             icon: Icon(

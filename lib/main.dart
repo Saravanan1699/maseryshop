@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Masery Shop',
+      title: 'Masergy Shop',
       home: SplashScreenHandler(),
     );
   }
