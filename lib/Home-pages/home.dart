@@ -17,6 +17,7 @@ import '../Product-pages/recent_product.dart';
 import '../Settings/My_Profile.dart';
 import '../bottombar/bottombar.dart';
 import '../single-product-view/single-prodect-view.dart';
+import 'fav.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -559,7 +560,7 @@ class _HomePageState extends State<HomePage> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        Featuredpage()),
+                                                        Fav()),
                                               );
                                             },
                                             icon: Icon(
@@ -578,12 +579,7 @@ class _HomePageState extends State<HomePage> {
                                       itemCount: featuredProducts.length,
                                       itemBuilder: (context, index) {
                                         final product = featuredProducts[index];
-                                        final slug = product['slug'];
-                                        final wishlists =
-                                            product['wishlists'] as List? ?? [];
-                                        final productId = wishlists.isNotEmpty
-                                            ? wishlists[0]['id']
-                                            : null;
+
                                         final imageUrl =
                                             '${imageurl.baseUrl}${product['product']['image'][0]['path']}';
 
@@ -612,7 +608,12 @@ class _HomePageState extends State<HomePage> {
                                                 100;
                                         final int discountPercentageRounded =
                                             discountPercentage.ceil();
-
+                                        final wishlists =
+                                            product['wishlists'] as List? ?? [];
+                                        final slug = product['slug'];
+                                        final productId = wishlists.isNotEmpty
+                                            ? wishlists[0]['id']
+                                            : null;
                                         bool isInWishlist =
                                             wishlists.isNotEmpty;
 
@@ -1201,12 +1202,6 @@ class _HomePageState extends State<HomePage> {
                                           // Skip this item if critical data is missing
                                           return SizedBox.shrink();
                                         }
-                                        final slug = product['slug'];
-                                        final wishlists =
-                                            product['wishlists'] as List? ?? [];
-                                        final productId = wishlists.isNotEmpty
-                                            ? wishlists[0]['id']
-                                            : null;
                                         final offerStart =
                                             DateTime.parse(offerStartStr);
                                         final offerEnd =
@@ -1232,6 +1227,14 @@ class _HomePageState extends State<HomePage> {
                                                 100;
                                         final int discountPercentageRounded =
                                             discountPercentage.ceil();
+                                        final wishlists =
+                                            product['wishlists'] as List? ?? [];
+                                        final slug = product['slug'];
+                                        final productId = wishlists.isNotEmpty
+                                            ? wishlists[0]['id']
+                                            : null;
+                                        bool isInWishlist =
+                                            wishlists.isNotEmpty;
 
                                         return GestureDetector(
                                           onTap: () {
@@ -1797,12 +1800,7 @@ class _HomePageState extends State<HomePage> {
                                           // Skip this item if critical data is missing
                                           return SizedBox.shrink();
                                         }
-                                        final slug = product['slug'];
-                                        final wishlists =
-                                            product['wishlists'] as List? ?? [];
-                                        final productId = wishlists.isNotEmpty
-                                            ? wishlists[0]['id']
-                                            : null;
+
                                         final offerStart =
                                             DateTime.parse(offerStartStr);
                                         final offerEnd =
@@ -1828,7 +1826,14 @@ class _HomePageState extends State<HomePage> {
                                                 100;
                                         final int discountPercentageRounded =
                                             discountPercentage.ceil();
-
+                                        final wishlists =
+                                            product['wishlists'] as List? ?? [];
+                                        final slug = product['slug'];
+                                        final productId = wishlists.isNotEmpty
+                                            ? wishlists[0]['id']
+                                            : null;
+                                        bool isInWishlist =
+                                            wishlists.isNotEmpty;
                                         return GestureDetector(
                                           onTap: () {
                                             Navigator.push(

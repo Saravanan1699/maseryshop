@@ -279,29 +279,33 @@ class _WishlistState extends State<Wishlist> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Padding(
-                        padding: responsive.paddingPercentage(2, 2, 2, 2),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              product['title'] ?? '',
-                              style: GoogleFonts.montserrat(
-                                fontSize: responsive.textSize(3),
-                                fontWeight: FontWeight.w500,
+                      Expanded(
+                        child: Padding(
+                          padding: responsive.paddingPercentage(2, 2, 2, 2),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product['title'] ?? '',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: responsive.textSize(3),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            Text(
-                              '\$${double.parse(product['sale_price']).toStringAsFixed(2)}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: responsive.textSize(2.5),
-                                fontWeight: FontWeight.bold,
+                              Text(
+                                '\$${double.parse(product['sale_price']).toStringAsFixed(2)}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: responsive.textSize(2.5),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                      Padding(
+                      Expanded(child:  Padding(
                         padding: responsive.paddingPercentage(2, 2, 2, 2),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -328,7 +332,8 @@ class _WishlistState extends State<Wishlist> {
                             ),
                           ],
                         ),
-                      ),
+                      ),)
+
                     ],
                   ),
                 ],
