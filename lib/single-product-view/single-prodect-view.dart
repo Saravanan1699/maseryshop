@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:maseryshop/Responsive/responsive.dart';
 import '../Base_Url/BaseUrl.dart';
+import '../Home-pages/wishlist.dart';
 import '../Product-pages/recent_product.dart';
 import '../bottombar/bottombar.dart';
 import '../Home-pages/home.dart';
@@ -26,22 +27,25 @@ class _ProductDetailState extends State<ProductDetail> {
   List<dynamic> about = [];
   List<dynamic> recentProducts = [];
   int totalItems = 0;
+  bool _hasSearched = false;
+  int totalWishItems = 0;
+  bool isInWishlist = false; // Declare isInWishlist here
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     fetchData();
+    final wishlists = widget.product['wishlists'] as List? ?? [];
+    isInWishlist = wishlists.isNotEmpty;
+    fetchTotalItems();
+    fetchTotalWishlistItems();
   }
 
   void toggleFavorite() {
     setState(() {
       isFavorite = !isFavorite;
     });
-  }
-
-  void addToCart(Map<String, String> productMap) {
-    // Add to cart logic
   }
 
   Future<void> fetchData() async {
@@ -59,15 +63,34 @@ class _ProductDetailState extends State<ProductDetail> {
     }
   }
 
+  Future<int> fetchTotalWishlistItems() async {
+    try {
+      final response =
+          await http.get(Uri.parse('${ApiConfig.baseUrl}totalwishlistitems'));
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        return responseData['total_items'] ?? 0;
+      } else {
+        throw Exception('Failed to load total items');
+      }
+    } catch (e) {
+      print('Error fetching total items: $e');
+      return 0;
+    }
+  }
+
   Future<void> fetchTotalItems() async {
     try {
       final response =
-          await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
+      await http.get(Uri.parse('${ApiConfig.baseUrl}totalitems'));
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-
+        print('Response Data: $responseData');
+        int items = await fetchTotalWishlistItems();
         setState(() {
-          totalItems = int.parse(responseData['total_items'] ?? '0');
+          totalWishItems = items;
+          totalItems = responseData['total_items'] ?? 0;
         });
       } else {
         throw Exception('Failed to load total items');
@@ -80,7 +103,6 @@ class _ProductDetailState extends State<ProductDetail> {
     }
   }
 
-  bool isInWishlist = false;
 
   void toggleWishlist(
       String slug, int? productId, bool currentWishlistStatus) async {
@@ -89,12 +111,18 @@ class _ProductDetailState extends State<ProductDetail> {
       final apiUrl = newWishlistStatus
           ? '${ApiConfig.baseUrl}addToWishlist/$slug'
           : '${ApiConfig.baseUrl}removefromWishlist/${productId ?? ''}';
-
       final response = await http.post(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        // Call fetchData to refresh the data
-        await fetchData();
+        await fetchData(); // Ensure fetchData() is defined and implemented correctly
+        int items = await fetchTotalWishlistItems();
+
+        if (mounted) {
+          setState(() {
+            totalWishItems = items;
+            isInWishlist = newWishlistStatus; // Update isInWishlist here
+          });
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -121,7 +149,33 @@ class _ProductDetailState extends State<ProductDetail> {
     final responsive = Responsive(context);
     final product = widget.product;
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+
+    final offerStartStr = product['offer_start'];
+    final offerEndStr = product['offer_end'];
+    final salePriceStr = product['sale_price'];
+    final offerPriceStr = product['offer_price'];
+
+    if (offerStartStr == null ||
+        offerEndStr == null ||
+        salePriceStr == null ||
+        offerPriceStr == null) {
+      return SizedBox.shrink();
+    }
+
+    final offerStart = DateTime.parse(offerStartStr);
+    final offerEnd = DateTime.parse(offerEndStr);
+    final currentDate = DateTime.now();
+
+    final salePrice = double.parse(salePriceStr);
+    final offerPrice = double.parse(offerPriceStr);
+    final double discountPercentage =
+        ((salePrice - offerPrice) / salePrice) * 100;
+    final int discountPercentageRounded = discountPercentage.ceil();
+
+    final slug = product['slug'];
+    final productId = (product['wishlists'] as List?)?.isNotEmpty == true
+        ? (product['wishlists'] as List)[0]['id']
+        : null;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -132,41 +186,6 @@ class _ProductDetailState extends State<ProductDetail> {
           product['title'],
           style: GoogleFonts.montserrat(),
         ),
-        // actions: [
-        //   GestureDetector(
-        //     onTap: () {
-        //       // Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage(cart: [],)));
-        //     },
-        //     child: Stack(
-        //       children: [
-        //         Padding(
-        //           padding: const EdgeInsets.all(8.0),
-        //           child: CircleAvatar(
-        //             child: Icon(
-        //               Icons.shopping_bag,
-        //               size: 18.0,
-        //               color: Colors.white,
-        //             ),
-        //             backgroundColor: Colors.blue,
-        //           ),
-        //         ),
-        //         if (totalItems > 0)
-        //           Positioned(
-        //             right: 4,
-        //             top: 20,
-        //             child: CircleAvatar(
-        //               radius: 8,
-        //               backgroundColor: Colors.red,
-        //               child: Text(
-        //                 '$totalItems',
-        //                 style: GoogleFonts.montserrat(fontSize: 12, color: Colors.white),
-        //               ),
-        //             ),
-        //           ),
-        //       ],
-        //     ),
-        //   ),
-        // ],
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
@@ -188,6 +207,48 @@ class _ProductDetailState extends State<ProductDetail> {
             );
           },
         ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Wishlist()),
+              );
+            },
+            child: Stack(
+              children: [
+                Icon(Icons.favorite_border),
+                if (totalWishItems > 0)
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: BoxConstraints(
+                        minWidth: 12,
+                        minHeight: 12,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$totalWishItems',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: responsive.textSize(1.0),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(width: responsive.widthPercentage(2)),
+
+        ],
       ),
       body: product == null
           ? Center(child: CircularProgressIndicator())
@@ -217,32 +278,6 @@ class _ProductDetailState extends State<ProductDetail> {
                             color: Color(0xFF0FBC00),
                           ),
                         ),
-                        // GestureDetector(
-                        //   onTap: () {
-                        //     final slug = widget.product['slug']; // This should be a String
-                        //     if (slug != null) {
-                        //       toggleWishlist(slug, slug, isInWishlist); // Ensure this matches the expected type
-                        //     } else {
-                        //       ScaffoldMessenger.of(context).showSnackBar(
-                        //         SnackBar(
-                        //           content: Text('Product ID is missing'),
-                        //         ),
-                        //       );
-                        //     }
-                        //   },
-                        //   child: Container(
-                        //     padding: EdgeInsets.all(10),
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.white,
-                        //       borderRadius: BorderRadius.circular(30),
-                        //     ),
-                        //     child: Icon(
-                        //       Icons.favorite,
-                        //       color: isInWishlist ? Colors.red : Colors.grey,
-                        //       size: 15,
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -291,6 +326,35 @@ class _ProductDetailState extends State<ProductDetail> {
                           ),
                         ),
                       ),
+                      Positioned(
+                        top: 0,
+                        right: 25,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (slug != null) {
+                              toggleWishlist(slug, productId, isInWishlist);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Product ID is missing'),
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Icon(
+                              Icons.favorite,
+                              color: isInWishlist ? Colors.red : Colors.grey,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                   Center(
@@ -333,6 +397,24 @@ class _ProductDetailState extends State<ProductDetail> {
                             color: Color(0xFF2B2B2B),
                           ),
                         ),
+                        SizedBox(width: 10),
+                        if (discountPercentageRounded >
+                            0) // Show discount percentage if greater than 0
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.orangeAccent,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${discountPercentageRounded}% OFF',
+                              style: GoogleFonts.montserrat(
+                                fontSize: responsive.textSize(1.5),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -471,7 +553,7 @@ class _ProductDetailState extends State<ProductDetail> {
                       ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.02),
+                  // SizedBox(height: screenHeight * 0.02),
                   Divider(
                     height: 2.0,
                     thickness: 1.0,

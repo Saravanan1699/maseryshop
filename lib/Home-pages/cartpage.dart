@@ -263,7 +263,8 @@ class _CartPageState extends State<CartPage> {
                   String imageUrl = inventory['product']['images'].isNotEmpty
                       ? '${imageurl.baseUrl}${inventory['product']['images'][0]['path']}'
                       : 'assets/products/images/default_image.png';
-                  double minPrice = double.tryParse(inventory['product']['min_price']) ?? 0.0;
+                  double minPrice = double.tryParse(inventory['pivot']['unit_price']) ?? 0.0;
+                  double saleprice = double.tryParse(inventory['sale_price']) ?? 0.0;
                   double unitPrice = double.tryParse(inventory['pivot']['unit_price']) ?? 0.0;
                   int quantity = int.tryParse(inventory['pivot']['quantity'].toString()) ?? 0;
                   int itemId = int.tryParse(inventory['pivot']['inventory_id'].toString()) ?? 0;
@@ -309,17 +310,35 @@ class _CartPageState extends State<CartPage> {
                                         style: GoogleFonts.montserrat(
                                             fontSize: responsive.textSize(2.2),
                                             fontWeight: FontWeight.bold),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      Text(
-                                        'Price: \$${minPrice.toStringAsFixed(2)}',
-                                        style: GoogleFonts.montserrat(
-                                            fontSize: responsive.textSize(2)),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            ' \$${saleprice.toStringAsFixed(2)}',
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: responsive.textSize(2),
+                                              fontWeight: FontWeight.w300,
+                                              color: Color(0xFF6B7280),
+                                              decoration: TextDecoration.lineThrough,
+                                            ),
+                                          ),
+                                          Text(
+                                            ' \$${minPrice.toStringAsFixed(2)}',
+                                            style: GoogleFonts.montserrat(
+                                                fontSize: responsive.textSize(2)),
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        'Total Price: \$${totalPrice.toStringAsFixed(2)}',
-                                        style: GoogleFonts.montserrat(
-                                            fontSize: responsive.textSize(2)),
-                                      ),
+
+                                      if (quantity > 1) // Show Total Price only when quantity is greater than 1
+                                        Text(
+                                          'Total Price: \$${totalPrice.toStringAsFixed(2)}',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: responsive.textSize(2),
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -327,62 +346,71 @@ class _CartPageState extends State<CartPage> {
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  vertical: responsive.heightPercentage(2),
-                                  horizontal: responsive.widthPercentage(2)),
-                              child: Row(
+                                vertical: responsive.heightPercentage(2),
+                                horizontal: responsive.widthPercentage(2),
+                              ),
+                              child: Column(
                                 children: [
-                                  Text(
-                                    'Quantity:',
-                                    style: GoogleFonts.montserrat(
-                                        fontSize: responsive.textSize(2)),
-                                  ),
-                                  SizedBox(width: responsive.widthPercentage(2)),
                                   Row(
                                     children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          if (quantity > 1) {
-                                            setState(() {
-                                              quantity--;
-                                              updateCartItemQuantity(context, cart['id'],
-                                                  itemId, quantity);
-                                            });
-                                          }
-                                        },
-                                        icon: Icon(Icons.remove),
-                                        iconSize: responsive.textSize(2.2),
-                                      ),
                                       Text(
-                                        quantity.toString(),
+                                        'Quantity:',
                                         style: GoogleFonts.montserrat(
-                                            fontSize: responsive.textSize(2.2),
-                                            fontWeight: FontWeight.bold),
+                                          fontSize: responsive.textSize(2),
+                                        ),
                                       ),
+                                      SizedBox(width: responsive.widthPercentage(2)),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {
+                                              if (quantity > 1) {
+                                                setState(() {
+                                                  quantity--;
+                                                  totalPrice = unitPrice * quantity.toDouble(); // Update total price
+                                                  updateCartItemQuantity(context, cart['id'], itemId, quantity);
+                                                });
+                                              }
+                                            },
+                                            icon: Icon(Icons.remove),
+                                            iconSize: responsive.textSize(2.2),
+                                          ),
+                                          Text(
+                                            quantity.toString(),
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: responsive.textSize(2.2),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                quantity++;
+                                                totalPrice = unitPrice * quantity.toDouble(); // Update total price
+                                                updateCartItemQuantity(context, cart['id'], itemId, quantity);
+                                              });
+                                            },
+                                            icon: Icon(Icons.add),
+                                            iconSize: responsive.textSize(2.2),
+                                          ),
+                                        ],
+                                      ),
+                                      Spacer(),
                                       IconButton(
                                         onPressed: () {
-                                          setState(() {
-                                            quantity++;
-                                            updateCartItemQuantity(context, cart['id'],
-                                                itemId, quantity);
-                                          });
+                                          removeItemFromCart(cart['id'], itemId);
                                         },
-                                        icon: Icon(Icons.add),
-                                        iconSize: responsive.textSize(2.2),
+                                        icon: Icon(Icons.delete_outline),
+                                        color: Colors.orangeAccent,
+                                        iconSize: responsive.textSize(3.2),
                                       ),
                                     ],
                                   ),
-                                  Spacer(),
-                                  IconButton(
-                                    onPressed: () {
-                                      removeItemFromCart(cart['id'], itemId);
-                                    },
-                                    icon: Icon(Icons.delete_outline),
-                                    color:Colors.orangeAccent,
-                                    iconSize: responsive.textSize(3.2),
-                                  ),
+                                  SizedBox(height: responsive.heightPercentage(2)),
+
                                 ],
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ),
