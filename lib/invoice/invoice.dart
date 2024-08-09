@@ -120,7 +120,7 @@ class Invoice extends StatelessWidget {
         title: Text(
           'Invoice',
           style: GoogleFonts.montserrat(
-            fontSize: responsive.textSize(3.5),
+            fontSize: responsive.textSize(3),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -135,7 +135,7 @@ class Invoice extends StatelessWidget {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: responsive.textSize(3),
+                  size: responsive.textSize(2.5),
                 ),
                 onPressed: () {
                   Navigator.pop(context);
@@ -159,11 +159,11 @@ class Invoice extends StatelessWidget {
                     height: responsive.heightPercentage(10),
                     width: responsive.widthPercentage(20),
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 5),
                   Text(
                     'Masergy Shop',
                     style: GoogleFonts.montserrat(
-                      fontSize: responsive.textSize(3.5),
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.bold,
                       color: Colors.blueAccent,
                     ),
@@ -174,7 +174,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Order No: ${order.orderNumber}',
                 style: GoogleFonts.montserrat(
-                  fontSize: responsive.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -183,7 +183,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Items: ${order.itemcount}',
                 style: GoogleFonts.montserrat(
-                  fontSize: responsive.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                   color: Colors.black54,
                 ),
               ),
@@ -191,7 +191,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Payment Method: ${_getPaymentMethod(order.paymentMethodId)}',
                 style: GoogleFonts.montserrat(
-                  fontSize: responsive.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                   color: Colors.black54,
                 ),
               ),
@@ -203,7 +203,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Order Date:',
                 style: GoogleFonts.montserrat(
-                  fontSize: responsive.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -212,7 +212,7 @@ class Invoice extends StatelessWidget {
               Text(
                 _formatDate(order.createdAt),
                 style: GoogleFonts.montserrat(
-                  fontSize: responsive.textSize(2.7),
+                  fontSize: responsive.textSize(2.5),
                   color: Colors.black54,
                 ),
               ),
@@ -220,7 +220,7 @@ class Invoice extends StatelessWidget {
               Text(
                 'Items Purchased:',
                 style: GoogleFonts.montserrat(
-                  fontSize: responsive.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -300,7 +300,7 @@ class Invoice extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: responsive.symmetricPaddingPercentage(10, 2)),
+                      padding: responsive.symmetricPaddingPercentage(7 , 1)),
                 ),
               ),
             ],

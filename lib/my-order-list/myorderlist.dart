@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:maseryshop/Responsive/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../Base_Url/BaseUrl.dart';
+import '../Responsive/responsive.dart';
 import '../Settings/My_Profile.dart';
 import '../bottombar/bottombar.dart';
 import 'order-details.dart';
@@ -148,6 +148,7 @@ class _OrderlistState extends State<Orderlist> {
   @override
   Widget build(BuildContext context) {
     final responsive = Responsive(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -157,7 +158,7 @@ class _OrderlistState extends State<Orderlist> {
         title: Text(
           'Order History',
           style: GoogleFonts.montserrat(
-            fontSize: responsive.textSize(3),
+            fontSize: responsive.textSize(3), // Responsive text size
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -165,7 +166,7 @@ class _OrderlistState extends State<Orderlist> {
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: responsive.marginPercentage(2, 0.5, 1, 1),
+              margin: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),
@@ -173,11 +174,13 @@ class _OrderlistState extends State<Orderlist> {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: responsive.textSize(3),
+                  size: 15,
                 ),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Profile()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Profile()),
+                  );
                 },
               ),
             );
@@ -190,7 +193,7 @@ class _OrderlistState extends State<Orderlist> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: LoadingAnimationWidget.halfTriangleDot(
-                size: 50.0,
+                size: responsive.textSize(5), // Responsive loading animation size
                 color: Colors.redAccent,
               ),
             );
@@ -221,11 +224,11 @@ class _OrderlistState extends State<Orderlist> {
                     color: Colors.white,
                     elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: responsive.borderRadiusPercentage(2), // Responsive border radius
                     ),
-                    margin: responsive.marginPercentage(2, 2, 2, 1),
+                    margin: responsive.symmetricMarginPercentage(2, 1), // Responsive margin
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: responsive.symmetricPaddingPercentage(3, 2), // Responsive padding
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -237,14 +240,14 @@ class _OrderlistState extends State<Orderlist> {
                                   Text(
                                     'Order Id -',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: responsive.textSize(3),
+                                      fontSize: responsive.textSize(2), // Responsive text size
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
                                     ' ${order.orderNumber}',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: responsive.textSize(3),
+                                      fontSize: responsive.textSize(2), // Responsive text size
                                       fontWeight: FontWeight.bold,
                                       color: Colors.grey[400],
                                     ),
@@ -254,20 +257,20 @@ class _OrderlistState extends State<Orderlist> {
                               Text(
                                 ' ${_formatDate(order.createdAt)}',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: responsive.textSize(2.5),
+                                  fontSize: responsive.textSize(1.8), // Responsive text size
                                 ),
                                 textAlign: TextAlign.end,
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: responsive.heightPercentage(1)), // Responsive height
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Quantity: ${order.itemcount}',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: responsive.textSize(2.5),
+                                  fontSize: responsive.textSize(1.8), // Responsive text size
                                 ),
                               ),
                               Row(
@@ -275,7 +278,7 @@ class _OrderlistState extends State<Orderlist> {
                                   Text(
                                     'Total:',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: responsive.textSize(2.5),
+                                      fontSize: responsive.textSize(1.8), // Responsive text size
                                       fontWeight: FontWeight.w500,
                                       color: Colors.grey[400],
                                     ),
@@ -283,7 +286,7 @@ class _OrderlistState extends State<Orderlist> {
                                   Text(
                                     ' \$${(double.tryParse(order.total)?.toStringAsFixed(2) ?? '0.00')}',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: responsive.textSize(2.5),
+                                      fontSize: responsive.textSize(1.8), // Responsive text size
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -291,26 +294,23 @@ class _OrderlistState extends State<Orderlist> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: responsive.heightPercentage(1)), // Responsive height
                           Row(
                             children: [
-                              Text(
-                                'Order Status: ',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: responsive.textSize(2.5),
-                                ),
-                              ),
                               SizedBox(
-                                height: responsive.textSize(2.5),
+                                height: responsive.textSize(2),
                                 child: CircleAvatar(
                                   radius: 10,
                                   backgroundColor: statusColor,
                                 ),
                               ),
+                              SizedBox(
+                                width: 5,
+                              ),
                               Text(
                                 ' $orderStatus',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: responsive.textSize(2.5),
+                                  fontSize: responsive.textSize(1.8),
                                 ),
                               ),
                             ],
@@ -324,9 +324,6 @@ class _OrderlistState extends State<Orderlist> {
             );
           }
         },
-      ),
-      bottomNavigationBar: BottomBar(
-        onTap: (index) {},
       ),
     );
   }

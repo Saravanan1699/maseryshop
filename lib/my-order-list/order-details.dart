@@ -29,7 +29,7 @@ class OrderDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final responisve = Responsive(context);
+    final responsive = Responsive(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -37,12 +37,18 @@ class OrderDetails extends StatelessWidget {
         backgroundColor: Colors.white,
         title: Text(
           'Order Details',
-          style: GoogleFonts.montserrat(),
+          style: GoogleFonts.montserrat(
+            fontSize: responsive.textSize(3), // Responsive text size
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+
+          ),
+
         ),
         leading: Builder(
           builder: (BuildContext context) {
             return Container(
-              margin: responisve.marginPercentage(2, 0.5, 1, 1),
+              margin: responsive.marginPercentage(2, 0.5, 1, 1),
               decoration: BoxDecoration(
                 color: Color(0xffF2F2F2),
                 borderRadius: BorderRadius.circular(30.0),
@@ -50,7 +56,7 @@ class OrderDetails extends StatelessWidget {
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back_ios_new_outlined,
-                  size: responisve.textSize(3),
+                  size: responsive.textSize(3),
                 ),
                 onPressed: () {
                   Navigator.push(context,
@@ -66,35 +72,38 @@ class OrderDetails extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: responisve.paddingPercentage(2, 2, 2, 2),
+              padding: responsive.paddingPercentage(2, 2, 2, 2),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Order No ${order.orderNumber}',
-                    style: GoogleFonts.montserrat(
-                        fontSize: responisve.textSize(3),
-                        fontWeight: FontWeight.bold),
+                  Padding(
+                    padding: responsive.paddingPercentage(3, 0, 0, 0),
+                    child: Text(
+                      'Order No ${order.orderNumber}',
+                      style: GoogleFonts.montserrat(
+                          fontSize: responsive.textSize(2.5),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
             ),
             SizedBox(height: 15),
             Padding(
-              padding: responisve.paddingPercentage(5, 0, 0, 0),
+              padding: responsive.paddingPercentage(5, 0, 0, 0),
               child: Row(
                 children: [
                   Text(
                     '${order.itemcount} items',
                     style: GoogleFonts.montserrat(
-                      fontSize: responisve.textSize(3),
+                      fontSize: responsive.textSize(2.5),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: responisve.heightPercentage(.5)),
+            SizedBox(height: responsive.heightPercentage(.5)),
             if (order.inventories.isNotEmpty) ...[
               for (var inventory in order.inventories)
                 Padding(
@@ -106,7 +115,7 @@ class OrderDetails extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     child: Padding(
-                      padding: responisve.paddingPercentage(1.5, 1.5, 1.5, 1.5),
+                      padding: responsive.paddingPercentage(1.5, 1.5, 1.5, 1.5),
                       child: Row(
                         children: [
                           Container(
@@ -119,7 +128,7 @@ class OrderDetails extends StatelessWidget {
                               errorBuilder: (context, error, stackTrace) {
                                 return Image.network(
                                   'https://example.com/placeholder.png',
-                                  height: responisve.heightPercentage(20),
+                                  height: responsive.heightPercentage(20),
                                 );
                               },
                             ),
@@ -132,7 +141,7 @@ class OrderDetails extends StatelessWidget {
                                 Text(
                                   inventory['title'] ?? '--',
                                   style: GoogleFonts.montserrat(
-                                    fontSize: responisve.textSize(2.5),
+                                    fontSize: responsive.textSize(2),
                                     fontWeight: FontWeight.bold,
                                   ),
                                   maxLines: 1,
@@ -143,7 +152,7 @@ class OrderDetails extends StatelessWidget {
                                     Text(
                                       'Quantity:',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: responisve.textSize(2.5),
+                                        fontSize: responsive.textSize(2),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -151,7 +160,7 @@ class OrderDetails extends StatelessWidget {
                                     Text(
                                       '${(inventory['pivot']['quantity'] ?? '') ?? '0.00'}',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: responisve.textSize(2.5),
+                                        fontSize: responsive.textSize(2),
                                         fontWeight: FontWeight.bold,
                                         color: Colors.grey[400],
                                       ),
@@ -163,7 +172,7 @@ class OrderDetails extends StatelessWidget {
                                     Text(
                                       'Price:',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: responisve.textSize(2.5),
+                                        fontSize: responsive.textSize(2),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -171,7 +180,7 @@ class OrderDetails extends StatelessWidget {
                                     Text(
                                       '\$${(double.tryParse(inventory['pivot']['unit_price'] ?? '')?.toStringAsFixed(2)) ?? '0.00'}',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: responisve.textSize(2.5),
+                                        fontSize: responsive.textSize(2),
                                         fontWeight: FontWeight.bold,
                                         color: Colors.grey[400],
                                       ),
@@ -193,12 +202,12 @@ class OrderDetails extends StatelessWidget {
               child: Text(
                 'Order Information',
                 style: GoogleFonts.montserrat(
-                  fontSize: responisve.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            SizedBox(height: responisve.heightPercentage(4)),
+            SizedBox(height: responsive.heightPercentage(4)),
             _buildOrderInfo('Billing Address:', order.billingAddress),
             _buildOrderInfo('Shipping Address:', order.shippingAddress),
             _buildOrderInfo('Date:', _formatDate(order.createdAt)),
@@ -223,7 +232,7 @@ class OrderDetails extends StatelessWidget {
                 'View Invoice',
                 style: GoogleFonts.montserrat(
                   color: Color(0xff0D6EFD),
-                  fontSize: responisve.textSize(3),
+                  fontSize: responsive.textSize(2.5),
                 ),
               ),
               style: ElevatedButton.styleFrom(

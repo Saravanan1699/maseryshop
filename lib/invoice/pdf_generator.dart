@@ -10,6 +10,16 @@ String _formatDate(String date) {
 }
 
 class PdfGenerator {
+  String _getPaymentMethod(String paymentMethodId) {
+    switch (paymentMethodId) {
+      case '1':
+        return 'Cash on Delivery';
+      case '2':
+        return 'Google Payment';
+      default:
+        return 'Unknown Payment Method';
+    }
+  }
   Future<pw.ImageProvider> _getLogoImage() async {
     final byteData = await rootBundle
         .load('assets/logo.png'); // Assuming logo is stored in assets
@@ -81,6 +91,11 @@ class PdfGenerator {
                   pw.SizedBox(height: 10),
                   pw.Text('Order Date: ${_formatDate(order.createdAt)}',
                       style: pw.TextStyle(fontSize: 14)),
+                  pw.SizedBox(height: 10),
+                  pw.Text(
+                    'Payment Method: ${_getPaymentMethod(order.paymentMethodId)}',
+                      style: pw.TextStyle(fontSize: 14)
+                  ),
                 ],
               ),
             ),
