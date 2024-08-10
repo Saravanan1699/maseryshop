@@ -327,7 +327,9 @@ class _CartPageState extends State<CartPage> {
                                           Text(
                                             ' \$${minPrice.toStringAsFixed(2)}',
                                             style: GoogleFonts.montserrat(
-                                                fontSize: responsive.textSize(2)),
+                                                fontSize: responsive.textSize(2),
+                                                fontWeight: FontWeight.w500),
+
                                           ),
                                         ],
                                       ),
